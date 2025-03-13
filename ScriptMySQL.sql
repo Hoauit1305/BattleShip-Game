@@ -42,3 +42,45 @@ CREATE TABLE Friend (
     FOREIGN KEY (Friend_Id) REFERENCES Player(Player_Id)
 );
 
+
+CREATE TABLE Setting (
+    User_Id VARCHAR(5) PRIMARY KEY,
+    Sound_Enabled BOOLEAN DEFAULT TRUE,
+    Auto_Placed_Ships BOOLEAN DEFAULT FALSE,
+    Turn_Timer INT DEFAULT 30,
+    FOREIGN KEY (User_Id) REFERENCES Player(Player_Id)
+);
+
+CREATE TABLE MatchHistory (
+    History_Id VARCHAR(5) PRIMARY KEY,
+    Match_Id VARCHAR(5),
+    User_Id VARCHAR(5),
+    Game_Id VARCHAR(5),
+    Result ENUM('win', 'lose', 'draw'),
+    Total_Shots INT NOT NULL,
+    Hits INT NOT NULL,
+    Misses INT NOT NULL,
+    Duration TIME NOT NULL,
+    FOREIGN KEY (Match_Id) REFERENCES Matches(Match_Id),
+    FOREIGN KEY (User_Id) REFERENCES Player(Player_Id)
+);
+
+CREATE TABLE Rounds (
+    Round_Id VARCHAR(5) PRIMARY KEY,
+    Match_Id VARCHAR(5),
+    Round_Number INT NOT NULL,
+    Player_Turns VARCHAR(5) NOT NULL,
+    Shots INT NOT NULL,
+    MoveHistory TEXT NOT NULL,
+    FOREIGN KEY (Match_Id) REFERENCES Matches(Match_Id)
+);
+
+CREATE TABLE ChatHistory (
+    Chat_Id VARCHAR(5) PRIMARY KEY,
+    Match_Id VARCHAR(5),
+    Message TEXT NOT NULL,
+    Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (Match_Id) REFERENCES Matches(Match_Id)
+);
+
+
