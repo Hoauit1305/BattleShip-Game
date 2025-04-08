@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
-const { findUserByUsername, createUser } = require('../Models/Auth.model');
-
+const { findUserByUsername, createUser, forgotPassword } = require('../Models/Auth.model');
+const MailService = require('../service/mail.service');
 //Đăng nhập
 const login = (req, res) => {
     const { username, password } = req.body;
@@ -65,6 +65,29 @@ const register = (req, res) => {
 };
 
 //Quên mật khẩu
+const forgotpw = async (req, res) => {
+    const { username, email } = req.body;
+    try {
+        const user = await forgotPassword(username, email);
+    
+        if (!user) {
+          return res.status(404).json({ message: 'Thông tin không đúng' });
+        }
+    
+        // Gửi email chứa mật khẩu cũ
+        await MailService.sendMail({
+            to: email,
+            subject: 'Khôi phục mật khẩu',
+            text: `Mật khẩu của bạn là: ${user.password}`
+        });
+    
+        return res.status(200).json({ message: 'Mật khẩu đã được gửi đến email!' });
+    
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'Lỗi server' });
+    }
+};
 //Đổi mật khẩu
 
-module.exports = { login, register };
+module.exports = { login, register, forgotpw };
