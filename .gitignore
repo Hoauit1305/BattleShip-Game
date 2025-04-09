@@ -1,0 +1,43 @@
+# Thư mục do Unity tạo, không cần track
+[Ll]ibrary/
+[Tt]emp/
+[Bb]uild/
+[Bb]uilds/
+[Oo]bj/
+[Mm]emoryCaptures/
+
+# IDE (Visual Studio, VS Code...)
+.vscode/
+.vs/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+
+# Logs
+*.log
+
+# Crash and error logs
+sysinfo.txt
+error.log
+
+# Thư mục setting cá nhân
+UserSettings/
+
+# Bản dựng WebGL, Android, v.v.
+*.apk
+*.aab
+*.zip
+*.exe
+*.app
+*.unitypackage
+
+# Thư mục cache của Unity Collaborate
+.collab/
+
+# Nếu dùng Rider
+.idea/
+*.sln.iml
