@@ -19,12 +19,11 @@ const createUser = (username, password, email, callback) => {
 };
 
 //Fuction này dùng cho quên mật khẩu
-const forgotPassword = (username, email) => {
+const forgotPassword = (username, email, callback) => {
     const query = 'SELECT * FROM Player WHERE Username = ? AND Email = ?';
     db.query(query, [username, email], (err, results) => {
-    if (err) return callback(err, null);
-    if (results.length === 0) return callback(null, null); // Không tìm thấy user
-    callback(null, results[0]);
+        if (err) return callback(err, null);
+        callback(null, results[0]);
   });
 }
 //Fuction này dùng cho đổi mật khẩu
