@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { login, register, changePassword, logout } = require('../Controllers/Auth.controller');
+const { login, register, forgotpw, changePassword, logout } = require('../Controllers/Auth.controller');
 
 //API Đăng nhập
 router.post('/login', login);

@@ -26,6 +26,7 @@ const forgotPassword = (username, email, callback) => {
         callback(null, results[0]);
   });
 }
+
 //Fuction này dùng cho đổi mật khẩu
 const updatePasswordByUsername = (username, newPassword, callback) => {
     const query = 'UPDATE Player SET Password = ? WHERE Username = ?';
@@ -34,20 +35,31 @@ const updatePasswordByUsername = (username, newPassword, callback) => {
         callback(null);
     });
 };
-// // Function này dùng cho logout - xoá token
-// const deleteToken = (token, callback) => {
-//     const query = 'DELETE FROM Tokens WHERE token = ?';
-//     db.query(query, [token], (err, result) => {
-//         if (err) return callback(err);
-//         callback(null);
-//     });
-// };
+
+// Function này dùng cho logout: cập nhật trạng thái Offline
+const setUserOffline = (username, callback) => {
+    const query = 'UPDATE Player SET Status = "offline" WHERE Username = ?';
+    db.query(query, [username], (err, result) => {
+        if (err) return callback(err);
+        callback(null);
+    });
+};
+// Function này dùng cho login: cập nhật trạng thái Online
+const setUserOnline = (username, callback) => {
+    const query = 'UPDATE Player SET Status = "online" WHERE Username = ?';
+    db.query(query, [username], (err, result) => {
+        if (err) return callback(err);
+        callback(null);
+    });
+};
 
 module.exports = {
     findUserByUsername,
     createUser,
     forgotPassword,
     updatePasswordByUsername,
+    setUserOffline,
+    setUserOnline
 };
 
 

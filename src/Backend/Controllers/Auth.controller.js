@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken');
-
 const MailService = require('../service/mail.service');
-const { findUserByUsername, createUser,  forgotPassword, updatePasswordByUsername } = require('../Models/Auth.model');
+const { findUserByUsername, createUser, forgotPassword, updatePasswordByUsername, setUserOffline, setUserOnline } = require('../Models/Auth.model');
 //Đăng nhập
 const login = (req, res) => {
     const { username, password } = req.body;
@@ -21,14 +20,21 @@ const login = (req, res) => {
             return res.status(401).json({ message: 'Sai tài khoản hoặc mật khẩu' });
         }
 
-        // Tạo token
-        const token = jwt.sign(
-            { id: user.Player_Id, username: user.Username },
-            'your_secret_key', // thay bằng secret key thật sự
-            { expiresIn: '1h' }
-        );
+        setUserOnline(username, (err) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({ message: 'Lỗi server khi cập nhật trạng thái online' });
+            }
 
-        res.json({ message: 'Đăng nhập thành công!', token });
+            // Tạo token
+            const token = jwt.sign(
+                { id: user.Player_Id, username: user.Username },
+                process.env.JWT_SECRET, 
+                { expiresIn: '1h' }
+            );
+
+            res.json({ message: 'Đăng nhập thành công!', token });
+        });
     });
 };
 
@@ -112,23 +118,32 @@ const changePassword = (req, res) => {
     });
 };
 
-// Logout
-const { deleteToken } = require('../Models/Auth.model');
-
+// Đăng xuất
 const logout = (req, res) => {
-    const token = req.headers.authorization?.split(' ')[1];
+    const authHeader = req.headers.authorization;
 
-    if (!token) {
-        return res.status(400).json({ message: 'Không tìm thấy token!' });
+    if (!authHeader) {
+        return res.status(401).json({ message: 'Không có token' });
     }
 
-    deleteToken(token, (err) => {
+    const token = authHeader.split(' ')[1]; // Bearer <token>
+
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
         if (err) {
             console.error(err);
-            return res.status(500).json({ message: 'Lỗi server khi xoá token' });
+            return res.status(401).json({ message: 'Token không hợp lệ' });
         }
 
-        return res.status(200).json({ message: 'Đăng xuất thành công!' });
+        const username = decoded.username;
+
+        setUserOffline(username, (err) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({ message: 'Lỗi server khi đăng xuất' });
+            }
+
+            res.json({ message: 'Đăng xuất thành công!' });
+        });
     });
 };
 

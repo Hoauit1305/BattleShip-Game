@@ -1,4 +1,4 @@
-# Thư mục do Unity tạo, không cần track
+# Thư mục Unity tự tạo, không cần track
 [Ll]ibrary/
 [Tt]emp/
 [Bb]uild/
@@ -6,9 +6,10 @@
 [Oo]bj/
 [Mm]emoryCaptures/
 
-# IDE (Visual Studio, VS Code...)
+# IDE (Visual Studio, VS Code, Rider...)
 .vscode/
 .vs/
+.idea/
 *.csproj
 *.unityproj
 *.sln
@@ -16,18 +17,19 @@
 *.tmp
 *.user
 *.userprefs
+*.sln.iml
 
 # Logs
 *.log
 
-# Crash and error logs
+# Crash và error logs
 sysinfo.txt
 error.log
 
 # Thư mục setting cá nhân
 UserSettings/
 
-# Bản dựng WebGL, Android, v.v.
+# Các file xuất bản (WebGL, Android, iOS, PC build...)
 *.apk
 *.aab
 *.zip
@@ -35,14 +37,8 @@ UserSettings/
 *.app
 *.unitypackage
 
-# Thư mục cache của Unity Collaborate
+# Cache của Unity Collaborate
 .collab/
 
-# Nếu dùng Rider
-.idea/
-*.sln.iml
-
+# Node.js (nếu project có dùng node_modules cho tool ngoài)
 node_modules/
-node_modules/
-node_modules/
-
