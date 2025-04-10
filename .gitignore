@@ -41,3 +41,8 @@ UserSettings/
 # Nếu dùng Rider
 .idea/
 *.sln.iml
+
+node_modules/
+node_modules/
+node_modules/
+

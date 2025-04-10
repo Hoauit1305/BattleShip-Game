@@ -27,5 +27,27 @@ const forgotPassword = (username, email, callback) => {
   });
 }
 //Fuction này dùng cho đổi mật khẩu
+const updatePasswordByUsername = (username, newPassword, callback) => {
+    const query = 'UPDATE Player SET Password = ? WHERE Username = ?';
+    db.query(query, [newPassword, username], (err, result) => {
+        if (err) return callback(err);
+        callback(null);
+    });
+};
+// // Function này dùng cho logout - xoá token
+// const deleteToken = (token, callback) => {
+//     const query = 'DELETE FROM Tokens WHERE token = ?';
+//     db.query(query, [token], (err, result) => {
+//         if (err) return callback(err);
+//         callback(null);
+//     });
+// };
 
-module.exports = { findUserByUsername, createUser, forgotPassword};
+module.exports = {
+    findUserByUsername,
+    createUser,
+    forgotPassword,
+    updatePasswordByUsername,
+};
+
+
