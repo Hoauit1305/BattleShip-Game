@@ -132,7 +132,7 @@ GameObject:
   - component: {fileID: 340968842}
   - component: {fileID: 340968841}
   m_Layer: 5
-  m_Name: Button
+  m_Name: StartButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -264,7 +264,7 @@ GameObject:
   - component: {fileID: 412078975}
   - component: {fileID: 412078974}
   m_Layer: 5
-  m_Name: Image
+  m_Name: BackgroundImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -585,12 +585,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 713951114}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 866.06335, y: 645.65564, z: 0.60227424}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -93.936646, y: 105.65564, z: 0.60227424}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 858270721}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &858270717
 GameObject:
@@ -688,6 +688,7 @@ RectTransform:
   m_Children:
   - {fileID: 412078973}
   - {fileID: 340968840}
+  - {fileID: 713951116}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -918,4 +919,3 @@ SceneRoots:
   - {fileID: 619394802}
   - {fileID: 858270721}
   - {fileID: 1803351463}
-  - {fileID: 713951116}
