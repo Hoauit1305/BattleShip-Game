@@ -132,7 +132,7 @@ GameObject:
   - component: {fileID: 39067980}
   - component: {fileID: 39067979}
   m_Layer: 5
-  m_Name: OldPwInputField (TMP) (1)
+  m_Name: OldPwInputField (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -310,7 +310,7 @@ GameObject:
   - component: {fileID: 93466401}
   - component: {fileID: 93466400}
   m_Layer: 5
-  m_Name: InputField (TMP)
+  m_Name: PwInputField (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -623,7 +623,7 @@ GameObject:
   - component: {fileID: 351607406}
   - component: {fileID: 351607405}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: ForgetPwText (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -645,8 +645,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -122, y: -83}
-  m_SizeDelta: {x: 355, y: 97}
+  m_AnchoredPosition: {x: -137.09998, y: -67.5}
+  m_SizeDelta: {x: 324.8001, y: 66}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &351607405
 MonoBehaviour:
@@ -1184,7 +1184,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &424249908
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1957,7 +1957,7 @@ GameObject:
   - component: {fileID: 614245408}
   - component: {fileID: 614245407}
   m_Layer: 5
-  m_Name: Button
+  m_Name: FacebookButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2362,10 +2362,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Enter text...
+  m_text: "Nh\u1EADp t\xEAn t\xE0i kho\u1EA3n..."
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 6d93562837637444c9eb552a7c10c039, type: 2}
+  m_sharedMaterial: {fileID: -1189251129486540276, guid: 6d93562837637444c9eb552a7c10c039, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2389,8 +2389,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 14
-  m_fontSizeBase: 14
+  m_fontSize: 30
+  m_fontSizeBase: 30
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -2500,8 +2500,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u200B"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 6d93562837637444c9eb552a7c10c039, type: 2}
+  m_sharedMaterial: {fileID: -1189251129486540276, guid: 6d93562837637444c9eb552a7c10c039, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2525,8 +2525,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 14
-  m_fontSizeBase: 14
+  m_fontSize: 36
+  m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -2636,8 +2636,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u200B"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 6d93562837637444c9eb552a7c10c039, type: 2}
+  m_sharedMaterial: {fileID: -1189251129486540276, guid: 6d93562837637444c9eb552a7c10c039, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2661,8 +2661,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 14
-  m_fontSizeBase: 14
+  m_fontSize: 36
+  m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -3118,7 +3118,7 @@ GameObject:
   - component: {fileID: 946042387}
   - component: {fileID: 946042386}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: PwText (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3140,8 +3140,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -122, y: 88}
-  m_SizeDelta: {x: 355, y: 97}
+  m_AnchoredPosition: {x: -182.39935, y: 107.75}
+  m_SizeDelta: {x: 234.2013, y: 57.5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &946042386
 MonoBehaviour:
@@ -3190,8 +3190,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 28.5
-  m_fontSizeBase: 28.5
+  m_fontSize: 36
+  m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -3510,8 +3510,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u200B"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 6d93562837637444c9eb552a7c10c039, type: 2}
+  m_sharedMaterial: {fileID: -1189251129486540276, guid: 6d93562837637444c9eb552a7c10c039, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -3535,8 +3535,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 14
-  m_fontSizeBase: 14
+  m_fontSize: 36
+  m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -3872,7 +3872,7 @@ GameObject:
   - component: {fileID: 1045460953}
   - component: {fileID: 1045460952}
   m_Layer: 5
-  m_Name: InputField (TMP)
+  m_Name: UsernameInputField (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4218,10 +4218,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Enter text...
+  m_text: "Nh\u1EADp m\u1EADt kh\u1EA9u m\u1EDBi..."
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 6d93562837637444c9eb552a7c10c039, type: 2}
+  m_sharedMaterial: {fileID: -1189251129486540276, guid: 6d93562837637444c9eb552a7c10c039, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -4245,8 +4245,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 14
-  m_fontSizeBase: 14
+  m_fontSize: 30
+  m_fontSizeBase: 30
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -4375,10 +4375,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Enter text...
+  m_text: "Nh\u1EADp m\u1EADt kh\u1EA9u c\u0169..."
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 6d93562837637444c9eb552a7c10c039, type: 2}
+  m_sharedMaterial: {fileID: -1189251129486540276, guid: 6d93562837637444c9eb552a7c10c039, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -4402,8 +4402,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 14
-  m_fontSizeBase: 14
+  m_fontSize: 30
+  m_fontSizeBase: 30
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -4467,7 +4467,7 @@ GameObject:
   - component: {fileID: 1245320070}
   - component: {fileID: 1245320069}
   m_Layer: 5
-  m_Name: Button
+  m_Name: LoginButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5129,7 +5129,7 @@ GameObject:
   - component: {fileID: 1493667089}
   - component: {fileID: 1493667088}
   m_Layer: 5
-  m_Name: Button
+  m_Name: GoogleButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5254,7 +5254,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1529247615
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6158,7 +6158,7 @@ GameObject:
   - component: {fileID: 1794631186}
   - component: {fileID: 1794631185}
   m_Layer: 5
-  m_Name: NewPwInputField (TMP) (2)
+  m_Name: NewPwInputField (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6513,7 +6513,7 @@ GameObject:
   - component: {fileID: 1814693283}
   - component: {fileID: 1814693282}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: UsernameText (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6535,8 +6535,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -122, y: 254}
-  m_SizeDelta: {x: 355, y: 97}
+  m_AnchoredPosition: {x: -101.86682, y: 271.5}
+  m_SizeDelta: {x: 395.2664, y: 62}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1814693282
 MonoBehaviour:
@@ -6585,8 +6585,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 28.5
-  m_fontSizeBase: 28.5
+  m_fontSize: 36
+  m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
