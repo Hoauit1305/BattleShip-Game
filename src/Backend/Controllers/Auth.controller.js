@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const MailService = require('../service/mail.service');
-const { findUserByUsername, createUser, forgotPassword, updatePasswordByUsername, setUserOffline, setUserOnline } = require('../Models/Auth.model');
+const { findUserByUsername, findUserByEmail, createUser, forgotPassword, updatePasswordByUsername, setUserOffline, setUserOnline } = require('../Models/Auth.model');
 //Đăng nhập
 const login = (req, res) => {
     const { username, password } = req.body;
@@ -59,14 +59,25 @@ const register = (req, res) => {
             return res.status(400).json({ message: 'Tên tài khoản đã tồn tại' });
         }
 
-        // Thêm người dùng mới
-        createUser(username, password, email, (err, newUserId) => {
+        findUserByEmail(email, (err, existingEmailUser) => {
             if (err) {
                 console.error(err);
-                return res.status(500).json({ message: 'Lỗi server khi tạo tài khoản' });
+                return res.status(500).json({ message: 'Lỗi server' });
             }
 
-            res.json({ message: 'Đăng ký thành công!', userId: newUserId });
+            if (existingEmailUser) {
+                return res.status(400).json({ message: 'Email đã được sử dụng' });
+            }
+
+            // Nếu username và email đều chưa có, thì tạo user mới
+            createUser(username, password, email, (err, newUserId) => {
+                if (err) {
+                    console.error(err);
+                    return res.status(500).json({ message: 'Lỗi server khi tạo tài khoản' });
+                }
+
+                res.json({ message: 'Đăng ký thành công!', userId: newUserId });
+            });
         });
     });
 };

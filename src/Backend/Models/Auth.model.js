@@ -9,6 +9,14 @@ const findUserByUsername = (username, callback) => {
     });
 };
 
+const findUserByEmail = (email, callback) => {
+    const query = 'SELECT * FROM Player WHERE Email = ?';
+    db.query(query, [email], (err, results) => {
+        if (err) return callback(err, null);
+        callback(null, results[0]);
+    });
+};
+
 //Fuction này dùng cho đăng ký
 const createUser = (username, password, email, callback) => {
     const query = 'INSERT INTO Player (Username, Password, Email) VALUES (?, ?, ?)';
@@ -55,6 +63,7 @@ const setUserOnline = (username, callback) => {
 
 module.exports = {
     findUserByUsername,
+    findUserByEmail,
     createUser,
     forgotPassword,
     updatePasswordByUsername,
