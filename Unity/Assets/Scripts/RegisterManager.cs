@@ -74,7 +74,7 @@ public class RegisterManager : MonoBehaviour
                     NotifyText.text = "";
                     NotifyText.text = "Tên tài khoản hoặc email đã tồn tại !";
                 }
-        }
+            }
     }
 }
 

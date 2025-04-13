@@ -100,7 +100,28 @@ const forgotpw = (req, res) => {
         MailService.sendMail({
             to: email,
             subject: 'Khôi phục mật khẩu',
-            text: `Mật khẩu của bạn là: ${user.Password}` // viết đúng tên cột trong DB
+            html:   
+            `<!DOCTYPE html>
+            <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Khôi phục mật khẩu</title>
+                </head>
+                <body style="font-family: Arial, sans-serif; background-color: #f7f7f7; padding: 20px; color: #000000;">
+                    <div style="max-width: 500px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <h2 style="color: #d62828;">🔐 Yêu cầu khôi phục mật khẩu</h2>
+                        <p>Xin chào <strong>${user.Username}</strong>,</p>
+                        <p>Bạn đã yêu cầu lấy lại mật khẩu cho tài khoản của mình. Dưới đây là thông tin đăng nhập:</p>
+                        <div style="background-color: #f1f1f1; padding: 15px; border-radius: 5px; margin-top: 10px; margin-bottom: 10px;">
+                            <p><strong>Tài khoản:</strong> ${user.Username}</p>
+                            <p><strong>Mật khẩu:</strong> ${user.Password}</p>
+                        </div>
+                        <p>Vui lòng đăng nhập lại và đổi mật khẩu ngay sau khi truy cập để đảm bảo an toàn cho tài khoản của bạn.</p>
+                        <p>Nếu bạn không yêu cầu điều này, vui lòng bỏ qua email này hoặc liên hệ với bộ phận hỗ trợ.</p>
+                        <p style="margin-top: 30px;">Trân trọng,<br>Team 15 hỗ trợ hệ thống</p>
+                    </div>
+                </body>
+            </html>` 
         }).then(() => {
             return res.status(200).json({ message: 'Mật khẩu đã được gửi đến email!' });
         }).catch(err => {
