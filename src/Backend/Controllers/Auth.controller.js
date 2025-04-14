@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const MailService = require('../service/mail.service');
-const { findUserByUsername, findUserByEmail, createUser, forgotPassword, updatePasswordByUsername, setUserOffline, setUserOnline } = require('../Models/Auth.model');
+const { findUserByUsername, findUserByEmail, createUser, forgotPassword, updatePasswordByUsername, setUserOffline, setUserOnline, chooseName } = require('../Models/Auth.model');
 //Đăng nhập
 const login = (req, res) => {
     const { username, password } = req.body;
@@ -178,6 +178,25 @@ const logout = (req, res) => {
         });
     });
 };
+// Nhập tên
+const chooseName = (req,res)=>{
+    const authHeader = req.headers.authorization; //lấy token từ header
+    console.log("📌 Token nhận được từ client:", authHeader);
+                    
+    if (!authHeader || !authHeader.startsWith("Bearer ")) { // kiểm tra token có hợp lệ không
+        return res.status(403).json({ message: "Không có token hoặc token không hợp lệ!" });
+    }
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const id = decoded.Id;  // Id lấy từ token
+    const {name} = req.body;
+    chooseName(name,id, (err) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ message: 'Lỗi server khi đặt tên' });
+        }
+        res.json({ message: 'Đặt tên thành công!' });
+    });
+}
 
-
-module.exports = { login, register, forgotpw, changePassword, logout };
+module.exports = { login, register, forgotpw, changePassword, logout, chooseName };
