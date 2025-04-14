@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const MailService = require('../service/mail.service');
-const { findUserByUsername, findUserByEmail, createUser, forgotPassword, updatePasswordByUsername, setUserOffline, setUserOnline, chooseName } = require('../Models/Auth.model');
+const { findUserByUsername, findUserByEmail, createUser, forgotPassword, updatePasswordByUsername, setUserOffline, setUserOnline, setName } = require('../Models/Auth.model');
 //Đăng nhập
 const login = (req, res) => {
     const { username, password } = req.body;
@@ -190,7 +190,7 @@ const chooseName = (req,res)=>{
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const id = decoded.Id;  // Id lấy từ token
     const {name} = req.body;
-    chooseName(name,id, (err) => {
+    setName(name,id, (err) => {
         if (err) {
             console.error(err);
             return res.status(500).json({ message: 'Lỗi server khi đặt tên' });
