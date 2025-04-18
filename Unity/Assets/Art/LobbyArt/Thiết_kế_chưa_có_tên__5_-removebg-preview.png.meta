@@ -3,23 +3,23 @@ guid: a6ba6b99bbf384bc883880d7f9c003d9
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8550785734532186355
-    second: "Thie\u0302\u0301t_ke\u0302\u0301_chu\u031Ba_co\u0301_te\u0302n__5_-removebg-preview_0"
+      213: 2998651166595903349
+    second: "Thi\u1EBFt_k\u1EBF_ch\u01B0a_c\xF3_t\xEAn__5_-removebg-preview_0"
   - first:
-      213: -8963950970524883415
-    second: "Thie\u0302\u0301t_ke\u0302\u0301_chu\u031Ba_co\u0301_te\u0302n__5_-removebg-preview_1"
+      213: 5428663144720388684
+    second: "Thi\u1EBFt_k\u1EBF_ch\u01B0a_c\xF3_t\xEAn__5_-removebg-preview_1"
   - first:
-      213: 193348161356581919
-    second: "Thie\u0302\u0301t_ke\u0302\u0301_chu\u031Ba_co\u0301_te\u0302n__5_-removebg-preview_2"
+      213: 8599437071273500730
+    second: "Thi\u1EBFt_k\u1EBF_ch\u01B0a_c\xF3_t\xEAn__5_-removebg-preview_2"
   - first:
-      213: -8068460291821286373
-    second: "Thie\u0302\u0301t_ke\u0302\u0301_chu\u031Ba_co\u0301_te\u0302n__5_-removebg-preview_3"
+      213: 2024634617287743071
+    second: "Thi\u1EBFt_k\u1EBF_ch\u01B0a_c\xF3_t\xEAn__5_-removebg-preview_3"
   - first:
-      213: 816670048044469370
-    second: "Thie\u0302\u0301t_ke\u0302\u0301_chu\u031Ba_co\u0301_te\u0302n__5_-removebg-preview_4"
+      213: -3384927352943149258
+    second: "Thi\u1EBFt_k\u1EBF_ch\u01B0a_c\xF3_t\xEAn__5_-removebg-preview_4"
   - first:
-      213: 2744949924663784382
-    second: "Thie\u0302\u0301t_ke\u0302\u0301_chu\u031Ba_co\u0301_te\u0302n__5_-removebg-preview_5"
+      213: -182137339510946561
+    second: "Thi\u1EBFt_k\u1EBF_ch\u01B0a_c\xF3_t\xEAn__5_-removebg-preview_5"
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -61,7 +61,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -111,24 +111,11 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: "Thie\u0302\u0301t_ke\u0302\u0301_chu\u031Ba_co\u0301_te\u0302n__5_-removebg-preview_0"
+      name: "Thi\u1EBFt_k\u1EBF_ch\u01B0a_c\xF3_t\xEAn__5_-removebg-preview_0"
       rect:
         serializedVersion: 2
         x: 53
@@ -143,14 +130,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: d0f3bbeada1855980800000000000000
-      internalID: -8550785734532186355
+      spriteID: 57f624639595d9920800000000000000
+      internalID: 2998651166595903349
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "Thie\u0302\u0301t_ke\u0302\u0301_chu\u031Ba_co\u0301_te\u0302n__5_-removebg-preview_1"
+      name: "Thi\u1EBFt_k\u1EBF_ch\u01B0a_c\xF3_t\xEAn__5_-removebg-preview_1"
       rect:
         serializedVersion: 2
         x: 149
@@ -165,14 +152,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 926a8d9d516a99380800000000000000
-      internalID: -8963950970524883415
+      spriteID: c42505a2e5c765b40800000000000000
+      internalID: 5428663144720388684
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "Thie\u0302\u0301t_ke\u0302\u0301_chu\u031Ba_co\u0301_te\u0302n__5_-removebg-preview_2"
+      name: "Thi\u1EBFt_k\u1EBF_ch\u01B0a_c\xF3_t\xEAn__5_-removebg-preview_2"
       rect:
         serializedVersion: 2
         x: 264
@@ -187,14 +174,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f1c42abd029eea200800000000000000
-      internalID: 193348161356581919
+      spriteID: a30259d5476575770800000000000000
+      internalID: 8599437071273500730
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "Thie\u0302\u0301t_ke\u0302\u0301_chu\u031Ba_co\u0301_te\u0302n__5_-removebg-preview_3"
+      name: "Thi\u1EBFt_k\u1EBF_ch\u01B0a_c\xF3_t\xEAn__5_-removebg-preview_3"
       rect:
         serializedVersion: 2
         x: 31
@@ -209,14 +196,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b1cc5a5fc12170090800000000000000
-      internalID: -8068460291821286373
+      spriteID: f56156b1572f81c10800000000000000
+      internalID: 2024634617287743071
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "Thie\u0302\u0301t_ke\u0302\u0301_chu\u031Ba_co\u0301_te\u0302n__5_-removebg-preview_4"
+      name: "Thi\u1EBFt_k\u1EBF_ch\u01B0a_c\xF3_t\xEAn__5_-removebg-preview_4"
       rect:
         serializedVersion: 2
         x: 130
@@ -231,14 +218,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a7c4460f415655b00800000000000000
-      internalID: 816670048044469370
+      spriteID: 63ff151b1825601d0800000000000000
+      internalID: -3384927352943149258
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "Thie\u0302\u0301t_ke\u0302\u0301_chu\u031Ba_co\u0301_te\u0302n__5_-removebg-preview_5"
+      name: "Thi\u1EBFt_k\u1EBF_ch\u01B0a_c\xF3_t\xEAn__5_-removebg-preview_5"
       rect:
         serializedVersion: 2
         x: 244
@@ -253,8 +240,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: eb3f1d1c965081620800000000000000
-      internalID: 2744949924663784382
+      spriteID: ff48d120e0be87df0800000000000000
+      internalID: -182137339510946561
       vertices: []
       indices: 
       edges: []
@@ -263,7 +250,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
     indices: 
@@ -273,12 +260,12 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      "Thie\u0302\u0301t_ke\u0302\u0301_chu\u031Ba_co\u0301_te\u0302n__5_-removebg-preview_0": -8550785734532186355
-      "Thie\u0302\u0301t_ke\u0302\u0301_chu\u031Ba_co\u0301_te\u0302n__5_-removebg-preview_1": -8963950970524883415
-      "Thie\u0302\u0301t_ke\u0302\u0301_chu\u031Ba_co\u0301_te\u0302n__5_-removebg-preview_2": 193348161356581919
-      "Thie\u0302\u0301t_ke\u0302\u0301_chu\u031Ba_co\u0301_te\u0302n__5_-removebg-preview_3": -8068460291821286373
-      "Thie\u0302\u0301t_ke\u0302\u0301_chu\u031Ba_co\u0301_te\u0302n__5_-removebg-preview_4": 816670048044469370
-      "Thie\u0302\u0301t_ke\u0302\u0301_chu\u031Ba_co\u0301_te\u0302n__5_-removebg-preview_5": 2744949924663784382
+      "Thi\u1EBFt_k\u1EBF_ch\u01B0a_c\xF3_t\xEAn__5_-removebg-preview_0": 2998651166595903349
+      "Thi\u1EBFt_k\u1EBF_ch\u01B0a_c\xF3_t\xEAn__5_-removebg-preview_1": 5428663144720388684
+      "Thi\u1EBFt_k\u1EBF_ch\u01B0a_c\xF3_t\xEAn__5_-removebg-preview_2": 8599437071273500730
+      "Thi\u1EBFt_k\u1EBF_ch\u01B0a_c\xF3_t\xEAn__5_-removebg-preview_3": 2024634617287743071
+      "Thi\u1EBFt_k\u1EBF_ch\u01B0a_c\xF3_t\xEAn__5_-removebg-preview_4": -3384927352943149258
+      "Thi\u1EBFt_k\u1EBF_ch\u01B0a_c\xF3_t\xEAn__5_-removebg-preview_5": -182137339510946561
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

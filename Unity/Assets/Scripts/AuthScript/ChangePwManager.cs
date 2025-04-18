@@ -7,26 +7,22 @@ using UnityEngine.SceneManagement;
 
 public class ChangePwManager : MonoBehaviour
 {
-    public GameObject ChangePwPanel;
-    public GameObject LoginPanel;
     public TMP_InputField usernameInput;
     public TMP_InputField oldPasswordInput;
     public TMP_InputField newPasswordInput;
 
-    public GameObject WrongText;
-    public GameObject RemindText;
+    public TMP_Text NotifyText;
 
     public void OnChangePwButtonClicked()
     {
-        WrongText.SetActive(false);
-        RemindText.SetActive(false);
         string username = usernameInput.text;
         string oldPassword = oldPasswordInput.text;
         string newPassword = newPasswordInput.text;
 
         if (username == "" || oldPassword == "" || newPassword == "")
         {
-            RemindText.SetActive(true);
+            NotifyText.text = "";
+            NotifyText.text = "Vui lòng nhập đầy đủ thông tin !";
             return;
         }
         StartCoroutine(ChangePwCoroutine(username, oldPassword, newPassword));
@@ -52,13 +48,16 @@ public class ChangePwManager : MonoBehaviour
         if (request.result == UnityWebRequest.Result.Success)
         {
             Debug.Log("Đổi mật khẩu thành công" + request.downloadHandler.text);
-            ChangePwPanel.SetActive(false);
-            LoginPanel.SetActive(true);
+
+            NotifyText.text = "";
+            NotifyText.text = "Đổi mật khẩu thành công !";
         }
         else
         {
             Debug.LogError("Đổi mật khẩu thất bại" + request.downloadHandler.text);
-            WrongText.SetActive(true);
+            
+            NotifyText.text = "";
+            NotifyText.text = "Sai tài khoản hoặc mật khẩu cũ !";
         }
     }
 }

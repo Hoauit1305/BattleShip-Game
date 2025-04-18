@@ -10,19 +10,17 @@ public class LoginManager : MonoBehaviour
     public TMP_InputField usernameInput;
     public TMP_InputField passwordInput;
 
-    public GameObject WrongText;
-    public GameObject RemindText;
+    public TMP_Text NotifyText;
 
     public void OnLoginButtonClicked()
     {
-        WrongText.SetActive(false);
-        RemindText.SetActive(false);
         string username = usernameInput.text;
         string password = passwordInput.text;
 
         if (username == "" || password == "")
         {
-            RemindText.SetActive(true);
+            NotifyText.text = "";
+            NotifyText.text = "Vui lòng nhập đầy đủ thông tin !";
             return;
         }
         StartCoroutine(LoginCoroutine(username, password));
@@ -47,13 +45,23 @@ public class LoginManager : MonoBehaviour
         if (request.result == UnityWebRequest.Result.Success)
         {
             Debug.Log("Login thành công: " + request.downloadHandler.text);
-         
+
+            // Parse response JSON để lấy token
+            string jsonResponse = request.downloadHandler.text;
+            TokenResponse tokenResponse = JsonUtility.FromJson<TokenResponse>(jsonResponse);
+
+            // Lưu token vào PlayerPrefs để dùng ở các nơi khác
+            PlayerPrefs.SetString("token", tokenResponse.token);
+            PlayerPrefs.Save();
+
+            //Load sang Scene tiếp theo
             SceneManager.LoadScene("LobbyScene");
 }
         else
         {
             Debug.LogError("Login thất bại: " + request.downloadHandler.text);
-            WrongText.SetActive(true);
+            NotifyText.text = "";
+            NotifyText.text = "Sai tài khoản hoặc mật khẩu !";
         }
     }
 }
@@ -70,3 +78,11 @@ public class LoginRequest
         this.password = password;
     }
 }
+
+[System.Serializable]
+public class TokenResponse
+{
+    public string message;
+    public string token;
+}
+

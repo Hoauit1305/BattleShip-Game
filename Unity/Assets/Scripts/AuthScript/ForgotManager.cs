@@ -9,22 +9,16 @@ public class ForgotManager : MonoBehaviour
     public TMP_InputField usernameInput;
     public TMP_InputField gmailInput;
 
-    public GameObject WrongText;
-    public GameObject RemindText;
-
-    public GameObject ForgotPwPanel;
-    public GameObject LoginPanel;
+    public TMP_Text NotifyText;
 
     public void OnForgotPasswordButtonClicked()
     {
-        WrongText.SetActive(false);
-        RemindText.SetActive(false);
-
         string username = usernameInput.text.Trim();
         string email = gmailInput.text.Trim();
         if (username == "" || email == "")
         {
-            RemindText.SetActive(true);
+            NotifyText.text = "";
+            NotifyText.text = "Vui lòng nhập đầy đủ thông tin !";
             return;
         }
         StartCoroutine(ForgotpwCoroutine(username, email));
@@ -48,13 +42,14 @@ public class ForgotManager : MonoBehaviour
         if (request.result == UnityWebRequest.Result.Success)
         {
             Debug.Log("Gmail gửi thành công: " + request.downloadHandler.text);
-            ForgotPwPanel.SetActive(false);
-            LoginPanel.SetActive(true);
+            NotifyText.text = "";
+            NotifyText.text = "Mật khẩu đã được gửi về gmail !";
         }
         else
         {
             Debug.LogError("Gửi Gmail thất bại: " + request.error);
-            WrongText.SetActive(true);
+            NotifyText.text = "";
+            NotifyText.text = "Sai tài khoản hoặc gmail !";
         }
     }
 }

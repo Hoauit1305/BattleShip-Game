@@ -9,18 +9,18 @@ using UnityEngine.SceneManagement;
 public class setname : MonoBehaviour
 {
     public TMP_InputField nameInput;
-
-    public GameObject RemindText;
+    public TMP_Text NotifyText;
     public GameObject LobbyPanel;
+    public GameObject ChooseNamePanel;
 
     public void OnFinalizeButtonClicked()
     {
-        RemindText.SetActive(false);
         string name = nameInput.text;
 
         if (name == "")
         {
-            RemindText.SetActive(true);
+            NotifyText.text = "";
+            NotifyText.text = "Vui lòng nhập đầy đủ thông tin !";
             return;
         }
         StartCoroutine(setNameCoroutine(name));
@@ -36,19 +36,24 @@ public class setname : MonoBehaviour
         request.downloadHandler = new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
 
+        // Thêm Authorization token
+        string token = PlayerPrefs.GetString("token");
+        request.SetRequestHeader("Authorization", "Bearer " + token);
+
         // Gửi request
         yield return request.SendWebRequest();
 
-        // Xử lý kết quả
+        // Xử lý kết quả    
         if (request.result == UnityWebRequest.Result.Success)
         {
             Debug.Log("Đặt tên thành công: " + request.downloadHandler.text);
-
+            ChooseNamePanel.SetActive(false);
             LobbyPanel.SetActive(true);
         }
         else
         {
             Debug.LogError("Lỗi khi gọi API: " + request.error);
+            Debug.Log("Phản hồi từ server: " + request.downloadHandler.text);
         }
     }
 }

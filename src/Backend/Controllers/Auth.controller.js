@@ -188,7 +188,8 @@ const chooseName = (req,res)=>{
     }
     const token = authHeader.split(" ")[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const id = decoded.Id;  // Id lấy từ token
+
+    const id = decoded.id;  // Id lấy từ token
     const {name} = req.body;
     setName(name,id, (err) => {
         if (err) {

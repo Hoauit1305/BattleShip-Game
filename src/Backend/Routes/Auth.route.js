@@ -16,6 +16,7 @@ router.post('/change-password', changePassword);
 
 //API Logout
 router.post('/logout', logout);
+
 //API Choose Name
 router.post('/choose-name', chooseName);
 module.exports = router;
