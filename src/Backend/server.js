@@ -6,13 +6,14 @@ const db = require('./Config/db.config');
 const app = express();
 
 const authRoutes = require('./Routes/Auth.route');
-
+const GameplayRoutes = require('./Routes/Gameplay.route');
 
 // Middleware
 app.use(cors());
 app.use(express.json());
-// app.use(express.urlencoded({ extended: true }));
+
 app.use('/api/auth', authRoutes);
+app.use('/api/gameplay', GameplayRoutes);
 // Test route
 app.get('/', (req, res) => {
     res.send('Server đang chạy 🚀');

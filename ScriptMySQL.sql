@@ -1,8 +1,10 @@
 CREATE DATABASE BATTLESHIP_GAME;
 select * from player;
-insert into player values(1, 'hoa', 'hoa1305', '123456', 12, 'offline');
+select * from ship;
+select * from shipposition;
 INSERT INTO Player (Username, Password) VALUES ('bao123', '123456' );
 USE BATTLESHIP_GAME;
+drop table ship;
 DROP database BATTLESHIP_GAME;
 CREATE TABLE Player (
 	Player_Id INT AUTO_INCREMENT PRIMARY KEY,
