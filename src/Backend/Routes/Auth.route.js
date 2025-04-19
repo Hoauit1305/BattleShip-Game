@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { login, register, forgotpw, changePassword, logout, chooseName } = require('../Controllers/Auth.controller');
+const { login, register, forgotpw, changePassword, logout, checkNamed, chooseName } = require('../Controllers/Auth.controller');
 
 //API Đăng nhập
 router.post('/login', login);
@@ -19,4 +19,6 @@ router.post('/logout', logout);
 
 //API Choose Name
 router.post('/choose-name', chooseName);
+
+router.post('/check-name', checkNamed);
 module.exports = router;

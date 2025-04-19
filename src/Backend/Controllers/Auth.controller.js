@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const MailService = require('../service/mail.service');
-const { findUserByUsername, findUserByEmail, createUser, forgotPassword, updatePasswordByUsername, setUserOffline, setUserOnline, setName } = require('../Models/Auth.model');
+const { findUserByUsername, findUserByEmail, createUser, forgotPassword, updatePasswordByUsername, setUserOffline, setUserOnline, checkName, setName } = require('../Models/Auth.model');
 //Đăng nhập
 const login = (req, res) => {
     const { username, password } = req.body;
@@ -178,6 +178,19 @@ const logout = (req, res) => {
         });
     });
 };
+// Kiểm tra tên trước khi vào lobby
+const checkNamed = (req, res) => {
+    const { username } = req.body;
+    checkName(username, (err, name) => {
+        if (err) return res.status(500).json({ message: 'Lỗi server' });
+
+        if (!name || name.trim() === "") {
+            res.json({ name: null });
+        } else {
+            res.json({ name: name });
+        }
+    });
+};
 // Nhập tên
 const chooseName = (req,res)=>{
     const authHeader = req.headers.authorization; //lấy token từ header
@@ -200,4 +213,4 @@ const chooseName = (req,res)=>{
     });
 }
 
-module.exports = { login, register, forgotpw, changePassword, logout, chooseName };
+module.exports = { login, register, forgotpw, changePassword, logout, checkNamed, chooseName };

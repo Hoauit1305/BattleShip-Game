@@ -54,14 +54,47 @@ public class LoginManager : MonoBehaviour
             PlayerPrefs.SetString("token", tokenResponse.token);
             PlayerPrefs.Save();
 
-            //Load sang Scene tiếp theo
-            SceneManager.LoadScene("LobbyScene");
-}
+            // Kiểm tra có tên trong game chưa
+            StartCoroutine(CheckNameCoroutine(username));
+        }
         else
         {
             Debug.LogError("Login thất bại: " + request.downloadHandler.text);
             NotifyText.text = "";
             NotifyText.text = "Sai tài khoản hoặc mật khẩu !";
+        }
+    }
+    IEnumerator CheckNameCoroutine(string username)
+    {
+        string jsonBody = JsonUtility.ToJson(new UsernameRequest(username));
+        UnityWebRequest request = new UnityWebRequest("http://localhost:3000/api/auth/check-name", "POST");
+        byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonBody);
+        request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+        request.downloadHandler = new DownloadHandlerBuffer();
+        request.SetRequestHeader("Content-Type", "application/json");
+
+        yield return request.SendWebRequest();
+
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+            NameResponse response = JsonUtility.FromJson<NameResponse>(request.downloadHandler.text);
+
+            if (string.IsNullOrEmpty(response.name))
+            {
+                Debug.Log("Chưa có tên → chuyển sang SetNamePanel");
+                PlayerPrefs.SetInt("hasName", 0);  
+            }
+            else
+            {
+                Debug.Log("Đã có tên → vào LobbyScene");
+                PlayerPrefs.SetInt("hasName", 1);
+            }
+            PlayerPrefs.Save();
+            SceneManager.LoadScene("LobbyScene");
+        }
+        else
+        {
+            Debug.LogError("Lỗi khi gọi /check-name: " + request.downloadHandler.text);
         }
     }
 }
@@ -86,3 +119,19 @@ public class TokenResponse
     public string token;
 }
 
+[System.Serializable]
+public class UsernameRequest
+{
+    public string username;
+
+    public UsernameRequest(string username)
+    {
+        this.username = username;
+    }
+}
+
+[System.Serializable]
+public class NameResponse
+{
+    public string name;
+}

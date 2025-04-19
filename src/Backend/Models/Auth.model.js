@@ -60,6 +60,14 @@ const setUserOnline = (username, callback) => {
         callback(null);
     });
 };
+// Function ày dùng cho checkName
+const checkName = (username, callback) =>{
+    const query = 'SELECT Name FROM Player WHERE Username = ?';
+    db.query(query, [username], (err, result) => {
+        if (err) return callback(err);
+        callback(null);}
+    );
+}
 // Function này dùng cho SelectName
 const setName = (name, id, callback)=>{
     const query = 'UPDATE Player SET Name = ? WHERE Player_Id = ?'
@@ -76,6 +84,7 @@ module.exports = {
     updatePasswordByUsername,
     setUserOffline,
     setUserOnline,
+    checkName,
     setName
 };
 
