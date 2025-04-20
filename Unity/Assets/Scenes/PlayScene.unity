@@ -11150,6 +11150,38 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2088486959}
     m_Modifications:
+    - target: {fileID: -3881934809532939239, guid: b683544e250123e4eb7d46e0665d752a, type: 3}
+      propertyPath: SizeCell
+      value: 85
+      objectReference: {fileID: 0}
+    - target: {fileID: -3881934809532939239, guid: b683544e250123e4eb7d46e0665d752a, type: 3}
+      propertyPath: gridRect
+      value: 
+      objectReference: {fileID: 176807279}
+    - target: {fileID: -3881934809532939239, guid: b683544e250123e4eb7d46e0665d752a, type: 3}
+      propertyPath: ShipLength
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: -3881934809532939239, guid: b683544e250123e4eb7d46e0665d752a, type: 3}
+      propertyPath: shipLength
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: -3881934809532939239, guid: b683544e250123e4eb7d46e0665d752a, type: 3}
+      propertyPath: gridTransform
+      value: 
+      objectReference: {fileID: 176807279}
+    - target: {fileID: -3881934809532939239, guid: b683544e250123e4eb7d46e0665d752a, type: 3}
+      propertyPath: boardContainer
+      value: 
+      objectReference: {fileID: 176807279}
+    - target: {fileID: -3881934809532939239, guid: b683544e250123e4eb7d46e0665d752a, type: 3}
+      propertyPath: validFrameColor.a
+      value: 0.15686275
+      objectReference: {fileID: 0}
+    - target: {fileID: -3881934809532939239, guid: b683544e250123e4eb7d46e0665d752a, type: 3}
+      propertyPath: invalidFrameColor.a
+      value: 0.15686275
+      objectReference: {fileID: 0}
     - target: {fileID: 1109074024113032458, guid: b683544e250123e4eb7d46e0665d752a, type: 3}
       propertyPath: m_Name
       value: Ship3.1_Image
@@ -11180,11 +11212,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4359447546846326989, guid: b683544e250123e4eb7d46e0665d752a, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 250.4
+      value: 245
       objectReference: {fileID: 0}
     - target: {fileID: 4359447546846326989, guid: b683544e250123e4eb7d46e0665d752a, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 80.3801
+      value: 80
       objectReference: {fileID: 0}
     - target: {fileID: 4359447546846326989, guid: b683544e250123e4eb7d46e0665d752a, type: 3}
       propertyPath: m_LocalPosition.x
@@ -11252,6 +11284,42 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2088486959}
     m_Modifications:
+    - target: {fileID: 4074069873976407822, guid: e949f231fc9fc1b40a7af563bf79d9eb, type: 3}
+      propertyPath: SizeCell
+      value: 85
+      objectReference: {fileID: 0}
+    - target: {fileID: 4074069873976407822, guid: e949f231fc9fc1b40a7af563bf79d9eb, type: 3}
+      propertyPath: gridRect
+      value: 
+      objectReference: {fileID: 176807279}
+    - target: {fileID: 4074069873976407822, guid: e949f231fc9fc1b40a7af563bf79d9eb, type: 3}
+      propertyPath: gridRoot
+      value: 
+      objectReference: {fileID: 176807279}
+    - target: {fileID: 4074069873976407822, guid: e949f231fc9fc1b40a7af563bf79d9eb, type: 3}
+      propertyPath: ShipLength
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4074069873976407822, guid: e949f231fc9fc1b40a7af563bf79d9eb, type: 3}
+      propertyPath: shipLength
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4074069873976407822, guid: e949f231fc9fc1b40a7af563bf79d9eb, type: 3}
+      propertyPath: gridTransform
+      value: 
+      objectReference: {fileID: 176807279}
+    - target: {fileID: 4074069873976407822, guid: e949f231fc9fc1b40a7af563bf79d9eb, type: 3}
+      propertyPath: boardContainer
+      value: 
+      objectReference: {fileID: 176807279}
+    - target: {fileID: 4074069873976407822, guid: e949f231fc9fc1b40a7af563bf79d9eb, type: 3}
+      propertyPath: validFrameColor.a
+      value: 0.15686275
+      objectReference: {fileID: 0}
+    - target: {fileID: 4074069873976407822, guid: e949f231fc9fc1b40a7af563bf79d9eb, type: 3}
+      propertyPath: invalidFrameColor.a
+      value: 0.15686275
+      objectReference: {fileID: 0}
     - target: {fileID: 4920346537991402639, guid: e949f231fc9fc1b40a7af563bf79d9eb, type: 3}
       propertyPath: m_Name
       value: Ship5_Image
@@ -11282,11 +11350,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7707314819713192549, guid: e949f231fc9fc1b40a7af563bf79d9eb, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 420.47
+      value: 415
       objectReference: {fileID: 0}
     - target: {fileID: 7707314819713192549, guid: e949f231fc9fc1b40a7af563bf79d9eb, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 80.992
+      value: 80
       objectReference: {fileID: 0}
     - target: {fileID: 7707314819713192549, guid: e949f231fc9fc1b40a7af563bf79d9eb, type: 3}
       propertyPath: m_LocalPosition.x
@@ -11354,13 +11422,45 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2088486959}
     m_Modifications:
+    - target: {fileID: -998235225666671843, guid: c8f838ffd4e681849aa60555c979f915, type: 3}
+      propertyPath: SizeCell
+      value: 85
+      objectReference: {fileID: 0}
+    - target: {fileID: -998235225666671843, guid: c8f838ffd4e681849aa60555c979f915, type: 3}
+      propertyPath: gridRect
+      value: 
+      objectReference: {fileID: 176807279}
+    - target: {fileID: -998235225666671843, guid: c8f838ffd4e681849aa60555c979f915, type: 3}
+      propertyPath: ShipLength
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: -998235225666671843, guid: c8f838ffd4e681849aa60555c979f915, type: 3}
+      propertyPath: shipLength
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: -998235225666671843, guid: c8f838ffd4e681849aa60555c979f915, type: 3}
+      propertyPath: gridTransform
+      value: 
+      objectReference: {fileID: 176807279}
+    - target: {fileID: -998235225666671843, guid: c8f838ffd4e681849aa60555c979f915, type: 3}
+      propertyPath: boardContainer
+      value: 
+      objectReference: {fileID: 176807279}
+    - target: {fileID: -998235225666671843, guid: c8f838ffd4e681849aa60555c979f915, type: 3}
+      propertyPath: validFrameColor.a
+      value: 0.15686275
+      objectReference: {fileID: 0}
+    - target: {fileID: -998235225666671843, guid: c8f838ffd4e681849aa60555c979f915, type: 3}
+      propertyPath: invalidFrameColor.a
+      value: 0.15686275
+      objectReference: {fileID: 0}
     - target: {fileID: 912838573745198650, guid: c8f838ffd4e681849aa60555c979f915, type: 3}
       propertyPath: m_Name
       value: Ship4_Image
       objectReference: {fileID: 0}
     - target: {fileID: 4970086244232583869, guid: c8f838ffd4e681849aa60555c979f915, type: 3}
       propertyPath: m_Pivot.x
-      value: 0.125
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 4970086244232583869, guid: c8f838ffd4e681849aa60555c979f915, type: 3}
       propertyPath: m_Pivot.y
@@ -11384,11 +11484,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4970086244232583869, guid: c8f838ffd4e681849aa60555c979f915, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 335.27
+      value: 330
       objectReference: {fileID: 0}
     - target: {fileID: 4970086244232583869, guid: c8f838ffd4e681849aa60555c979f915, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 80.2786
+      value: 80
       objectReference: {fileID: 0}
     - target: {fileID: 4970086244232583869, guid: c8f838ffd4e681849aa60555c979f915, type: 3}
       propertyPath: m_LocalPosition.x
@@ -11462,7 +11562,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7795876946768587199, guid: 41a8d06f700d5674aa14d7953dba9cf5, type: 3}
       propertyPath: m_Pivot.x
-      value: 0.25
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 7795876946768587199, guid: 41a8d06f700d5674aa14d7953dba9cf5, type: 3}
       propertyPath: m_Pivot.y
@@ -11486,11 +11586,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7795876946768587199, guid: 41a8d06f700d5674aa14d7953dba9cf5, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 165.8704
+      value: 160
       objectReference: {fileID: 0}
     - target: {fileID: 7795876946768587199, guid: 41a8d06f700d5674aa14d7953dba9cf5, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 80.8848
+      value: 80
       objectReference: {fileID: 0}
     - target: {fileID: 7795876946768587199, guid: 41a8d06f700d5674aa14d7953dba9cf5, type: 3}
       propertyPath: m_LocalPosition.x
@@ -11522,11 +11622,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7795876946768587199, guid: 41a8d06f700d5674aa14d7953dba9cf5, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -108.23
+      value: -151.4
       objectReference: {fileID: 0}
     - target: {fileID: 7795876946768587199, guid: 41a8d06f700d5674aa14d7953dba9cf5, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -20.221
+      value: 384
       objectReference: {fileID: 0}
     - target: {fileID: 7795876946768587199, guid: 41a8d06f700d5674aa14d7953dba9cf5, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -11539,6 +11639,42 @@ PrefabInstance:
     - target: {fileID: 7795876946768587199, guid: 41a8d06f700d5674aa14d7953dba9cf5, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8277080663774201303, guid: 41a8d06f700d5674aa14d7953dba9cf5, type: 3}
+      propertyPath: SizeCell
+      value: 85
+      objectReference: {fileID: 0}
+    - target: {fileID: 8277080663774201303, guid: 41a8d06f700d5674aa14d7953dba9cf5, type: 3}
+      propertyPath: gridRect
+      value: 
+      objectReference: {fileID: 176807279}
+    - target: {fileID: 8277080663774201303, guid: 41a8d06f700d5674aa14d7953dba9cf5, type: 3}
+      propertyPath: gridRoot
+      value: 
+      objectReference: {fileID: 176807279}
+    - target: {fileID: 8277080663774201303, guid: 41a8d06f700d5674aa14d7953dba9cf5, type: 3}
+      propertyPath: ShipLength
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8277080663774201303, guid: 41a8d06f700d5674aa14d7953dba9cf5, type: 3}
+      propertyPath: shipLength
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8277080663774201303, guid: 41a8d06f700d5674aa14d7953dba9cf5, type: 3}
+      propertyPath: gridTransform
+      value: 
+      objectReference: {fileID: 176807279}
+    - target: {fileID: 8277080663774201303, guid: 41a8d06f700d5674aa14d7953dba9cf5, type: 3}
+      propertyPath: boardContainer
+      value: 
+      objectReference: {fileID: 176807279}
+    - target: {fileID: 8277080663774201303, guid: 41a8d06f700d5674aa14d7953dba9cf5, type: 3}
+      propertyPath: validFrameColor.a
+      value: 0.15686275
+      objectReference: {fileID: 0}
+    - target: {fileID: 8277080663774201303, guid: 41a8d06f700d5674aa14d7953dba9cf5, type: 3}
+      propertyPath: invalidFrameColor.a
+      value: 0.15686275
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -11578,6 +11714,38 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2088486959}
     m_Modifications:
+    - target: {fileID: -7768495133922901411, guid: ff076acec65c03449b7dd5925b5d5208, type: 3}
+      propertyPath: SizeCell
+      value: 85
+      objectReference: {fileID: 0}
+    - target: {fileID: -7768495133922901411, guid: ff076acec65c03449b7dd5925b5d5208, type: 3}
+      propertyPath: gridRect
+      value: 
+      objectReference: {fileID: 176807279}
+    - target: {fileID: -7768495133922901411, guid: ff076acec65c03449b7dd5925b5d5208, type: 3}
+      propertyPath: ShipLength
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: -7768495133922901411, guid: ff076acec65c03449b7dd5925b5d5208, type: 3}
+      propertyPath: shipLength
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: -7768495133922901411, guid: ff076acec65c03449b7dd5925b5d5208, type: 3}
+      propertyPath: gridTransform
+      value: 
+      objectReference: {fileID: 176807279}
+    - target: {fileID: -7768495133922901411, guid: ff076acec65c03449b7dd5925b5d5208, type: 3}
+      propertyPath: boardContainer
+      value: 
+      objectReference: {fileID: 176807279}
+    - target: {fileID: -7768495133922901411, guid: ff076acec65c03449b7dd5925b5d5208, type: 3}
+      propertyPath: validFrameColor.a
+      value: 0.15686275
+      objectReference: {fileID: 0}
+    - target: {fileID: -7768495133922901411, guid: ff076acec65c03449b7dd5925b5d5208, type: 3}
+      propertyPath: invalidFrameColor.a
+      value: 0.15686275
+      objectReference: {fileID: 0}
     - target: {fileID: 4582030043811301570, guid: ff076acec65c03449b7dd5925b5d5208, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -11604,11 +11772,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4582030043811301570, guid: ff076acec65c03449b7dd5925b5d5208, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 250.4
+      value: 245
       objectReference: {fileID: 0}
     - target: {fileID: 4582030043811301570, guid: ff076acec65c03449b7dd5925b5d5208, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 80.7103
+      value: 80
       objectReference: {fileID: 0}
     - target: {fileID: 4582030043811301570, guid: ff076acec65c03449b7dd5925b5d5208, type: 3}
       propertyPath: m_LocalPosition.x
