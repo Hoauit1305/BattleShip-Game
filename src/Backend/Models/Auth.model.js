@@ -60,13 +60,20 @@ const setUserOnline = (username, callback) => {
         callback(null);
     });
 };
-// Function ày dùng cho checkName
+// Function này dùng cho checkName
 const checkName = (username, callback) =>{
     const query = 'SELECT Name FROM Player WHERE Username = ?';
     db.query(query, [username], (err, result) => {
         if (err) return callback(err);
-        callback(null);}
-    );
+
+        // Nếu có kết quả thì trả về tên
+        if (result.length > 0) {
+            const name = result[0].Name;
+            callback(null, name);
+        } else {
+            callback(null, null); // Không tìm thấy
+        }
+    });
 }
 // Function này dùng cho SelectName
 const setName = (name, id, callback)=>{
