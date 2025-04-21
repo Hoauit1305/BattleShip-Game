@@ -9,6 +9,9 @@ public class AvatarDisPlay : MonoBehaviour
     void OnEnable()
     {
         int id = PlayerPrefs.GetInt("SelectedAvatarID", 0); // Lấy ID đã lưu
+
+        Debug.Log(id);
+        Debug.Log(avatarSprites.Length);
         if (id >= 0 && id < avatarSprites.Length)
         {
             displayImage.sprite = avatarSprites[id];
