@@ -6,7 +6,7 @@ public class AvatarDisPlay : MonoBehaviour
     public Sprite[] avatarSprites; // Kéo đủ các avatar vào đây (theo đúng thứ tự ID)
     public Image displayImage;     // Image nơi bạn muốn hiển thị avatar
 
-    void Start()
+    void OnEnable()
     {
         int id = PlayerPrefs.GetInt("SelectedAvatarID", 0); // Lấy ID đã lưu
         if (id >= 0 && id < avatarSprites.Length)
