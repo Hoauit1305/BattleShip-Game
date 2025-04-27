@@ -1,11 +1,15 @@
 CREATE DATABASE BATTLESHIP_GAME;
+USE BATTLESHIP_GAME;
+
 select * from player;
 select * from ship;
 select * from shipposition;
+
 INSERT INTO Player (Username, Password) VALUES ('bao123', '123456' );
-USE BATTLESHIP_GAME;
+
 drop table ship;
 DROP database BATTLESHIP_GAME;
+
 CREATE TABLE Player (
 	Player_Id INT AUTO_INCREMENT PRIMARY KEY,
 	Name VARCHAR(100),
@@ -31,6 +35,18 @@ CREATE TABLE ShipPosition (
 	Position VARCHAR(3),
 	Hit BOOLEAN DEFAULT FALSE,
 	FOREIGN KEY (Ship_Id) REFERENCES Ship(Ship_Id) ON DELETE CASCADE
+);
+
+-- =====================================
+-- Thêm bảng Shot để lưu lượt bắn
+-- =====================================
+CREATE TABLE Shot (
+    Shot_Id INT AUTO_INCREMENT PRIMARY KEY,
+    Game_Id INT NOT NULL,
+    Player_Id INT NOT NULL,
+    Position VARCHAR(10) NOT NULL,
+    Is_Hit BOOLEAN NOT NULL,
+    Created_At TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- CREATE TABLE Matches (
@@ -63,7 +79,6 @@ CREATE TABLE ShipPosition (
 --     FOREIGN KEY (User_Id) REFERENCES Player(Player_Id),
 --     FOREIGN KEY (Friend_Id) REFERENCES Player(Player_Id)
 -- );
-
 
 -- CREATE TABLE Setting (
 --     User_Id INT PRIMARY KEY,
@@ -104,5 +119,3 @@ CREATE TABLE ShipPosition (
 --     Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
 --     FOREIGN KEY (Match_Id) REFERENCES Matches(Match_Id)
 -- );
-
-
