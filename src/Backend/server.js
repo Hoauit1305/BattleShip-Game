@@ -8,7 +8,6 @@ const app = express();
 const authRoutes = require('./Routes/Auth.route');
 const GameplayRoutes = require('./Routes/Gameplay.route');
 const displayRoutes = require('./Routes/Display.route');
-const fireRoutes = require('./Routes/Fire.route');
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -16,7 +15,6 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/gameplay', GameplayRoutes);
 app.use('/api/display', displayRoutes);
-app.use('/api/fire', fireRoutes);
 // Test route
 app.get('/', (req, res) => {
     res.send('Server đang chạy 🚀');

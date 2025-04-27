@@ -1,15 +1,17 @@
 CREATE DATABASE BATTLESHIP_GAME;
-USE BATTLESHIP_GAME;
-
 select * from player;
 select * from ship;
 select * from shipposition;
-
+select * from shot;
+select * from game;
 INSERT INTO Player (Username, Password) VALUES ('bao123', '123456' );
+INSERT INTO Player (Username, Password) VALUES ('hoang123', '123456' );
 
-drop table ship;
+INSERT INTO Game (Player_Id_1, Player_Id_2, Status, Current_Turn_Player_Id) 
+VALUES (1, 2, 'in_progress', 1);
+USE BATTLESHIP_GAME;
+drop table game;
 DROP database BATTLESHIP_GAME;
-
 CREATE TABLE Player (
 	Player_Id INT AUTO_INCREMENT PRIMARY KEY,
 	Name VARCHAR(100),
@@ -26,7 +28,7 @@ CREATE TABLE Ship (
 	Player_Id INT,
 	Owner_Type ENUM('player', 'bot'),
 	Type VARCHAR(20),
-	Sunk BOOLEAN DEFAULT FALSE
+	Is_Sunk BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE ShipPosition (
@@ -36,17 +38,32 @@ CREATE TABLE ShipPosition (
 	Hit BOOLEAN DEFAULT FALSE,
 	FOREIGN KEY (Ship_Id) REFERENCES Ship(Ship_Id) ON DELETE CASCADE
 );
+-- Thêm bảng Game để quản lý các trận đấu
+CREATE TABLE Game (
+    Game_Id INT AUTO_INCREMENT PRIMARY KEY,
+    Player_Id_1 INT,
+    Player_Id_2 INT,
+    Status ENUM('waiting', 'in_progress', 'completed') DEFAULT 'waiting',
+    Current_Turn_Player_Id INT,
+    Winner_Id INT NULL,
+    Created_At DATETIME DEFAULT CURRENT_TIMESTAMP,
+    Updated_At DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (Player_Id_1) REFERENCES Player(Player_Id),
+    FOREIGN KEY (Player_Id_2) REFERENCES Player(Player_Id),
+    FOREIGN KEY (Current_Turn_Player_Id) REFERENCES Player(Player_Id),
+    FOREIGN KEY (Winner_Id) REFERENCES Player(Player_Id)
+);
 
--- =====================================
--- Thêm bảng Shot để lưu lượt bắn
--- =====================================
+-- Thêm bảng Shot để lưu thông tin các phát bắn
 CREATE TABLE Shot (
     Shot_Id INT AUTO_INCREMENT PRIMARY KEY,
-    Game_Id INT NOT NULL,
-    Player_Id INT NOT NULL,
-    Position VARCHAR(10) NOT NULL,
-    Is_Hit BOOLEAN NOT NULL,
-    Created_At TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    Game_Id INT,
+    Player_Id INT,
+    Position VARCHAR(3),
+    Type ENUM('hit', 'miss') NOT NULL,
+    Created_At DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (Game_Id) REFERENCES Game(Game_Id),
+    FOREIGN KEY (Player_Id) REFERENCES Player(Player_Id)
 );
 
 -- CREATE TABLE Matches (
@@ -77,6 +94,7 @@ CREATE TABLE Shot (
 --     Status ENUM('pending', 'accepted', 'blocked') DEFAULT 'pending',
 --     PRIMARY KEY (User_Id, Friend_Id),
 --     FOREIGN KEY (User_Id) REFERENCES Player(Player_Id),
+
 --     FOREIGN KEY (Friend_Id) REFERENCES Player(Player_Id)
 -- );
 
