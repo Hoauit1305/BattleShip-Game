@@ -22,7 +22,7 @@ public class DisPlay : MonoBehaviour
         request.SetRequestHeader("Content-Type", "application/json");
 
         // Thêm Authorization token
-        string token = PlayerPrefs.GetString("token");
+        string token = PrefsHelper.GetString("token");
         request.SetRequestHeader("Authorization", "Bearer " + token);
 
         // Gửi request

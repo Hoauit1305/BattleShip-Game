@@ -13,7 +13,7 @@ public class LogoutManager : MonoBehaviour
 
     IEnumerator LoginCoroutine()
     {
-        string token = PlayerPrefs.GetString("token", "");
+        string token = PrefsHelper.GetString("token");
 
         if (string.IsNullOrEmpty(token))
         {

@@ -12025,7 +12025,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1806447862}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 42474894ddba8874bb9e72910b2a9132, type: 3}
   m_Name: 
@@ -13973,7 +13973,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2077863506
 RectTransform:
   m_ObjectHideFlags: 0
@@ -14047,6 +14047,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b6add04d81c1cb94dbc12e0eee86a101, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  nameText: {fileID: 1402180356}
+  idText: {fileID: 1820648214}
 --- !u!114 &2077863510
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14060,7 +14062,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   avatarSprites: []
-  displayImage: {fileID: 0}
+  displayImage: {fileID: 2043870233}
 --- !u!1 &2084292334
 GameObject:
   m_ObjectHideFlags: 0

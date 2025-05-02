@@ -1,13 +1,13 @@
 using UnityEngine;
 
-public class NewMonoBehaviourScript : MonoBehaviour
+public class LobbyUIManager : MonoBehaviour
 {
     public GameObject chooseNamePanel; 
     public GameObject lobbyPanel;
     void Start()
     {
-        int hasName = PlayerPrefs.GetInt("hasName", 0);
-
+        int hasName = PrefsHelper.GetInt("hasName");
+        Debug.Log("hasname: " + hasName);
         if (hasName == 0)
         {
             chooseNamePanel.SetActive(true);

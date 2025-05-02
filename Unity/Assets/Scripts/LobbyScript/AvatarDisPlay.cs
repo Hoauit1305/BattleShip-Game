@@ -8,7 +8,7 @@ public class AvatarDisPlay : MonoBehaviour
 
     void OnEnable()
     {
-        int id = PlayerPrefs.GetInt("SelectedAvatarID", 0); // Lấy ID đã lưu
+        int id = PrefsHelper.GetInt("SelectedAvatarID"); // Lấy ID đã lưu
 
         Debug.Log(id);  
         Debug.Log(avatarSprites.Length);
