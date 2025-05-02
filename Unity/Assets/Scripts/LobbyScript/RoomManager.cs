@@ -218,7 +218,7 @@ public class RoomManager : MonoBehaviour
                 // Kích hoạt sự kiện tìm phòng thành công
                 OnRoomJoinSuccess?.Invoke();
 
-                WebSocketClient wsClient = FindObjectOfType<WebSocketClient>();
+                WebSocketClient wsClient = FindFirstObjectByType<WebSocketClient>();
 
                 string roomCodeStr = currentRoom.roomCode.ToString();
                 string guestName = currentPlayerName;

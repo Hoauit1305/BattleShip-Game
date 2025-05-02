@@ -10,7 +10,7 @@ public class AvatarDisPlay : MonoBehaviour
     {
         int id = PlayerPrefs.GetInt("SelectedAvatarID", 0); // Lấy ID đã lưu
 
-        Debug.Log(id);
+        Debug.Log(id);  
         Debug.Log(avatarSprites.Length);
         if (id >= 0 && id < avatarSprites.Length)
         {

@@ -58,7 +58,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/gameplay', GameplayRoutes);
 app.use('/api/room', roomRoutes);
-
+app.use('/api/display',displayRoutes)
 // Test route
 app.get('/', (req, res) => {
     res.send('Server đang chạy 🚀');
