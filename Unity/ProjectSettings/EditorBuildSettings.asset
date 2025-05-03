@@ -17,6 +17,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/PlayScene.unity
     guid: 012dbaaa7e166bc45a7fbdbc01ff6ed9
+  - enabled: 1
+    path: Assets/Scenes/FindMatchesScene.unity
+    guid: ca2031a57697f7b4b9068ac6dadcb452
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0
