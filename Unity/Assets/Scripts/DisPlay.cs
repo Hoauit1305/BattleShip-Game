@@ -35,6 +35,8 @@ public class DisPlay : MonoBehaviour
             DisplayResponse response = JsonUtility.FromJson<DisplayResponse>(request.downloadHandler.text);
             nameText.text = response.name;  // Chỉnh lại 'name' thay vì 'username'
             idText.text = "ID: " + response.id;  // Chỉnh lại 'id' thay vì 'playerId'
+            PrefsHelper.SetInt("playerId", int.Parse(response.id));
+            PlayerPrefs.Save();
         }
         else
         {

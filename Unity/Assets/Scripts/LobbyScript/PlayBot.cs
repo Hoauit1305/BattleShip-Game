@@ -1,11 +1,67 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
+using System.Collections;
+using TMPro;
+using ParrelSync;
+using UnityEngine.InputSystem;
 
 public class PlayBot : MonoBehaviour
 {
     public void OnClickFightBot()
     {
-        // Chuyển sang scene FindMatchesScene
-        SceneManager.LoadScene("FindMatchesScene");
+        StartCoroutine(SetIDAndStartMatch());
+    }
+
+    IEnumerator SetIDAndStartMatch()
+    {
+        string token = PrefsHelper.GetString("token");
+        int playerId = PrefsHelper.GetInt("playerId");  // lấy playerId từ PrefsHelper
+
+        if (string.IsNullOrEmpty(token))
+        {
+            Debug.LogError("Thiếu token!");
+            yield break;
+        }
+        if (playerId == 0)
+        {
+            Debug.LogError("Thiếu playerId!");
+            yield break;
+        }
+        // Tạo JSON body chứa playerId
+        SetIDRequest requestBody = new SetIDRequest(playerId);
+        string jsonBody = JsonUtility.ToJson(requestBody);
+        byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonBody);
+
+        UnityWebRequest request = new UnityWebRequest("http://localhost:3000/api/gameplay/set-id", "POST");
+        request.SetRequestHeader("Authorization", "Bearer " + token);
+        request.SetRequestHeader("Content-Type", "application/json");
+        request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+        request.downloadHandler = new DownloadHandlerBuffer();
+
+        yield return request.SendWebRequest();
+
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+            Debug.Log("Đã setID trận đấu: " + request.downloadHandler.text);
+            SceneManager.LoadScene("FindMatchesScene");
+        }
+        else
+        {
+            Debug.LogError("Lỗi khi setID: " + request.error + " | " + request.downloadHandler.text);
+        }
+    }
+}
+
+// Class để serialize JSON body
+[System.Serializable]
+public class SetIDRequest
+{
+    public int playerId;
+
+    public SetIDRequest(int playerId)
+    {
+        this.playerId = playerId;
     }
 }
