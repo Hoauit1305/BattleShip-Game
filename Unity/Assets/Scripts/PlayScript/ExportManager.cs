@@ -7,11 +7,10 @@ public class ExportManager : MonoBehaviour
     public SwitchPanelButton switchPanelButton;
 
     public CountdownManager countdownManager;
-    
-
     public void ExportToBackend()
     {
-        string json = PlaceShip.ExportShipsAsGameJSON();
+        int gameId = PrefsHelper.GetInt("gameId");
+        string json = PlaceShip.ExportShipsAsGameJSON(gameId);
         Debug.Log("Ship JSON: " + json);
 
         StartCoroutine(SendShipData(json));

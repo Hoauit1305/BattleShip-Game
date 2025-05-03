@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿    using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
@@ -45,6 +45,12 @@ public class PlayBot : MonoBehaviour
         if (request.result == UnityWebRequest.Result.Success)
         {
             Debug.Log("Đã setID trận đấu: " + request.downloadHandler.text);
+            // Parse JSON thủ công bằng JsonUtility (cần wrapper class)
+            GameIDResponse response = JsonUtility.FromJson<GameIDResponse>(request.downloadHandler.text);
+            // Lưu gameId vào PrefsHelper
+            PrefsHelper.SetInt("gameId", response.gameId);
+            Debug.Log("✅ Đã lưu gameId: " + response.gameId);
+
             SceneManager.LoadScene("FindMatchesScene");
         }
         else
@@ -65,3 +71,10 @@ public class SetIDRequest
         this.playerId = playerId;
     }
 }
+[System.Serializable]
+public class GameIDResponse
+{
+    public string message;
+    public int gameId;
+}
+
