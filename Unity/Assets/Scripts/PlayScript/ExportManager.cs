@@ -4,8 +4,11 @@ using System.Collections;
 
 public class ExportManager : MonoBehaviour
 {
-    public GameObject placeShipPanel;
-    public GameObject firePanel;
+    public SwitchPanelButton switchPanelButton;
+
+    public CountdownManager countdownManager;
+    
+
     public void ExportToBackend()
     {
         string json = PlaceShip.ExportShipsAsGameJSON();
@@ -34,8 +37,11 @@ public class ExportManager : MonoBehaviour
         if (request.result == UnityWebRequest.Result.Success)
         {
             Debug.Log("✅ Gửi dữ liệu thành công! Phản hồi: " + request.downloadHandler.text);
-            placeShipPanel.SetActive(false);
-            firePanel.SetActive(true);
+            // Gọi countdown trước khi chuyển cảnh
+            yield return StartCoroutine(countdownManager.StartCountdown(() =>
+            {
+                switchPanelButton.SwitchPanel();
+            }));
         }
         else
         {
