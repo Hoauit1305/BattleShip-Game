@@ -4,6 +4,8 @@ using System.Collections;
 
 public class ExportManager : MonoBehaviour
 {
+    public GameObject placeShipPanel;
+    public GameObject firePanel;
     public void ExportToBackend()
     {
         string json = PlaceShip.ExportShipsAsGameJSON();
@@ -21,7 +23,7 @@ public class ExportManager : MonoBehaviour
         request.SetRequestHeader("Content-Type", "application/json");
 
         // Gửi JWT token nếu có
-        string token = PlayerPrefs.GetString("token", "");
+        string token = PrefsHelper.GetString("token");
         if (!string.IsNullOrEmpty(token))
         {
             request.SetRequestHeader("Authorization", "Bearer " + token);
@@ -32,6 +34,8 @@ public class ExportManager : MonoBehaviour
         if (request.result == UnityWebRequest.Result.Success)
         {
             Debug.Log("✅ Gửi dữ liệu thành công! Phản hồi: " + request.downloadHandler.text);
+            placeShipPanel.SetActive(false);
+            firePanel.SetActive(true);
         }
         else
         {
