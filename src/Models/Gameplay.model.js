@@ -30,7 +30,7 @@ const db = require('../Config/db.config');
  
    // Kiểm tra xem vị trí này đã bị bắn chưa
    const shotExists = await query(
-     'SELECT * FROM Shot s JOIN Game g ON g.Current_Turn_Player_Id = Player_Id WHERE s.Game_Id = ? AND Position = ?',
+     'SELECT * FROM Shot s JOIN Game g ON g.Current_Turn_Player_Id = Player_Id and g.Game_Id = s.Game_Id WHERE s.Game_Id = ? AND Position = ?',
      [gameId, position]
    );
  
@@ -72,7 +72,7 @@ const db = require('../Config/db.config');
  // Nếu bắn hụt => đổi lượt
  if (shotType === 'miss') {
    // Xác định đối thủ
-   currentTurnPlayer[0] = (playerId === game.Player_Id_1) ? game.Player_Id_2 : game.Player_Id_1;
+   result[0].Current_Turn_Player_Id = (playerId === game.Player_Id_1) ? game.Player_Id_2 : game.Player_Id_1;
    await query(
      'UPDATE Game SET Current_Turn_Player_Id = ? WHERE Game_Id = ?',
      [result[0].Current_Turn_Player_Id, gameId]
@@ -135,4 +135,53 @@ const db = require('../Config/db.config');
    };
  };
  
- module.exports = { placeShips, fireAtPosition };
+ const fireWithBot = async (gameId, playerId, playerPosition) => {
+  // Người chơi bắn
+  const playerShot = await fireAtPosition(gameId, playerId, playerPosition);
+
+  let game = await query('SELECT * FROM Game WHERE Game_Id = ?', [gameId]);
+  let currentTurn = game[0].Current_Turn_Player_Id;
+
+  const botShots = [];
+
+  // Nếu đến lượt bot, bot bắn cho đến khi trượt
+  while (currentTurn !== playerId) {
+    const rows = "ABCDEFGHIJ".split('');
+    const cols = Array.from({ length: 10 }, (_, i) => i + 1);
+    const allPositions = rows.flatMap(r => cols.map(c => `${r}${c}`));
+
+    const fired = await query(
+      'SELECT Position FROM Shot WHERE Game_Id = ? AND Player_Id = ?',
+      [gameId, currentTurn]
+    );
+    const firedSet = new Set(fired.map(r => r.Position));
+    const available = allPositions.filter(p => !firedSet.has(p));
+
+    if (available.length === 0) {
+      throw new Error("Bot không còn vị trí nào để bắn");
+    }
+
+    const botPosition = available[Math.floor(Math.random() * available.length)];
+
+    const botShot = await fireAtPosition(gameId, currentTurn, botPosition);
+    botShots.push(botShot);
+
+    // Nếu bot bắn trượt thì dừng
+    if (botShot.result === "miss") break;
+
+    // Cập nhật lượt hiện tại
+    game = await query('SELECT * FROM Game WHERE Game_Id = ?', [gameId]);
+    currentTurn = game[0].Current_Turn_Player_Id;
+  }
+
+  // Trả về kết quả cuối cùng
+  return {
+    message: botShots.length > 0
+      ? "Bạn đã bắn và bot đã phản công!"
+      : "Bạn đã bắn thành công!",
+    playerShot,
+    botShots
+  };
+};
+
+ module.exports = { placeShips, fireAtPosition, fireWithBot };
