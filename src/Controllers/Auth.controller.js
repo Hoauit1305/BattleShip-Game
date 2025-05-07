@@ -1,6 +1,16 @@
 const jwt = require('jsonwebtoken');
 const MailService = require('../service/mail.service');
-const { findUserByUsername, findUserByEmail, createUser, forgotPassword, updatePasswordByUsername, setUserOffline, setUserOnline, checkName, setName } = require('../Models/Auth.model');
+const { 
+    findUserByUsername, 
+    findUserByEmail, 
+    createUser, 
+    forgotPassword, 
+    updatePasswordByUsername, 
+    setUserOffline, 
+    setUserOnline, 
+    checkName, 
+    setName 
+} = require('../Models/Auth.model');
 //Đăng nhập
 const login = (req, res) => {
     const { username, password } = req.body;
@@ -213,4 +223,12 @@ const chooseName = (req,res)=>{
     });
 }
 
-module.exports = { login, register, forgotpw, changePassword, logout, checkNamed, chooseName };
+module.exports = { 
+    login, 
+    register, 
+    forgotpw, 
+    changePassword, 
+    logout, 
+    checkNamed, 
+    chooseName 
+};

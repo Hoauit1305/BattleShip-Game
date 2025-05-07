@@ -1,6 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { createRoomController, closeRoomController, findRoomController, leaveRoomController } = require('../Controllers/Room.controller');
+const { 
+    createRoomController, 
+    closeRoomController, 
+    findRoomController, 
+    leaveRoomController 
+} = require('../Controllers/Room.controller');
 
 // API Tạo phòng
 router.post('/create-room', createRoomController);

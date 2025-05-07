@@ -1,5 +1,10 @@
 const jwt = require('jsonwebtoken');
-const { createRoom, closeRoom, findRoom, leaveRoom } = require('../Models/Room.model');
+const { 
+    createRoom, 
+    closeRoom, 
+    findRoom, 
+    leaveRoom 
+} = require('../Models/Room.model');
 
 const createRoomController = async (req, res) => {
     try {
@@ -136,4 +141,9 @@ const leaveRoomController = async (req, res) => {
     }
 };
 
-module.exports = { createRoomController, closeRoomController, findRoomController, leaveRoomController };
+module.exports = { 
+    createRoomController, 
+    closeRoomController, 
+    findRoomController, 
+    leaveRoomController 
+};

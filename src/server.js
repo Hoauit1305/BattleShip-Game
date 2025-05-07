@@ -47,7 +47,6 @@ wss.on('connection', (ws) => {
 // Import routes
 const authRoutes = require('./Routes/Auth.route');
 const GameplayRoutes = require('./Routes/Gameplay.route');
-const botRoutes = require('./Routes/Bot.route'); // Thêm route mới cho Bot
 const displayRoutes = require('./Routes/Display.route');
 const roomRoutes = require('./Routes/Room.route');
 
@@ -58,7 +57,6 @@ app.use(express.json());
 //Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/gameplay', GameplayRoutes);
-app.use('/api/bot', botRoutes); // Thêm route mới cho Bot
 app.use('/api/room', roomRoutes);
 app.use('/api/display', displayRoutes);
 
