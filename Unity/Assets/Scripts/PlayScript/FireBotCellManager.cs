@@ -4,7 +4,7 @@ using UnityEngine.UI;
 using UnityEngine.Networking;
 using System.Collections;
 
-public class FireBotManager: MonoBehaviour
+public class FireBotManager : MonoBehaviour
 {
     public GameObject diamondObject;
     public GameObject rectangleObject;
@@ -14,6 +14,7 @@ public class FireBotManager: MonoBehaviour
     public GameObject botFirePanel;
 
     public static GameObject globalDiamond;
+    public static BotShot[] globalBotShots;  // Static để BotFireManager đọc được
 
     void Start()
     {
@@ -21,7 +22,6 @@ public class FireBotManager: MonoBehaviour
         globalDiamond.GetComponent<Image>().enabled = false;
 
         GameObject[] cells = GameObject.FindGameObjectsWithTag("GridCell");
-
         foreach (GameObject cell in cells)
         {
             if (cell.GetComponent<GridCellStatus>() == null)
@@ -102,19 +102,37 @@ public class FireBotManager: MonoBehaviour
 
             string gameId = PrefsHelper.GetString("gameId");
             string playerId = PrefsHelper.GetString("playerId");
-
-            string shotType = "miss";
-            string apiURL = "http://localhost:3000/api/gameplay/fire-ship";
+            string apiURL = "http://localhost:3000/api/gameplay/fire-ship/bot";
 
             ShotRequest shotRequest = new ShotRequest(gameId, playerId, cell.name);
             UnityWebRequest request = CreatePostRequest(apiURL, shotRequest);
 
             yield return request.SendWebRequest();
 
+            string shotType = "miss"; // default
+
             if (request.result == UnityWebRequest.Result.Success)
             {
                 ShotResponse response = JsonUtility.FromJson<ShotResponse>(request.downloadHandler.text);
-                shotType = response.result;
+                if (response != null && response.playerShot != null)
+                {
+                    shotType = response.playerShot.result;
+
+                    if (shotType == "miss")
+                    {
+                        BotFireManager.botShotsData.Clear();
+                        BotFireManager.botShotsData.AddRange(response.botShots);
+                        Debug.Log("Dữ liệu botShots đã được cập nhật.");
+                        foreach (BotShot shot in BotFireManager.botShotsData)
+                        {
+                            Debug.Log($"BotShot Position: {shot.position}, Result: {shot.result}");
+                        }
+                    }
+                }
+                else
+                {
+                    Debug.LogError("Error: playerShot not found in response.");
+                }
             }
             else
             {
@@ -129,7 +147,6 @@ public class FireBotManager: MonoBehaviour
                 newCircle.GetComponent<Image>().enabled = true;
                 newCircle.transform.localPosition = pos;
 
-                // Đợi 0.5s để hiển thị hình tròn trước khi qua BotFirePanel
                 yield return new WaitForSeconds(0.5f);
             }
 
@@ -142,13 +159,8 @@ public class FireBotManager: MonoBehaviour
 
     void OpenBotFirePanel()
     {
-        if (fireBotPanel != null)
-            fireBotPanel.SetActive(false);
-
-        if (botFirePanel != null)
-            botFirePanel.SetActive(true);
-        else
-            Debug.LogError("BotFirePanel not assigned in Inspector.");
+        fireBotPanel.SetActive(false);
+        botFirePanel.SetActive(true);
     }
 
     UnityWebRequest CreatePostRequest(string url, ShotRequest shotRequest)
@@ -168,26 +180,39 @@ public class FireBotManager: MonoBehaviour
     }
 }
 
-public class GridCellStatus : MonoBehaviour
+// Cấu trúc các class JSON
+
+[System.Serializable]
+public class PlayerShot
 {
-    public bool isClicked = false;
+    public string position;
+    public string result;
+    public SunkShip sunkShip;
+    public string gameResult;
 }
 
 [System.Serializable]
 public class ShotResponse
 {
+    public string message;
+    public PlayerShot playerShot;
+    public BotShot[] botShots;
+}
+
+[System.Serializable]
+public class SunkShip
+{
+    public int shipId;
+    public string shipType;
+}
+
+[System.Serializable]
+public class BotShot
+{
     public string position;
     public string result;
-    public string sunkShip;
+    public SunkShip sunkShip;
     public string gameResult;
-
-    public ShotResponse(string position, string result, string sunkShip, string gameResult)
-    {
-        this.position = position;
-        this.result = result;
-        this.sunkShip = sunkShip;
-        this.gameResult = gameResult;
-    }
 }
 
 [System.Serializable]
@@ -203,4 +228,9 @@ public class ShotRequest
         this.playerId = playerId;
         this.position = position;
     }
+}
+
+public class GridCellStatus : MonoBehaviour
+{
+    public bool isClicked = false;
 }
