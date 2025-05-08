@@ -15,18 +15,18 @@ const placeShips = async (gameId, playerId, ownerType, ships) => {
 };
 // Set ID
 const setID = async (playerId) => {
-try {
-    const result = await query(
-        'INSERT INTO Game (Player_Id_1, Player_Id_2, Status, Current_Turn_Player_Id) VALUES (?, ?, ?, ?)',
-        [playerId, -1, 'in_progress', playerId]
-    );
-    const gameId = result.insertId;
-    return gameId;  // ✅ trả về gameId
-} catch (err) {
-    throw new Error(err.message);
+    try {
+        const result = await query(
+            'INSERT INTO Game (Player_Id_1, Player_Id_2, Status, Current_Turn_Player_Id) VALUES (?, ?, ?, ?)',
+            [playerId, -1, 'in_progress', playerId]
+        );
+        const gameId = result.insertId;
+        return gameId;  // ✅ trả về gameId
+    } catch (err) {
+        throw new Error(err.message);
+    }
 }
-}
-// Hàm bắn vào một vị trí
+// Hàm bắn vào một vị trí (gameid, -1, ô click)
 const fireAtPosition = async (gameId, playerId, position) => {
     // Kiểm tra xem game có tồn tại và người chơi có quyền bắn không
     const gameExists = await query('SELECT * FROM Game WHERE Game_Id = ?', [gameId]);
@@ -146,7 +146,7 @@ const fireAtPosition = async (gameId, playerId, position) => {
         gameResult
     };
 };
-
+// gameID, playerid, playerposition
 const fireWithBot = async (gameId, playerId, playerPosition) => {
     // Người chơi bắn
     const playerShot = await fireAtPosition(gameId, playerId, playerPosition);
