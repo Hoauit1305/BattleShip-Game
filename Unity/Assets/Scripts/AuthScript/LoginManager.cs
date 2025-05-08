@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 using ParrelSync;
 public class LoginManager : MonoBehaviour
 {
+    public GameObject loadingPanel;
     public TMP_InputField usernameInput;
     public TMP_InputField passwordInput;
 
@@ -91,6 +92,11 @@ public class LoginManager : MonoBehaviour
                 PrefsHelper.SetString("name", response.name);
             }
             PlayerPrefs.Save();
+            // Hiện panel
+            loadingPanel.SetActive(true);
+
+            // Chờ 0.5 giây
+            yield return new WaitForSeconds(1f);
             SceneManager.LoadScene("LobbyScene");
         }
         else

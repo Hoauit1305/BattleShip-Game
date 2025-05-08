@@ -159,7 +159,7 @@ const fireWithBot = async (gameId, playerId, playerPosition) => {
     // Nếu đến lượt bot, bot bắn cho đến khi trượt
     while (currentTurn !== playerId) {
         const rows = "ABCDEFGHIJ".split('');
-        const cols = Array.from({ length: 10 }, (_, i) => i + 1);
+        const cols = Array.from({ length: 10 }, (_, i) => i);
         const allPositions = rows.flatMap(r => cols.map(c => `${r}${c}`));
 
         const fired = await query(

@@ -17,7 +17,7 @@ public class StartButtonHandler : MonoBehaviour
         loadingPanel.SetActive(true);
 
         // Chờ 0.5 giây
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(1f);
 
         // Chuyển scene
         SceneManager.LoadScene("AuthScene");

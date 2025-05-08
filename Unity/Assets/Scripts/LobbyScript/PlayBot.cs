@@ -9,6 +9,7 @@ using UnityEngine.InputSystem;
 
 public class PlayBot : MonoBehaviour
 {
+    public GameObject loadingPanel;
     public void OnClickFightBot()
     {
         StartCoroutine(SetIDAndStartMatch());
@@ -34,7 +35,7 @@ public class PlayBot : MonoBehaviour
         string jsonBody = JsonUtility.ToJson(requestBody);
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonBody);
 
-        UnityWebRequest request = new UnityWebRequest("http://localhost:3000/api/gameplay/set-id", "POST");
+        UnityWebRequest request = new UnityWebRequest("http://localhost:3000/api/gameplay/create-gameid", "POST");
         request.SetRequestHeader("Authorization", "Bearer " + token);
         request.SetRequestHeader("Content-Type", "application/json");
         request.uploadHandler = new UploadHandlerRaw(bodyRaw);
@@ -51,6 +52,11 @@ public class PlayBot : MonoBehaviour
             PrefsHelper.SetInt("gameId", response.gameId);
             Debug.Log("✅ Đã lưu gameId: " + response.gameId);
 
+            // Hiện panel
+            loadingPanel.SetActive(true);
+
+            // Chờ 0.5 giây
+            yield return new WaitForSeconds(1f);
             SceneManager.LoadScene("FindMatchesScene");
         }
         else
