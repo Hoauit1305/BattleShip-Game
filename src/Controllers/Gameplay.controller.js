@@ -175,12 +175,7 @@ const placeBotShipController = async (req, res) => {
         }
         
         // Xác định Bot ID (người chơi còn lại)
-        let botId;
-        if (gameCheck[0].Player_Id_1 === playerId) {
-        botId = gameCheck[0].Player_Id_2;
-        } else {
-        botId = gameCheck[0].Player_Id_1;
-        }
+        let botId=-1;
         
         // Kiểm tra xem bot đã đặt tàu chưa
         const botShipsCheck = await query('SELECT * FROM Ship WHERE Game_Id = ? AND Player_Id = ? AND Owner_Type = "bot"', 

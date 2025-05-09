@@ -1,15 +1,15 @@
-﻿    using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using System.Collections;
 using TMPro;
-using ParrelSync;
-using UnityEngine.InputSystem;
+using System.Text;
 
 public class PlayBot : MonoBehaviour
 {
     public GameObject loadingPanel;
+
     public void OnClickFightBot()
     {
         StartCoroutine(SetIDAndStartMatch());
@@ -18,24 +18,26 @@ public class PlayBot : MonoBehaviour
     IEnumerator SetIDAndStartMatch()
     {
         string token = PrefsHelper.GetString("token");
-        int playerId = PrefsHelper.GetInt("playerId");  // lấy playerId từ PrefsHelper
+        int playerId = PrefsHelper.GetInt("playerId");
 
         if (string.IsNullOrEmpty(token))
         {
             Debug.LogError("Thiếu token!");
             yield break;
         }
+
         if (playerId == 0)
         {
             Debug.LogError("Thiếu playerId!");
             yield break;
         }
-        // Tạo JSON body chứa playerId
+
+        // ✅ Gửi yêu cầu tạo gameId (sửa URL này)
         SetIDRequest requestBody = new SetIDRequest(playerId);
         string jsonBody = JsonUtility.ToJson(requestBody);
-        byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonBody);
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonBody);
 
-        UnityWebRequest request = new UnityWebRequest("http://localhost:3000/api/gameplay/create-gameid", "POST");
+        UnityWebRequest request = new UnityWebRequest("http://localhost:3000/api/gameplay/create-gameid", "POST"); // ✅ ĐÃ SỬA
         request.SetRequestHeader("Authorization", "Bearer " + token);
         request.SetRequestHeader("Content-Type", "application/json");
         request.uploadHandler = new UploadHandlerRaw(bodyRaw);
@@ -46,16 +48,17 @@ public class PlayBot : MonoBehaviour
         if (request.result == UnityWebRequest.Result.Success)
         {
             Debug.Log("Đã setID trận đấu: " + request.downloadHandler.text);
-            // Parse JSON thủ công bằng JsonUtility (cần wrapper class)
             GameIDResponse response = JsonUtility.FromJson<GameIDResponse>(request.downloadHandler.text);
-            // Lưu gameId vào PrefsHelper
-            PrefsHelper.SetInt("gameId", response.gameId);
-            Debug.Log("✅ Đã lưu gameId: " + response.gameId);
 
-            // Hiện panel
+            int gameId = response.gameId;
+            PrefsHelper.SetInt("gameId", gameId);
+            Debug.Log("✅ Đã lưu gameId: " + gameId);
+
+            // ✅ Gửi yêu cầu đặt tàu cho bot
+            yield return StartCoroutine(PlaceShipsForBot(gameId, token));
+
+            // Hiện panel & chuyển scene
             loadingPanel.SetActive(true);
-
-            // Chờ 0.5 giây
             yield return new WaitForSeconds(1f);
             SceneManager.LoadScene("FindMatchesScene");
         }
@@ -64,9 +67,33 @@ public class PlayBot : MonoBehaviour
             Debug.LogError("Lỗi khi setID: " + request.error + " | " + request.downloadHandler.text);
         }
     }
+
+    IEnumerator PlaceShipsForBot(int gameId, string token)
+    {
+        PlaceBotShipsRequest shipRequest = new PlaceBotShipsRequest { gameId = gameId };
+        string shipJson = JsonUtility.ToJson(shipRequest);
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(shipJson);
+
+        UnityWebRequest request = new UnityWebRequest("http://localhost:3000/api/gameplay/place-ship/bot", "POST");
+        request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+        request.downloadHandler = new DownloadHandlerBuffer();
+        request.SetRequestHeader("Authorization", "Bearer " + token);
+        request.SetRequestHeader("Content-Type", "application/json");
+
+        yield return request.SendWebRequest();
+
+        if (request.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogError("Lỗi khi đặt tàu cho bot: " + request.error + " | " + request.downloadHandler.text);
+        }
+        else
+        {
+            Debug.Log("✅ Đã đặt tàu cho bot: " + request.downloadHandler.text);
+        }
+    }
 }
 
-// Class để serialize JSON body
+// --- Class hỗ trợ ---
 [System.Serializable]
 public class SetIDRequest
 {
@@ -77,6 +104,7 @@ public class SetIDRequest
         this.playerId = playerId;
     }
 }
+
 [System.Serializable]
 public class GameIDResponse
 {
@@ -84,3 +112,8 @@ public class GameIDResponse
     public int gameId;
 }
 
+[System.Serializable]
+public class PlaceBotShipsRequest
+{
+    public int gameId;
+}
