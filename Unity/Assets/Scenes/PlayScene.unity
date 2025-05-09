@@ -4129,10 +4129,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   diamondObject: {fileID: 1291261584}
   rectangleObject: {fileID: 605959280}
-  circleRedObject: {fileID: 900981729}
   circleWhiteObject: {fileID: 1310527090}
-  apiURL: http://localhost:3000/api/gameplay/fire-ship/bot
-  gameId: 
+  circleRedObject: {fileID: 900981729}
+  botFirePanel: {fileID: 11451036}
+  fireBotPanel: {fileID: 1030964516}
 --- !u!1001 &226617529
 PrefabInstance:
   m_ObjectHideFlags: 0

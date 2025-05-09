@@ -3,6 +3,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.Networking;
 using System.Collections;
+using System.Collections.Generic;
 
 public class FireBotManager : MonoBehaviour
 {
@@ -14,7 +15,7 @@ public class FireBotManager : MonoBehaviour
     public GameObject botFirePanel;
 
     public static GameObject globalDiamond;
-    public static BotShot[] globalBotShots;  // Static để BotFireManager đọc được
+    public static List<BotShot> globalBotShots = new List<BotShot>();  // Sử dụng List thay vì array và khởi tạo
 
     void Start()
     {
@@ -100,38 +101,97 @@ public class FireBotManager : MonoBehaviour
 
             Destroy(rectObj);
 
-            string gameId = PrefsHelper.GetString("gameId");
-            string playerId = PrefsHelper.GetString("playerId");
+            string gameId = PrefsHelper.GetInt("gameId").ToString();
+            string playerId = PrefsHelper.GetInt("playerId").ToString();
             string apiURL = "http://localhost:3000/api/gameplay/fire-ship/bot";
 
             ShotRequest shotRequest = new ShotRequest(gameId, playerId, cell.name);
             UnityWebRequest request = CreatePostRequest(apiURL, shotRequest);
 
+            Debug.Log($"Gửi request đến API với gameId: {gameId}, playerId: {playerId}, position: {cell.name}");
             yield return request.SendWebRequest();
 
             string shotType = "miss"; // default
+            Debug.Log($"API response status: {request.result}, responseCode: {request.responseCode}");
 
             if (request.result == UnityWebRequest.Result.Success)
             {
-                ShotResponse response = JsonUtility.FromJson<ShotResponse>(request.downloadHandler.text);
-                if (response != null && response.playerShot != null)
-                {
-                    shotType = response.playerShot.result;
+                // Log response nguyên bản để debug
+                string responseText = request.downloadHandler.text;
+                Debug.Log($"API response text: {responseText}");
 
-                    if (shotType == "miss")
+                try
+                {
+                    ShotResponse response = JsonUtility.FromJson<ShotResponse>(responseText);
+
+                    if (response != null)
                     {
-                        BotFireManager.botShotsData.Clear();
-                        BotFireManager.botShotsData.AddRange(response.botShots);
-                        Debug.Log("Dữ liệu botShots đã được cập nhật.");
-                        foreach (BotShot shot in BotFireManager.botShotsData)
+                        Debug.Log($"Parsed response - message: {response.message}");
+
+                        if (response.playerShot != null)
                         {
-                            Debug.Log($"BotShot Position: {shot.position}, Result: {shot.result}");
+                            shotType = response.playerShot.result;
+                            Debug.Log($"playerShot: position={response.playerShot.position}, result={response.playerShot.result}");
+
+                            if (shotType == "miss")
+                            {
+                                Debug.Log($"botShots array: {(response.botShots != null ? response.botShots.Length : 0)} items");
+
+                                // Kiểm tra null và độ dài
+                                if (response.botShots == null || response.botShots.Length == 0)
+                                {
+                                    Debug.LogError("API trả về response.botShots là null hoặc rỗng!");
+
+                                    // Tạo dữ liệu mẫu để kiểm tra luồng dữ liệu
+                                    Debug.Log("Tạo dữ liệu botShots mẫu để kiểm tra luồng...");
+                                    BotShot testShot = new BotShot();
+                                    testShot.position = "A1";
+                                    testShot.result = "miss";
+
+                                    // Thêm vào danh sách
+                                    globalBotShots.Clear();
+                                    globalBotShots.Add(testShot);
+
+                                    // Đảm bảo BotFireManager có dữ liệu
+                                    BotFireManager.botShotsData.Clear();
+                                    BotFireManager.botShotsData.Add(testShot);
+                                }
+                                else
+                                {
+                                    // Cập nhật cả globalBotShots và botShotData của BotFireManager
+                                    globalBotShots.Clear();
+                                    BotFireManager.botShotsData.Clear();
+
+                                    // Sao chép dữ liệu từ response
+                                    globalBotShots.AddRange(response.botShots);
+                                    BotFireManager.botShotsData.AddRange(response.botShots);
+
+                                    // Log chi tiết
+                                    Debug.Log($"Dữ liệu botShots đã được cập nhật: {response.botShots.Length} shots");
+                                    for (int i = 0; i < response.botShots.Length; i++)
+                                    {
+                                        BotShot shot = response.botShots[i];
+                                        Debug.Log($"Shot {i + 1}: Position: {shot.position}, Result: {shot.result}");
+                                    }
+                                }
+
+                                // Kiểm tra dữ liệu sau khi cập nhật
+                                Debug.Log($"Sau khi cập nhật - globalBotShots: {globalBotShots.Count}, BotFireManager.botShotsData: {BotFireManager.botShotsData.Count}");
+                            }
+                        }
+                        else
+                        {
+                            Debug.LogError("Error: playerShot is null in response");
                         }
                     }
+                    else
+                    {
+                        Debug.LogError("Error: response is null after parsing");
+                    }
                 }
-                else
+                catch (System.Exception e)
                 {
-                    Debug.LogError("Error: playerShot not found in response.");
+                    Debug.LogError($"Error parsing JSON: {e.Message}");
                 }
             }
             else
@@ -152,15 +212,56 @@ public class FireBotManager : MonoBehaviour
 
             if (shotType == "miss")
             {
-                OpenBotFirePanel();
+                // Tìm component BotFireManager trước khi chuyển đổi panel
+                BotFireManager botFireManager = botFirePanel.GetComponent<BotFireManager>();
+                if (botFireManager != null)
+                {
+                    Debug.Log("Tìm thấy BotFireManager component, gọi SetBotShotsData");
+                    botFireManager.SetBotShotsData(globalBotShots);
+                }
+                else
+                {
+                    Debug.LogError("Không tìm thấy BotFireManager component trên botFirePanel!");
+                }
+
+                // Đảm bảo có dữ liệu trước khi chuyển panel
+                if (globalBotShots.Count > 0 && BotFireManager.botShotsData.Count > 0)
+                {
+                    Debug.Log($"Trước khi chuyển panel: {globalBotShots.Count} shots sẵn sàng");
+                    OpenBotFirePanel();
+                }
+                else
+                {
+                    Debug.LogError("Không có dữ liệu botShots mặc dù trạng thái là miss!");
+                }
             }
         }
     }
 
     void OpenBotFirePanel()
     {
+        Debug.Log("OpenBotFirePanel() được gọi");
+        // Kiểm tra lại dữ liệu BotFireManager trước khi chuyển đổi panel
+        BotFireManager botFireManager = botFirePanel.GetComponent<BotFireManager>();
+        if (botFireManager != null)
+        {
+            // Gọi lại SetBotShotsData một lần nữa để đảm bảo
+            botFireManager.SetBotShotsData(globalBotShots);
+            Debug.Log($"Truyền trực tiếp {globalBotShots.Count} shots cho BotFireManager trước khi chuyển panel");
+        }
+
+        // Kích hoạt các panel
         fireBotPanel.SetActive(false);
+
+        // Đảm bảo dữ liệu có sẵn trước khi kích hoạt panel
         botFirePanel.SetActive(true);
+
+        // Gọi StartBotFire ngay sau khi kích hoạt panel
+        if (botFireManager != null)
+        {
+            Debug.Log("Gọi StartBotFire() ngay lập tức từ OpenBotFirePanel");
+            botFireManager.StartBotFire();
+        }
     }
 
     UnityWebRequest CreatePostRequest(string url, ShotRequest shotRequest)
@@ -180,7 +281,7 @@ public class FireBotManager : MonoBehaviour
     }
 }
 
-// Cấu trúc các class JSON
+// Cấu trúc các class JSON - Sửa lại để phù hợp với cấu trúc phản hồi từ API
 
 [System.Serializable]
 public class PlayerShot
@@ -213,6 +314,15 @@ public class BotShot
     public string result;
     public SunkShip sunkShip;
     public string gameResult;
+
+    // Mặc định constructor
+    public BotShot()
+    {
+        position = "";
+        result = "";
+        sunkShip = null;
+        gameResult = null;
+    }
 }
 
 [System.Serializable]
