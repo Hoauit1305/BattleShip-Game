@@ -16,7 +16,7 @@ public class FireBotManager : MonoBehaviour
 
     public static GameObject globalDiamond;
     public static List<BotShot> globalBotShots = new List<BotShot>();  // Sử dụng List thay vì array và khởi tạo
-
+    public static bool isPlayerTurn = true;
     public GameObject changeTurnPanel; // Gán trong Inspector
 
     void Start()
@@ -50,6 +50,7 @@ public class FireBotManager : MonoBehaviour
 
     void OnCellPointerEnter(GameObject cell)
     {
+        if (!isPlayerTurn) return;
         if (cell.GetComponent<GridCellStatus>().isClicked)
             return;
 
@@ -60,14 +61,19 @@ public class FireBotManager : MonoBehaviour
 
     void OnCellPointerExit()
     {
+        if (!isPlayerTurn) return;
         globalDiamond.GetComponent<Image>().enabled = false;
     }
 
     void OnCellPointerClick(GameObject cell)
     {
+        if (!isPlayerTurn) return;
+
         GridCellStatus status = cell.GetComponent<GridCellStatus>();
         if (status != null && status.isClicked)
             return;
+
+        isPlayerTurn = false;
 
         if (status != null)
             status.isClicked = true;
@@ -238,6 +244,10 @@ public class FireBotManager : MonoBehaviour
                     Debug.LogError("Không có dữ liệu botShots mặc dù trạng thái là miss!");
                 }
             }
+            else
+            {
+                isPlayerTurn = true; // Nếu là hit → cho tiếp tục bắn
+            }
         }
     }
 
@@ -245,37 +255,16 @@ public class FireBotManager : MonoBehaviour
     {
         Debug.Log("OpenBotFirePanel() được gọi");
 
-        // Bước 1: Hiện panel hiệu ứng với scale
         changeTurnPanel.SetActive(true);
         changeTurnPanel.transform.localScale = Vector3.zero;
 
-        // Scale từ 0 → 1 với hiệu ứng bật nảy
         LeanTween.scale(changeTurnPanel, Vector3.one, 0.4f).setEaseOutBack();
 
-        // Chờ trong thời gian delay (ví dụ: 2 giây)
         yield return new WaitForSeconds(1.2f);
-
-        // Ẩn panel
+        
         changeTurnPanel.SetActive(false);
-
-        // Bước 2: Gọi lại BotFireManager để chắc chắn có dữ liệu
-        //BotFireManager botFireManager = botFirePanel.GetComponent<BotFireManager>();
-        //if (botFireManager != null)
-        //{
-        //    botFireManager.SetBotShotsData(globalBotShots);
-        //    Debug.Log($"Truyền trực tiếp {globalBotShots.Count} shots cho BotFireManager trước khi chuyển panel");
-        //}
-
-        // Bước 3: Chuyển panel
         fireBotPanel.SetActive(false);
         botFirePanel.SetActive(true);
-
-        // Bước 4: Gọi StartBotFire
-        //if (botFireManager != null)
-        //{
-        //    Debug.Log("Gọi StartBotFire() ngay lập tức từ OpenBotFirePanel");
-        //    botFireManager.StartBotFire();
-        //}
     }
 
     UnityWebRequest CreatePostRequest(string url, ShotRequest shotRequest)

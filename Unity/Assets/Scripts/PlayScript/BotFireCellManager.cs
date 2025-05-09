@@ -172,8 +172,11 @@ public class BotFireManager : MonoBehaviour
         if (botFirePanel != null)
             botFirePanel.SetActive(false);
         if (fireBotPanel != null)
+        {
             fireBotPanel.SetActive(true);
-
+            FireBotManager.isPlayerTurn = true;
+        }
+            
         // Dọn dẹp dữ liệu
         currentBotShots.Clear();
         botShotsData.Clear();
