@@ -1,10 +1,16 @@
 fileFormatVersion: 2
-guid: 3d434491511c2d944a81dc6f005525a9
+guid: 3b380aec1ee691442b94fc8d9ef5bab0
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8542653549661865833
-    second: close_0
+      213: 634316056074183541
+    second: volume_up_60dp_1F1F1F_FILL0_wght700_GRAD0_opsz48_0
+  - first:
+      213: 958838251580102995
+    second: volume_up_60dp_1F1F1F_FILL0_wght700_GRAD0_opsz48_1
+  - first:
+      213: -3658032587712919345
+    second: volume_up_60dp_1F1F1F_FILL0_wght700_GRAD0_opsz48_2
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +52,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -96,30 +102,17 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: close_0
+      name: volume_up_60dp_1F1F1F_FILL0_wght700_GRAD0_opsz48_0
       rect:
         serializedVersion: 2
-        x: 73
-        y: 118
-        width: 359
-        height: 115
+        x: 4
+        y: 6
+        width: 28
+        height: 48
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +121,52 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 798bc258bd5627980800000000000000
-      internalID: -8542653549661865833
+      spriteID: 573e0ad971b8dc800800000000000000
+      internalID: 634316056074183541
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: volume_up_60dp_1F1F1F_FILL0_wght700_GRAD0_opsz48_1
+      rect:
+        serializedVersion: 2
+        x: 34
+        y: 18
+        width: 10
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3591d764f4a7e4d00800000000000000
+      internalID: 958838251580102995
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: volume_up_60dp_1F1F1F_FILL0_wght700_GRAD0_opsz48_2
+      rect:
+        serializedVersion: 2
+        x: 35
+        y: 6
+        width: 21
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fc881981ebe0c3dc0800000000000000
+      internalID: -3658032587712919345
       vertices: []
       indices: 
       edges: []
@@ -138,7 +175,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +185,9 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      close_0: -8542653549661865833
+      volume_up_60dp_1F1F1F_FILL0_wght700_GRAD0_opsz48_0: 634316056074183541
+      volume_up_60dp_1F1F1F_FILL0_wght700_GRAD0_opsz48_1: 958838251580102995
+      volume_up_60dp_1F1F1F_FILL0_wght700_GRAD0_opsz48_2: -3658032587712919345
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

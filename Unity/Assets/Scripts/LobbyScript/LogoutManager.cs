@@ -6,6 +6,7 @@ using System.Collections;
 
 public class LogoutManager : MonoBehaviour
 {
+    public GameObject loadingPanel;
     public void OnLogoutButtonClicked()
     {
         StartCoroutine(LoginCoroutine());
@@ -37,6 +38,9 @@ public class LogoutManager : MonoBehaviour
             // Xoá token lưu trong máy
             PlayerPrefs.DeleteKey("token");
 
+            // Hiện panel & chuyển scene
+            loadingPanel.SetActive(true);
+            yield return new WaitForSeconds(1f);
             SceneManager.LoadScene("AuthScene");
         }
         else
