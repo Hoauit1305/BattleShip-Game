@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 1e0c80655c0ad2b47b82b279ac937a73
+guid: a6cde16d42bb21f4cac4befc7f9e3bb3
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4364034832326165938
-    second: bg_0
+      213: -4885298761302449938
+    second: wallpaperflare.com_wallpaper_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,7 +100,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: bg_0
+      name: wallpaperflare.com_wallpaper_0
       rect:
         serializedVersion: 2
         x: 0
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e4a74cf0175df63c0800000000000000
-      internalID: -4364034832326165938
+      spriteID: ee069e6f8aee33cb0800000000000000
+      internalID: -4885298761302449938
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      bg_0: -4364034832326165938
+      wallpaperflare.com_wallpaper_0: -4885298761302449938
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -17,6 +17,8 @@ public class FireBotManager : MonoBehaviour
     public static GameObject globalDiamond;
     public static List<BotShot> globalBotShots = new List<BotShot>();  // Sử dụng List thay vì array và khởi tạo
 
+    public GameObject changeTurnPanel; // Gán trong Inspector
+
     void Start()
     {
         globalDiamond = diamondObject;
@@ -228,7 +230,8 @@ public class FireBotManager : MonoBehaviour
                 if (globalBotShots.Count > 0 && BotFireManager.botShotsData.Count > 0)
                 {
                     Debug.Log($"Trước khi chuyển panel: {globalBotShots.Count} shots sẵn sàng");
-                    OpenBotFirePanel();
+                    StartCoroutine(OpenBotFirePanel());
+
                 }
                 else
                 {
@@ -238,30 +241,41 @@ public class FireBotManager : MonoBehaviour
         }
     }
 
-    void OpenBotFirePanel()
+    IEnumerator OpenBotFirePanel()
     {
         Debug.Log("OpenBotFirePanel() được gọi");
-        // Kiểm tra lại dữ liệu BotFireManager trước khi chuyển đổi panel
-        BotFireManager botFireManager = botFirePanel.GetComponent<BotFireManager>();
-        if (botFireManager != null)
-        {
-            // Gọi lại SetBotShotsData một lần nữa để đảm bảo
-            botFireManager.SetBotShotsData(globalBotShots);
-            Debug.Log($"Truyền trực tiếp {globalBotShots.Count} shots cho BotFireManager trước khi chuyển panel");
-        }
 
-        // Kích hoạt các panel
+        // Bước 1: Hiện panel hiệu ứng với scale
+        changeTurnPanel.SetActive(true);
+        changeTurnPanel.transform.localScale = Vector3.zero;
+
+        // Scale từ 0 → 1 với hiệu ứng bật nảy
+        LeanTween.scale(changeTurnPanel, Vector3.one, 0.4f).setEaseOutBack();
+
+        // Chờ trong thời gian delay (ví dụ: 2 giây)
+        yield return new WaitForSeconds(1.2f);
+
+        // Ẩn panel
+        changeTurnPanel.SetActive(false);
+
+        // Bước 2: Gọi lại BotFireManager để chắc chắn có dữ liệu
+        //BotFireManager botFireManager = botFirePanel.GetComponent<BotFireManager>();
+        //if (botFireManager != null)
+        //{
+        //    botFireManager.SetBotShotsData(globalBotShots);
+        //    Debug.Log($"Truyền trực tiếp {globalBotShots.Count} shots cho BotFireManager trước khi chuyển panel");
+        //}
+
+        // Bước 3: Chuyển panel
         fireBotPanel.SetActive(false);
-
-        // Đảm bảo dữ liệu có sẵn trước khi kích hoạt panel
         botFirePanel.SetActive(true);
 
-        // Gọi StartBotFire ngay sau khi kích hoạt panel
-        if (botFireManager != null)
-        {
-            Debug.Log("Gọi StartBotFire() ngay lập tức từ OpenBotFirePanel");
-            botFireManager.StartBotFire();
-        }
+        // Bước 4: Gọi StartBotFire
+        //if (botFireManager != null)
+        //{
+        //    Debug.Log("Gọi StartBotFire() ngay lập tức từ OpenBotFirePanel");
+        //    botFireManager.StartBotFire();
+        //}
     }
 
     UnityWebRequest CreatePostRequest(string url, ShotRequest shotRequest)
