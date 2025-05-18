@@ -14,15 +14,35 @@ public class FireBotManager : MonoBehaviour
     public GameObject fireBotPanel;
     public GameObject botFirePanel;
 
-    public static GameObject globalDiamond;
-    public static List<BotShot> globalBotShots = new List<BotShot>();  // Sử dụng List thay vì array và khởi tạo
-    public static bool isPlayerTurn = true;
-    public GameObject changeTurnPanel; // Gán trong Inspector
+    // Thêm hai panel mới cho kết quả trò chơi
+    public GameObject winGamePanel;
+    public GameObject loseGamePanel;
 
+    // Thêm các prefab tàu
+    public GameObject ship2Prefab;
+    public GameObject ship31Prefab;
+    public GameObject ship32Prefab;
+    public GameObject ship4Prefab;
+    public GameObject ship5Prefab;
+
+    // Dictionary để theo dõi các tàu đã được đặt trên bảng
+    private Dictionary<string, GameObject> placedShips = new Dictionary<string, GameObject>();
+
+    public static GameObject globalDiamond;
+    public static List<BotShot> globalBotShots = new List<BotShot>();
+    public static bool isPlayerTurn = true;
+    public GameObject changeTurnPanel;
     void Start()
     {
         globalDiamond = diamondObject;
         globalDiamond.GetComponent<Image>().enabled = false;
+
+        // Tắt hình ảnh của tất cả các prefab tàu khi khởi tạo
+        DisableAllShipPrefabImages();
+
+        // Đảm bảo các panel kết quả trò chơi bị ẩn khi bắt đầu
+        if (winGamePanel != null) winGamePanel.SetActive(false);
+        if (loseGamePanel != null) loseGamePanel.SetActive(false);
 
         GameObject[] cells = GameObject.FindGameObjectsWithTag("GridCell");
         foreach (GameObject cell in cells)
@@ -38,6 +58,16 @@ public class FireBotManager : MonoBehaviour
             AddEventTrigger(trigger, EventTriggerType.PointerExit, (eventData) => { OnCellPointerExit(); });
             AddEventTrigger(trigger, EventTriggerType.PointerClick, (eventData) => { OnCellPointerClick(cell); });
         }
+    }
+
+    // Hàm tắt hình ảnh của tất cả các prefab tàu
+    void DisableAllShipPrefabImages()
+    {
+        if (ship2Prefab != null) ship2Prefab.GetComponent<Image>().enabled = false;
+        if (ship31Prefab != null) ship31Prefab.GetComponent<Image>().enabled = false;
+        if (ship32Prefab != null) ship32Prefab.GetComponent<Image>().enabled = false;
+        if (ship4Prefab != null) ship4Prefab.GetComponent<Image>().enabled = false;
+        if (ship5Prefab != null) ship5Prefab.GetComponent<Image>().enabled = false;
     }
 
     void AddEventTrigger(EventTrigger trigger, EventTriggerType eventType, UnityEngine.Events.UnityAction<BaseEventData> action)
@@ -120,6 +150,9 @@ public class FireBotManager : MonoBehaviour
             yield return request.SendWebRequest();
 
             string shotType = "miss"; // default
+            SunkShip sunkShipData = null;
+            GameResult gameResultData = null; // Biến lưu kết quả trò chơi
+
             Debug.Log($"API response status: {request.result}, responseCode: {request.responseCode}");
 
             if (request.result == UnityWebRequest.Result.Success)
@@ -139,7 +172,27 @@ public class FireBotManager : MonoBehaviour
                         if (response.playerShot != null)
                         {
                             shotType = response.playerShot.result;
+                            sunkShipData = response.playerShot.sunkShip;
+                            gameResultData = response.playerShot.gameResult; // Lấy kết quả trò chơi từ response
+
                             Debug.Log($"playerShot: position={response.playerShot.position}, result={response.playerShot.result}");
+                            // Log thông tin gameResult
+                            if (gameResultData != null)
+                            {
+                                Debug.Log($"Game result: status={gameResultData.status}, winnerId={gameResultData.winnerId}");
+                            }
+                            else
+                            {
+                                Debug.Log("Game result is null - game still in progress");
+                            }
+                            if (sunkShipData != null)
+                            {
+                                Debug.Log($"SunkShip: id={sunkShipData.shipId}, type={sunkShipData.shipType}");
+                                if (sunkShipData.positions != null)
+                                {
+                                    Debug.Log($"Ship positions: {string.Join(", ", sunkShipData.positions)}");
+                                }
+                            }
 
                             if (shotType == "miss")
                             {
@@ -180,6 +233,14 @@ public class FireBotManager : MonoBehaviour
                                     {
                                         BotShot shot = response.botShots[i];
                                         Debug.Log($"Shot {i + 1}: Position: {shot.position}, Result: {shot.result}");
+                                        // Kiểm tra xem bot có thắng không
+                                        if (shot.gameResult != null && shot.gameResult.status == "completed")
+                                        {
+                                            Debug.Log($"Bot thắng! winnerId: {shot.gameResult.winnerId}");
+                                            int currentPlayerId = PrefsHelper.GetInt("playerId");
+                                            ShowGameResultPanel(shot.gameResult.winnerId.ToString() == currentPlayerId.ToString());
+                                            yield break;
+                                        }
                                     }
                                 }
 
@@ -207,16 +268,42 @@ public class FireBotManager : MonoBehaviour
                 Debug.LogError("API error: " + request.error);
             }
 
-            GameObject circlePrefab = (shotType == "hit") ? circleRedObject : circleWhiteObject;
-            if (circlePrefab != null)
+            // Kiểm tra nếu có tàu bị chìm
+            if (sunkShipData != null && sunkShipData.positions != null && sunkShipData.positions.Length > 0)
             {
-                GameObject newCircle = Instantiate(circlePrefab, parent);
-                newCircle.name = "Circle";
-                newCircle.GetComponent<Image>().enabled = true;
-                newCircle.transform.localPosition = pos;
-
-                yield return new WaitForSeconds(0.5f);
+                // Hiển thị hình ảnh tàu dựa trên shipType và vị trí
+                ShowSunkShip(sunkShipData);
             }
+            else
+            {
+                // Hiển thị hình tròn bình thường (trắng hoặc đỏ)
+                GameObject circlePrefab = (shotType == "hit") ? circleRedObject : circleWhiteObject;
+                if (circlePrefab != null)
+                {
+                    GameObject newCircle = Instantiate(circlePrefab, parent);
+                    newCircle.name = "Circle";
+                    newCircle.GetComponent<Image>().enabled = true;
+                    newCircle.transform.localPosition = pos;
+                }
+            }
+
+            // Kiểm tra kết quả trò chơi
+            if (gameResultData != null && gameResultData.status == "completed")
+            {
+                // Lấy ID của người chơi hiện tại
+                int currentPlayerId = PrefsHelper.GetInt("playerId");
+                Debug.Log($"Kiểm tra kết quả trò chơi: status={gameResultData.status}, winnerId={gameResultData.winnerId}, currentPlayerId={currentPlayerId}");
+
+                // So sánh kết quả trò chơi với ID người chơi
+                bool isWinner = gameResultData.winnerId.ToString() == currentPlayerId.ToString();
+                // Hiển thị panel kết quả phù hợp
+                Debug.Log(isWinner ? "Người chơi thắng!" : "Người chơi thua!");
+                yield return new WaitForSeconds(0.7f);
+                ShowGameResultPanel(isWinner);
+                yield break; // Kết thúc luồng nếu trò chơi đã kết thúc
+            }
+
+            yield return new WaitForSeconds(0.5f);
 
             if (shotType == "miss")
             {
@@ -237,7 +324,6 @@ public class FireBotManager : MonoBehaviour
                 {
                     Debug.Log($"Trước khi chuyển panel: {globalBotShots.Count} shots sẵn sàng");
                     StartCoroutine(OpenBotFirePanel());
-
                 }
                 else
                 {
@@ -251,6 +337,246 @@ public class FireBotManager : MonoBehaviour
         }
     }
 
+    // Hiển thị panel kết quả trò chơi
+    void ShowGameResultPanel(bool isWin)
+    {
+        // Đảm bảo rằng các panel kết quả trò chơi đã được gán
+        if (winGamePanel == null || loseGamePanel == null)
+        {
+            Debug.LogError("Game result panels have not been assigned in the inspector!");
+            return;
+        }
+
+        // Ẩn các panel khác
+        fireBotPanel.SetActive(false);
+        botFirePanel.SetActive(false);
+        changeTurnPanel.SetActive(false);
+
+        if (isWin)
+        {
+            // Hiển thị panel thắng
+            winGamePanel.SetActive(true);
+            loseGamePanel.SetActive(false);
+
+            // Thêm hiệu ứng animation nếu cần
+            winGamePanel.transform.localScale = Vector3.zero;
+            LeanTween.scale(winGamePanel, Vector3.one, 0.5f).setEaseOutBack();
+        }
+        else
+        {
+            // Hiển thị panel thua
+            loseGamePanel.SetActive(true);
+            winGamePanel.SetActive(false);
+
+            // Thêm hiệu ứng animation nếu cần
+            loseGamePanel.transform.localScale = Vector3.zero;
+            LeanTween.scale(loseGamePanel, Vector3.one, 0.5f).setEaseOutBack();
+        }
+
+        Debug.Log($"Hiển thị panel kết quả trò chơi: {(isWin ? "Thắng" : "Thua")}");
+    }
+
+    // Hàm hiển thị tàu bị chìm
+    void ShowSunkShip(SunkShip sunkShip)
+    {
+        Debug.Log($"Hiển thị tàu chìm: {sunkShip.shipType} tại {string.Join(", ", sunkShip.positions)}");
+
+        // Xác định prefab tàu dựa trên shipType
+        GameObject shipPrefab = GetShipPrefabByType(sunkShip.shipType);
+
+        if (shipPrefab == null)
+        {
+            Debug.LogError($"Không tìm thấy prefab cho tàu: {sunkShip.shipType}");
+            return;
+        }
+
+        // Kiểm tra xem tàu này đã được đặt trước đó chưa
+        string shipKey = sunkShip.shipId.ToString();
+        GameObject shipInstance;
+
+        if (placedShips.ContainsKey(shipKey))
+        {
+            // Nếu tàu đã tồn tại, di chuyển nó đến vị trí mới
+            shipInstance = placedShips[shipKey];
+            Debug.Log($"Tàu {shipKey} đã tồn tại, di chuyển đến vị trí mới");
+        }
+        else
+        {
+            // Lấy ô đầu tiên để đặt tàu
+            GameObject firstCell = GameObject.Find(sunkShip.positions[0]);
+            if (firstCell == null)
+            {
+                Debug.LogError($"Không tìm thấy ô: {sunkShip.positions[0]}");
+                return;
+            }
+
+            // Tạo instance mới của tàu
+            shipInstance = Instantiate(shipPrefab, firstCell.transform);
+            shipInstance.name = sunkShip.shipType;
+
+            // Lưu vào dictionary để tái sử dụng sau này
+            placedShips.Add(shipKey, shipInstance);
+            Debug.Log($"Tàu mới {shipKey} đã được tạo");
+        }
+
+        // Xóa các vòng tròn đỏ tại các vị trí của tàu
+        foreach (string positionName in sunkShip.positions)
+        {
+            GameObject cell = GameObject.Find(positionName);
+            if (cell != null)
+            {
+                // Xóa các circle hiện tại trên cell này
+                Transform circleTransform = cell.transform.Find("Circle");
+                if (circleTransform != null)
+                {
+                    Destroy(circleTransform.gameObject);
+                }
+            }
+        }
+
+        // Đặt tàu vào vị trí đầu tiên
+        GameObject startCell = GameObject.Find(sunkShip.positions[0]);
+        if (startCell != null)
+        {
+            // Di chuyển tàu đến ô đầu tiên
+            shipInstance.transform.SetParent(startCell.transform);
+            shipInstance.transform.localPosition = Vector3.zero;
+
+            // Xác định hướng tàu
+            bool isVertical = IsShipVertical(sunkShip.positions);
+
+            // Cấu hình hình ảnh và kích thước của tàu
+            ConfigureShipVisual(shipInstance, sunkShip, isVertical);
+
+            // Bật (enable) hình ảnh của tàu
+            Image shipImage = shipInstance.GetComponent<Image>();
+            if (shipImage != null)
+            {
+                shipImage.enabled = true;
+                Debug.Log($"Đã bật hình ảnh cho tàu {sunkShip.shipType}");
+            }
+            else
+            {
+                Debug.LogError($"Không tìm thấy component Image trên tàu {sunkShip.shipType}");
+            }
+        }
+        else
+        {
+            Debug.LogError($"Không tìm thấy ô bắt đầu: {sunkShip.positions[0]}");
+        }
+    }
+
+    // Xác định tàu đặt theo chiều dọc hay ngang
+    bool IsShipVertical(string[] positions)
+    {
+        if (positions.Length <= 1) return false;
+
+        // Lấy ký tự đầu tiên (chữ cái) của vị trí đầu tiên và thứ hai
+        char firstLetter = positions[0][0];
+        char secondLetter = positions[1][0];
+
+        // Nếu chữ cái khác nhau => tàu đặt theo chiều dọc
+        return firstLetter != secondLetter;
+    }
+
+    // Lấy prefab tàu dựa vào loại
+    GameObject GetShipPrefabByType(string shipType)
+    {
+        switch (shipType)
+        {
+            case "Ship2": return ship2Prefab;
+            case "Ship3.1": return ship31Prefab;
+            case "Ship3.2": return ship32Prefab;
+            case "Ship4": return ship4Prefab;
+            case "Ship5": return ship5Prefab;
+            default: return null;
+        }
+    }
+
+    // Thiết lập hiển thị cho tàu (kích thước, hướng)
+    void ConfigureShipVisual(GameObject shipObject, SunkShip sunkShip, bool isVertical)
+    {
+        RectTransform rectTransform = shipObject.GetComponent<RectTransform>();
+        if (rectTransform == null) return;
+
+        // Lấy kích thước của một ô
+        GameObject firstCell = GameObject.Find(sunkShip.positions[0]);
+        RectTransform cellRect = firstCell?.GetComponent<RectTransform>();
+        if (cellRect == null) return;
+        float cellSize = cellRect.rect.width;
+
+        // Số ô mà tàu chiếm
+        int shipSize = GetShipSizeFromType(sunkShip.shipType);
+
+        // Reset rotation và scale trước khi điều chỉnh
+        rectTransform.localRotation = Quaternion.identity;
+        rectTransform.localScale = Vector3.one;
+
+        // Giảm kích thước để tránh dính lưới
+        float scaleFactor = 0.9f;
+
+        // Thiết lập kích thước tàu ngang (cơ bản)
+        rectTransform.sizeDelta = new Vector2(cellSize * shipSize * scaleFactor, cellSize * scaleFactor);
+
+        // Nếu là tàu dọc thì xoay 90 độ
+        if (isVertical)
+        {
+            rectTransform.Rotate(0, 0, 90);
+        }
+
+        // Lấy các ô đầu và cuối để xác định vị trí chính xác
+        string firstCellName = sunkShip.positions[0];
+        string lastCellName = sunkShip.positions[sunkShip.positions.Length - 1];
+
+        GameObject firstCellObj = GameObject.Find(firstCellName);
+        GameObject lastCellObj = GameObject.Find(lastCellName);
+
+        if (firstCellObj != null && lastCellObj != null)
+        {
+            Vector3 firstPos = firstCellObj.transform.position;
+            Vector3 lastPos = lastCellObj.transform.position;
+
+            // Xác định vị trí trung tâm của tàu
+            Vector3 centerPos = (firstPos + lastPos) / 2f;
+
+            // Di chuyển tàu đến vị trí trung tâm
+            rectTransform.position = centerPos;
+        }
+
+        // Đảm bảo tàu hiển thị phía trên các phần tử khác
+        shipObject.transform.SetAsLastSibling();
+
+        // Đảm bảo hình ảnh của tàu được hiển thị rõ ràng
+        Image shipImage = shipObject.GetComponent<Image>();
+        if (shipImage != null)
+        {
+            shipImage.raycastTarget = false;
+
+            if (shipImage is UnityEngine.UI.Image)
+            {
+                UnityEngine.UI.Image uiImage = shipImage as UnityEngine.UI.Image;
+                if (uiImage.type == UnityEngine.UI.Image.Type.Sliced)
+                {
+                    uiImage.pixelsPerUnitMultiplier = 1;
+                }
+            }
+        }
+    }
+
+    // Lấy kích thước tàu từ loại tàu
+    int GetShipSizeFromType(string shipType)
+    {
+        switch (shipType)
+        {
+            case "Ship2": return 2;
+            case "Ship3.1":
+            case "Ship3.2": return 3;
+            case "Ship4": return 4;
+            case "Ship5": return 5;
+            default: return 1;
+        }
+    }
+
     IEnumerator OpenBotFirePanel()
     {
         Debug.Log("OpenBotFirePanel() được gọi");
@@ -261,7 +587,7 @@ public class FireBotManager : MonoBehaviour
         LeanTween.scale(changeTurnPanel, Vector3.one, 0.4f).setEaseOutBack();
 
         yield return new WaitForSeconds(1.2f);
-        
+
         changeTurnPanel.SetActive(false);
         fireBotPanel.SetActive(false);
         botFirePanel.SetActive(true);
@@ -285,6 +611,12 @@ public class FireBotManager : MonoBehaviour
 }
 
 // Cấu trúc các class JSON - Sửa lại để phù hợp với cấu trúc phản hồi từ API
+[System.Serializable]
+public class GameResult
+{
+    public string status;
+    public int winnerId;
+}
 
 [System.Serializable]
 public class PlayerShot
@@ -292,7 +624,7 @@ public class PlayerShot
     public string position;
     public string result;
     public SunkShip sunkShip;
-    public string gameResult;
+    public GameResult gameResult;
 }
 
 [System.Serializable]
@@ -308,6 +640,7 @@ public class SunkShip
 {
     public int shipId;
     public string shipType;
+    public string[] positions;
 }
 
 [System.Serializable]
@@ -316,7 +649,7 @@ public class BotShot
     public string position;
     public string result;
     public SunkShip sunkShip;
-    public string gameResult;
+    public GameResult gameResult;
 
     // Mặc định constructor
     public BotShot()

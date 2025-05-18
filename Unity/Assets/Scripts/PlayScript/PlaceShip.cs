@@ -250,6 +250,7 @@ public class PlaceShip : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
     private void OnDestroy()
     {
         ClearFrames();
+        placedShips.Clear();
     }
 
     public static string ExportShipsAsGameJSON(int gameId = 1)

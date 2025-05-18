@@ -5,7 +5,7 @@ const {
     fireController, 
     fireWithBotController, 
     setidController, 
-    placeBotShipController 
+    placeBotShipController,
 } = require('../Controllers/Gameplay.controller');
 
 //API đặt tàu

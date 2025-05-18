@@ -8,7 +8,7 @@ const {
     fireWithBot, 
     setID,  
     generateBotShips, 
-    placeBotShips 
+    placeBotShips
 } = require('../Models/Gameplay.model');
 
 const setidController = async (req, res) => {
@@ -210,5 +210,5 @@ module.exports = {
     fireController, 
     fireWithBotController, 
     setidController, 
-    placeBotShipController 
+    placeBotShipController
 };

@@ -105,9 +105,18 @@ const fireAtPosition = async (gameId, playerId, position) => {
         const isSunk = shipPositions.every(position => position.Hit === 1);
         
         if (isSunk) {
+            // Lấy danh sách tất cả các vị trí của tàu đã bị chìm
+            const shipAllPositions = await query(
+                'SELECT Position FROM ShipPosition WHERE Ship_Id = ? ORDER BY Position',
+                [shipId]
+            );
+            
+            const positions = shipAllPositions.map(pos => pos.Position);
+            
             sunkShip = {
                 shipId,
-                shipType
+                shipType,
+                positions  // Thêm mảng các vị trí của tàu
             };
             
             // Cập nhật trạng thái tàu đã bị đánh chìm
@@ -350,5 +359,5 @@ module.exports = {
     fireWithBot, 
     setID, 
     generateBotShips,
-    placeBotShips 
+    placeBotShips
 };
