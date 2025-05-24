@@ -353,11 +353,55 @@ const placeBotShips = async (gameId, botId, ships) => {
     return true;
 };
 
+//Hiển thị các position mà player đặt
+const showPositionShips = async (playerId, gameId) => {
+    try {
+        // Lấy tất cả các loại ship distinct
+        const shipTypes = await query(
+            `SELECT DISTINCT S.Type
+             FROM Ship S 
+             JOIN ShipPosition SP ON S.Ship_Id = SP.Ship_Id 
+             WHERE S.Player_Id = ? AND S.Game_Id = ?`,
+            [playerId, gameId]
+        );
+
+        // Tạo mảng kết quả
+        let result = [];
+
+        // Lặp qua từng loại ship để lấy positions
+        for (const typeRow of shipTypes) {
+            const shipType = typeRow.Type;
+            
+            // Lấy tất cả positions của loại ship này
+            const shipAllPositions = await query(
+                `SELECT SP.Position 
+                 FROM Ship S 
+                 JOIN ShipPosition SP ON S.Ship_Id = SP.Ship_Id 
+                 WHERE S.Type = ? AND S.Player_Id = ? AND S.Game_Id = ?`,
+                [shipType, playerId, gameId]
+            );
+            
+            // Chuyển đổi thành mảng string positions
+            const positions = shipAllPositions.map(pos => pos.Position);
+            // Thêm vào kết quả
+            result.push({
+                shipType,
+                positions
+            });
+        }
+        return result;
+    } catch (error) {
+        console.error('Error in showPositionShips:', error);
+        throw error;
+    }
+}
+
 module.exports = { 
     placeShips, 
     fireAtPosition, 
     fireWithBot, 
     setID, 
     generateBotShips,
-    placeBotShips
+    placeBotShips,
+    showPositionShips
 };

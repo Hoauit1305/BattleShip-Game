@@ -30,7 +30,10 @@ public class BotFireManager : MonoBehaviour
     public static List<BotShot> botShotsData = new List<BotShot>();
     private List<BotShot> currentBotShots = new List<BotShot>();
     private bool dataWasSet = false;
-
+    
+    //Hightlight
+    private List<GameObject> frameObjects = new List<GameObject>();
+    public Color FrameColor = Color.red;
     void OnEnable()
     {
         Debug.Log("BotFireManager - OnEnable() được gọi");
@@ -183,6 +186,8 @@ public class BotFireManager : MonoBehaviour
             // Kiểm tra xem có tàu bị chìm không
             if (shot.sunkShip != null && shot.sunkShip.positions != null && shot.sunkShip.positions.Length > 0)
             {
+                // Hiển thị frame highlight cho tất cả các ô của tàu bị chìm
+                ShowSunkShipHighlights(shot.sunkShip.positions);
                 // Hiển thị tàu bị chìm
                 ShowSunkShip(shot.sunkShip);
             }
@@ -288,7 +293,42 @@ public class BotFireManager : MonoBehaviour
 
         Debug.Log($"Hiển thị panel kết quả trò chơi: {(isWin ? "Thắng" : "Thua")}");
     }
+    //Hight light ô tàu
+    void ShowSunkShipHighlights(string[] positions)
+    {
+        // Use botFirePanel instead of root canvas
+        Transform parentTransform = botFirePanel.transform;
 
+        foreach (string positionName in positions)
+        {
+            GameObject cell = GameObject.Find(positionName);
+            if (cell != null)
+            {
+                // Tạo frame highlight cho mỗi ô
+                GameObject frame = new GameObject("BotFireHighlight");
+                RectTransform frameTransform = frame.AddComponent<RectTransform>();
+                frame.transform.SetParent(parentTransform);
+
+                // Thiết lập vị trí và kích thước
+                RectTransform cellRect = cell.GetComponent<RectTransform>();
+                if (cellRect != null)
+                {
+                    frameTransform.position = cell.transform.position;
+                    frameTransform.sizeDelta = cellRect.sizeDelta;
+                    frameTransform.localScale = Vector3.one;
+
+                    // Thêm component Image và thiết lập màu
+                    Image frameImage = frame.AddComponent<Image>();
+                    frameImage.color = new Color(FrameColor.r, FrameColor.g, FrameColor.b, 0.4f); // Màu đỏ semi-transparent
+
+                    // Thêm vào danh sách để có thể xóa sau này
+                    frameObjects.Add(frame);
+
+                    Debug.Log($"Đã tạo highlight cho ô {positionName}");
+                }
+            }
+        }
+    }
     // Hiển thị tàu bị chìm
     void ShowSunkShip(SunkShip sunkShip)
     {

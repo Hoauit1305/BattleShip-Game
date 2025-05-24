@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using UnityEngine.Networking;
 using System.Collections;
 using System.Collections.Generic;
+using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
 public class FireBotManager : MonoBehaviour
 {
@@ -32,6 +33,10 @@ public class FireBotManager : MonoBehaviour
     public static List<BotShot> globalBotShots = new List<BotShot>();
     public static bool isPlayerTurn = true;
     public GameObject changeTurnPanel;
+    //Hightlight
+    private List<GameObject> frameObjects = new List<GameObject>();
+    public Color FrameColor = Color.red;
+    
     void Start()
     {
         globalDiamond = diamondObject;
@@ -271,6 +276,8 @@ public class FireBotManager : MonoBehaviour
             // Kiểm tra nếu có tàu bị chìm
             if (sunkShipData != null && sunkShipData.positions != null && sunkShipData.positions.Length > 0)
             {
+                // Hiển thị frame highlight cho tất cả các ô của tàu bị chìm
+                ShowSunkShipHighlights(sunkShipData.positions);
                 // Hiển thị hình ảnh tàu dựa trên shipType và vị trí
                 ShowSunkShip(sunkShipData);
             }
@@ -375,7 +382,41 @@ public class FireBotManager : MonoBehaviour
 
         Debug.Log($"Hiển thị panel kết quả trò chơi: {(isWin ? "Thắng" : "Thua")}");
     }
+    void ShowSunkShipHighlights(string[] positions)
+    {
+        // Use fireBotPanel instead of root canvas
+        Transform parentTransform = fireBotPanel.transform;
 
+        foreach (string positionName in positions)
+        {
+            GameObject cell = GameObject.Find(positionName);
+            if (cell != null)
+            {
+                // Tạo frame highlight cho mỗi ô
+                GameObject frame = new GameObject("FireBotHighlight");
+                RectTransform frameTransform = frame.AddComponent<RectTransform>();
+                frame.transform.SetParent(parentTransform);
+
+                // Thiết lập vị trí và kích thước
+                RectTransform cellRect = cell.GetComponent<RectTransform>();
+                if (cellRect != null)
+                {
+                    frameTransform.position = cell.transform.position;
+                    frameTransform.sizeDelta = cellRect.sizeDelta;
+                    frameTransform.localScale = Vector3.one;
+
+                    // Thêm component Image và thiết lập màu
+                    Image frameImage = frame.AddComponent<Image>();
+                    frameImage.color = new Color(FrameColor.r, FrameColor.g, FrameColor.b, 0.4f); // Màu đỏ semi-transparent
+
+                    // Thêm vào danh sách để có thể xóa sau này
+                    frameObjects.Add(frame);
+
+                    Debug.Log($"Đã tạo highlight cho ô {positionName}");
+                }
+            }
+        }
+    }
     // Hàm hiển thị tàu bị chìm
     void ShowSunkShip(SunkShip sunkShip)
     {

@@ -8,7 +8,8 @@ const {
     fireWithBot, 
     setID,  
     generateBotShips, 
-    placeBotShips
+    placeBotShips,
+    showPositionShips
 } = require('../Models/Gameplay.model');
 
 const setidController = async (req, res) => {
@@ -52,7 +53,7 @@ const placeShipController = async (req, res) => {
         decoded = jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
         return res.status(401).json({ message: "Token không hợp lệ" });
-    }
+    }   
 
     const playerId = decoded.id;
     const { gameId, ships } = req.body;
@@ -204,11 +205,42 @@ const placeBotShipController = async (req, res) => {
         return res.status(500).json({ message: "Lỗi server khi đặt tàu cho bot" });
     }
 };
+//Controller để hiển thị tàu player bên BotPanel
+const getPositionController = async (req, res) => {
+    const authHeader = req.headers.authorization;
 
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(403).json({ message: "Không có token hoặc token không hợp lệ!" });
+    }
+
+    const token = authHeader.split(" ")[1];
+    let decoded;
+
+    try {
+        decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (err) {
+        return res.status(401).json({ message: "Token không hợp lệ" });
+    }
+
+    const playerId = decoded.id;
+    const { gameId } = req.body;
+    if (!gameId) {
+        return res.status(400).json({ message: "Thiếu gameId" });
+    }
+
+    try {
+        const result = await showPositionShips(playerId, gameId);
+        return res.json(result);
+    } catch (err) {
+        console.error("❌ Lỗi khi hiện tàu người chơi:", err);
+        return res.status(400).json({ message: err.message || "Lỗi server khi hiện tàu" });
+    }
+}
 module.exports = { 
     placeShipController, 
     fireController, 
     fireWithBotController, 
     setidController, 
-    placeBotShipController
+    placeBotShipController,
+    getPositionController
 };
