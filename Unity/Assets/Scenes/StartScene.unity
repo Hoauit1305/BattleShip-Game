@@ -132,6 +132,7 @@ GameObject:
   - component: {fileID: 340968842}
   - component: {fileID: 340968841}
   - component: {fileID: 340968844}
+  - component: {fileID: 340968845}
   m_Layer: 5
   m_Name: StartButton
   m_TagString: Untagged
@@ -266,6 +267,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   loadingPanel: {fileID: 1386269368}
+--- !u!114 &340968845
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 340968839}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1cfc3af972144e46bd219cf1bf2084e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  clickSound: {fileID: 8300000, guid: 2a0f96c4f4ab14ffe9756d36e2897252, type: 3}
 --- !u!1 &412078972
 GameObject:
   m_ObjectHideFlags: 0

@@ -39,6 +39,8 @@ public class FireBotManager : MonoBehaviour
     
     void Start()
     {
+       
+
         globalDiamond = diamondObject;
         globalDiamond.GetComponent<Image>().enabled = false;
 
@@ -102,6 +104,8 @@ public class FireBotManager : MonoBehaviour
 
     void OnCellPointerClick(GameObject cell)
     {
+       
+
         if (!isPlayerTurn) return;
 
         GridCellStatus status = cell.GetComponent<GridCellStatus>();
@@ -109,7 +113,7 @@ public class FireBotManager : MonoBehaviour
             return;
 
         isPlayerTurn = false;
-
+        FireAudioManager.Instance?.PlayFireSound();
         if (status != null)
             status.isClicked = true;
 

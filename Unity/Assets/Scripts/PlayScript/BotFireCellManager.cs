@@ -24,6 +24,11 @@ public class BotFireManager : MonoBehaviour
     public GameObject ship4Prefab;
     public GameObject ship5Prefab;
 
+    //Thêm âm thanh khi bắn
+    public AudioClip fireSound;
+    private AudioSource audioSource;
+
+
     // Dictionary để theo dõi các tàu đã được đặt
     private Dictionary<string, GameObject> placedShips = new Dictionary<string, GameObject>();
 
@@ -165,6 +170,7 @@ public class BotFireManager : MonoBehaviour
             Debug.Log("Bot bắn tại ô: " + shot.position + " | Kết quả: " + shot.result);
 
             GameObject cell = GameObject.Find(shot.position);
+            FireAudioManager.Instance?.PlayFireSound();
             if (cell == null)
             {
                 Debug.LogError("Không tìm thấy ô " + shot.position);
