@@ -102,21 +102,21 @@ public class RoomManager : MonoBehaviour
             if (RoomCodeText != null) RoomCodeText.text = response.room.roomCode.ToString();
             if (OwnerNameText != null) OwnerNameText.text = name;
 
-            WebSocketClient wsClient = FindObjectOfType<WebSocketClient>();
-            if (wsClient != null)
-            {
-                string roomCode = currentRoom.roomCode.ToString();
-                string guestName = currentPlayerName;
+            //WebSocketClient wsClient = FindObjectOfType<WebSocketClient>();
+            //if (wsClient != null)
+            //{
+            //    string roomCode = currentRoom.roomCode.ToString();
+            //    string guestName = currentPlayerName;
 
-                string message = JsonUtility.ToJson(new WebSocketJoinRoomMessage
-                {
-                    type = "join_room",
-                    roomCode = roomCode,
-                    guestName = guestName
-                });
+            //    string message = JsonUtility.ToJson(new WebSocketJoinRoomMessage
+            //    {
+            //        type = "join_room",
+            //        roomCode = roomCode,
+            //        guestName = guestName
+            //    });
 
-                //wsClient.SendMessage(message);
-            }
+            //    //wsClient.SendMessage(message);
+            //}
         }
         else
         {
@@ -218,7 +218,7 @@ public class RoomManager : MonoBehaviour
                 // Kích hoạt sự kiện tìm phòng thành công
                 OnRoomJoinSuccess?.Invoke();
 
-                WebSocketClient wsClient = FindFirstObjectByType<WebSocketClient>();
+                //WebSocketClient wsClient = FindFirstObjectByType<WebSocketClient>();
 
                 string roomCodeStr = currentRoom.roomCode.ToString();
                 string guestName = currentPlayerName;
@@ -230,7 +230,7 @@ public class RoomManager : MonoBehaviour
                     guestName = guestName
                 });
 
-                wsClient.SendMessage(message);
+                //wsClient.SendMessage(message);
 
             }
             catch (System.Exception e)

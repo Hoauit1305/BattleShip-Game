@@ -4,6 +4,8 @@ select * from ship;
 select * from shipposition;
 select * from shot;
 select * from game;
+select * from friend;
+insert into friend (Requester_Id, Addressee_Id, Status) VALUES (1, 4, "accepted");
 INSERT INTO Player (Username, Password) VALUES ('bao123', '123456' );
 INSERT INTO Player (Username, Password) VALUES ('hoang123', '123456' );
 
@@ -66,6 +68,14 @@ CREATE TABLE Shot (
     FOREIGN KEY (Player_Id) REFERENCES Player(Player_Id)
 );
 
+CREATE TABLE Friend (
+    Requester_Id INT,
+    Addressee_Id INT,
+    Status ENUM('pending', 'accepted', 'rejected') DEFAULT 'pending',
+    PRIMARY KEY (Requester_Id, Addressee_Id),
+    FOREIGN KEY (Requester_Id) REFERENCES Player(Player_Id),
+    FOREIGN KEY (Addressee_Id) REFERENCES Player(Player_Id)
+);
 -- CREATE TABLE Matches (
 --     Match_Id VARCHAR(5) PRIMARY KEY,
 --     Player1_Id INT,
@@ -86,16 +96,6 @@ CREATE TABLE Shot (
 --     Grid_Status TEXT,
 --     FOREIGN KEY (Match_Id) REFERENCES Matches(Match_Id),
 --     FOREIGN KEY (Player_Id) REFERENCES Player(Player_Id)
--- );
-
--- CREATE TABLE Friend (
---     User_Id INT,
---     Friend_Id INT,
---     Status ENUM('pending', 'accepted', 'blocked') DEFAULT 'pending',
---     PRIMARY KEY (User_Id, Friend_Id),
---     FOREIGN KEY (User_Id) REFERENCES Player(Player_Id),
-
---     FOREIGN KEY (Friend_Id) REFERENCES Player(Player_Id)
 -- );
 
 -- CREATE TABLE Setting (
