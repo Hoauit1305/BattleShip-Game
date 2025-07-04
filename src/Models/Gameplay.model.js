@@ -205,6 +205,18 @@ const fireWithBot = async (gameId, playerId, playerPosition) => {
     };
 };
 
+// gameID, playerid, playerposition
+const fireWithPerson = async (gameId, playerId, playerPosition) => {
+    // Người chơi bắn
+    const playerShot = await fireAtPosition(gameId, playerId, playerPosition);
+
+    // Trả về kết quả cuối cùng
+    return {
+        message: "Bạn đã bắn thành công!",  
+        playerShot
+    };
+};
+
 /**
  * Hàm tạo vị trí ngẫu nhiên cho tàu bot
  * @returns {string} Vị trí ngẫu nhiên (ví dụ: 'A1', 'B5', ...)
@@ -403,5 +415,6 @@ module.exports = {
     setID, 
     generateBotShips,
     placeBotShips,
-    showPositionShips
+    showPositionShips,
+    fireWithPerson
 };

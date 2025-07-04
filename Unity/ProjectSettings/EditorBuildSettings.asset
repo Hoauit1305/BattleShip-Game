@@ -15,7 +15,7 @@ EditorBuildSettings:
     path: Assets/Scenes/LobbyScene.unity
     guid: 69876f8f35b810b479ff0defcfe3100f
   - enabled: 1
-    path: Assets/Scenes/PlayScene.unity
+    path: Assets/Scenes/PlayBotScene.unity
     guid: 012dbaaa7e166bc45a7fbdbc01ff6ed9
   - enabled: 1
     path: Assets/Scenes/FindMatchesScene.unity

@@ -13,6 +13,6 @@ public class BotManager : MonoBehaviour
 
     void LoadPlayScene()
     {
-        SceneManager.LoadScene("PlayScene");
+        SceneManager.LoadScene("PlayBotScene");
     }
 }

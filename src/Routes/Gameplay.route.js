@@ -6,7 +6,8 @@ const {
     fireWithBotController, 
     setidController, 
     placeBotShipController,
-    getPositionController
+    getPositionController,
+    fireWithPersonController
 } = require('../Controllers/Gameplay.controller');
 
 //API đặt tàu
@@ -17,6 +18,9 @@ router.post('/fire-ship', fireController);
 
 //API bắn tàu với máy
 router.post('/fire-ship/bot', fireWithBotController);
+
+//API bắn tàu với người
+router.post('/fire-ship/person', fireWithPersonController);
 
 //API tạo id trận đấu
 router.post('/create-gameid', setidController);
