@@ -39,6 +39,73 @@ public class PersonFireManager : MonoBehaviour
     //Hightlight
     private List<GameObject> frameObjects = new List<GameObject>();
     public Color FrameColor = Color.red;
+
+    public WebSocketSharp.WebSocket socket;
+
+    void Start()
+    {
+        if (socket != null && socket.IsAlive)
+        {
+            socket.OnMessage += (sender, e) =>
+            {
+                Debug.Log("Nhận message từ socket: " + e.Data);
+                FireResult result = JsonUtility.FromJson<FireResult>(e.Data);
+                StartCoroutine(HandleOpponentFire(result));
+            };
+        }
+    }
+
+    IEnumerator HandleOpponentFire(FireResult shot)
+    {
+        Debug.Log("Opponent bắn tại: " + shot.position + " | Kết quả: " + shot.result);
+
+        GameObject cell = GameObject.Find(shot.position);
+        if (cell == null)
+        {
+            Debug.LogError("Không tìm thấy ô: " + shot.position);
+            yield break;
+        }
+
+        FireAudioManager.Instance?.PlayFireSound();
+
+        GameObject diamond = Instantiate(diamondObject, cell.transform);
+        diamond.GetComponent<Image>().enabled = true;
+        diamond.transform.localPosition = Vector3.zero;
+        yield return new WaitForSeconds(0.5f);
+        Destroy(diamond);
+
+        GameObject rectangle = Instantiate(rectangleObject, cell.transform);
+        rectangle.GetComponent<Image>().enabled = true;
+        rectangle.transform.localPosition = Vector3.zero;
+        yield return new WaitForSeconds(0.5f);
+        Destroy(rectangle);
+
+        if (shot.sunkShip != null && shot.sunkShip.positions != null && shot.sunkShip.positions.Length > 0)
+        {
+            ShowSunkShipHighlights(shot.sunkShip.positions);
+            ShowSunkShip(shot.sunkShip);
+        }
+        else
+        {
+            GameObject circlePrefab = (shot.result == "hit") ? circleRedObject : circleWhiteObject;
+            GameObject circle = Instantiate(circlePrefab, cell.transform);
+            circle.GetComponent<Image>().enabled = true;
+            circle.transform.localPosition = Vector3.zero;
+        }
+
+        if (shot.gameResult != null && shot.gameResult.status == "completed")
+        {
+            Debug.Log("Kết thúc trận đấu, Winner: " + shot.gameResult.winnerId);
+            int currentPlayerId = PrefsHelper.GetInt("playerId");
+            bool isWin = shot.gameResult.winnerId == currentPlayerId;
+            ShowGameResultPanel(isWin);
+            yield break;
+        }
+
+        yield return StartCoroutine(ShowChangeTurnPanel());
+        fireBotPanel.SetActive(true);
+    }
+
     void OnEnable()
     {
         Debug.Log("BotFireManager - OnEnable() được gọi");
@@ -553,4 +620,12 @@ public class PersonFireManager : MonoBehaviour
             yield return null;
         }
     }
+}
+[System.Serializable]
+public class FireResult
+{
+    public string position;
+    public string result;
+    public SunkShip sunkShip;
+    public GameResult gameResult;
 }

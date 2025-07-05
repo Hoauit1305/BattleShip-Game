@@ -37,7 +37,9 @@ public class FirePersonManager : MonoBehaviour
     //Hightlight
     private List<GameObject> frameObjects = new List<GameObject>();
     public Color FrameColor = Color.red;
-    
+
+    public WebSocket socket; // socket truyền vào từ lúc tạo phòng
+
     void Start()
     {
        
@@ -149,9 +151,11 @@ public class FirePersonManager : MonoBehaviour
 
             Destroy(rectObj);
 
+            // Gửi socket bắn sang server
             string gameId = PrefsHelper.GetInt("gameId").ToString();
             string playerId = PrefsHelper.GetInt("playerId").ToString();
-            string apiURL = "http://localhost:3000/api/gameplay/fire-ship/bot";
+            string position = cell.name;
+            string apiURL = "http://localhost:3000/api/gameplay/fire-ship/person";
 
             ShotRequest shotRequest = new ShotRequest(gameId, playerId, cell.name);
             UnityWebRequest request = CreatePostRequest(apiURL, shotRequest);
@@ -262,6 +266,28 @@ public class FirePersonManager : MonoBehaviour
                         {
                             Debug.LogError("Error: playerShot is null in response");
                         }
+                        if (socket != null && socket.IsAlive)
+                        {
+                            // Tạo JSON gửi socket
+                            var fireResult = new
+                            {
+                                position = response.playerShot.position,
+                                result = response.playerShot.result,
+                                sunkShip = response.playerShot.sunkShip, // có thể null
+                                gameResult = response.playerShot.gameResult // có thể null
+                            };
+
+                            string jsonFireResult = JsonUtility.ToJson(fireResult);
+                            Debug.Log($"[SOCKET] Gửi fire-result: {jsonFireResult}");
+
+                            // Emit socket fire-result (tùy SocketSharp hay IO client mà .Send hoặc Emit)
+                            socket.Send(jsonFireResult);
+                        }
+                        else
+                        {
+                            Debug.LogWarning("[SOCKET] Socket null hoặc chưa connect");
+                        }
+
                     }
                     else
                     {
@@ -701,7 +727,7 @@ public class ShotPersonRequest
         this.gameId = gameId;
         this.playerId = playerId;
         this.position = position;
-    }
+    }   
 }
 
 public class GridCellPersonStatus : MonoBehaviour
