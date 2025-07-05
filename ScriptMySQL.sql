@@ -5,7 +5,12 @@ select * from shipposition;
 select * from shot;
 select * from game;
 select * from friend;
-insert into friend (Requester_Id, Addressee_Id, Status) VALUES (1, 4, "accepted");
+select * from message;
+insert into message (Sender_Id, Receiver_Id, Content) VALUES (1, 2, "abcxyzhk");
+insert into friend (Requester_Id, Addressee_Id, Status) VALUES (4, 2, "accepted");
+update friend
+set Status = 'pending'
+where Requester_Id = 3;
 INSERT INTO Player (Username, Password) VALUES ('bao123', '123456' );
 INSERT INTO Player (Username, Password) VALUES ('hoang123', '123456' );
 
@@ -76,6 +81,15 @@ CREATE TABLE Friend (
     FOREIGN KEY (Requester_Id) REFERENCES Player(Player_Id),
     FOREIGN KEY (Addressee_Id) REFERENCES Player(Player_Id)
 );
+
+CREATE TABLE Message (
+    Message_Id INT AUTO_INCREMENT PRIMARY KEY,
+    Sender_Id INT NOT NULL,
+    Receiver_Id INT NOT NULL,
+    Content TEXT NOT NULL,
+    Created_At DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
 -- CREATE TABLE Matches (
 --     Match_Id VARCHAR(5) PRIMARY KEY,
 --     Player1_Id INT,
