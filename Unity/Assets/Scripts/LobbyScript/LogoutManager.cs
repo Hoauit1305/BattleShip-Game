@@ -23,7 +23,7 @@ public class LogoutManager : MonoBehaviour
         }
 
         // Tạo request
-        UnityWebRequest request = new UnityWebRequest("http://localhost:3000/api/auth/logout", "POST");
+        UnityWebRequest request = new UnityWebRequest("https://battleship-game-production.up.railway.app/api/auth/logout", "POST");
         request.downloadHandler = new DownloadHandlerBuffer();
         request.SetRequestHeader("Authorization", "Bearer " + token);
 

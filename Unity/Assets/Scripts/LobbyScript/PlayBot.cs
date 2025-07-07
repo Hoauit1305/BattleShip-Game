@@ -37,7 +37,7 @@ public class PlayBot : MonoBehaviour
         string jsonBody = JsonUtility.ToJson(requestBody);
         byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonBody);
 
-        UnityWebRequest request = new UnityWebRequest("http://localhost:3000/api/gameplay/create-gameid", "POST"); // ✅ ĐÃ SỬA
+        UnityWebRequest request = new UnityWebRequest("https://battleship-game-production.up.railway.app/api/gameplay/create-gameid", "POST"); // ✅ ĐÃ SỬA
         request.SetRequestHeader("Authorization", "Bearer " + token);
         request.SetRequestHeader("Content-Type", "application/json");
         request.uploadHandler = new UploadHandlerRaw(bodyRaw);
@@ -74,7 +74,7 @@ public class PlayBot : MonoBehaviour
         string shipJson = JsonUtility.ToJson(shipRequest);
         byte[] bodyRaw = Encoding.UTF8.GetBytes(shipJson);
 
-        UnityWebRequest request = new UnityWebRequest("http://localhost:3000/api/gameplay/place-ship/bot", "POST");
+        UnityWebRequest request = new UnityWebRequest("https://battleship-game-production.up.railway.app/api/gameplay/place-ship/bot", "POST");
         request.uploadHandler = new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = new DownloadHandlerBuffer();
         request.SetRequestHeader("Authorization", "Bearer " + token);

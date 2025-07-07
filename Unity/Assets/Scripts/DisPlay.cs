@@ -17,7 +17,7 @@ public class DisPlay : MonoBehaviour
     IEnumerator GetDisplayInfo()
     {
         // Tạo request
-        UnityWebRequest request = new UnityWebRequest("http://localhost:3000/api/display/user", "POST");
+        UnityWebRequest request = new UnityWebRequest("https://battleship-game-production.up.railway.app/api/display/user", "POST");
         request.downloadHandler = new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
 

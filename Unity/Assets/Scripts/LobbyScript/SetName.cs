@@ -30,7 +30,7 @@ public class setname : MonoBehaviour
         // Tạo JSON body
         string jsonBody = JsonUtility.ToJson(new setNameRequest(name));
         // Tạo request
-        UnityWebRequest request = new UnityWebRequest("http://localhost:3000/api/auth/choose-name", "POST");
+        UnityWebRequest request = new UnityWebRequest("https://battleship-game-production.up.railway.app/api/auth/choose-name", "POST");
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonBody);
         request.uploadHandler = new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = new DownloadHandlerBuffer();

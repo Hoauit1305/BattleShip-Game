@@ -30,7 +30,7 @@ public class ForgotManager : MonoBehaviour
         string jsonBody = JsonUtility.ToJson(new ForgotpwRequestData(username, email));
 
         // Tạo request
-        UnityWebRequest request = new UnityWebRequest("http://localhost:3000/api/auth/forgot-password", "POST");
+        UnityWebRequest request = new UnityWebRequest("https://battleship-game-production.up.railway.app/api/auth/forgot-password", "POST");
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonBody);
         request.uploadHandler = new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = new DownloadHandlerBuffer();

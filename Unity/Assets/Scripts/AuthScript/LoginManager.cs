@@ -33,8 +33,8 @@ public class LoginManager : MonoBehaviour
         string jsonBody = JsonUtility.ToJson(new LoginRequest(username, password));
 
         // Tạo request
-        //UnityWebRequest request = new UnityWebRequest("http://localhost:3000/api/auth/login", "POST");
-        UnityWebRequest request = new UnityWebRequest("https://battleship-game-production.up.railway.app//api/auth/login", "POST");
+        
+        UnityWebRequest request = new UnityWebRequest("https://battleship-game-production.up.railway.app/api/auth/login", "POST");
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonBody);
         request.uploadHandler = new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = new DownloadHandlerBuffer();
@@ -69,7 +69,7 @@ public class LoginManager : MonoBehaviour
     IEnumerator CheckNameCoroutine(string username)
     {
         string jsonBody = JsonUtility.ToJson(new UsernameRequest(username));
-        UnityWebRequest request = new UnityWebRequest("http://localhost:3000/api/auth/check-name", "POST");
+        UnityWebRequest request = new UnityWebRequest("https://battleship-game-production.up.railway.app/api/auth/check-name", "POST");
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonBody);
         request.uploadHandler = new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = new DownloadHandlerBuffer();

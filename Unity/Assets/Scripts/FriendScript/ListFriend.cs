@@ -10,7 +10,7 @@ public class ListFriend : MonoBehaviour
 {
     public GameObject friendItemPrefab;
     public Transform contentPanel;
-    public string apiUrl = "http://localhost:3000/api/friend/list";
+    public string apiUrl = "https://battleship-game-production.up.railway.app/api/friend/list";
     private string token;
 
     public GameObject chatPanel;
@@ -102,7 +102,7 @@ public class ListFriend : MonoBehaviour
 
     public IEnumerator LoadChatHistory(int receiverId)
     {
-        string historyUrl = $"http://localhost:3000/api/message/history/{receiverId}";
+        string historyUrl = $"https://battleship-game-production.up.railway.app/api/message/history/{receiverId}";
         UnityWebRequest request = UnityWebRequest.Get(historyUrl);
         request.SetRequestHeader("Authorization", "Bearer " + token);
         yield return request.SendWebRequest();

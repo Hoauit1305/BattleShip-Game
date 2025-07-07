@@ -49,7 +49,7 @@ public class WebSocketManager : MonoBehaviour
     {
         playerId = PrefsHelper.GetInt("playerId");
     
-        websocket = new WebSocket("https://battleship-game-production.up.railway.app/");
+        websocket = new WebSocket("wss://battleship-game-production.up.railway.app/");
 
         websocket.OnOpen += () =>
         {
@@ -172,7 +172,7 @@ public class WebSocketManager : MonoBehaviour
 
     private IEnumerator SendMessageToApi(int receiverId, string content)
     {
-        string sendUrl = "http://localhost:3000/api/message/send";
+        string sendUrl = "https://battleship-game-production.up.railway.app/api/message/send";
         var data = new ListFriend.MessageData { receiverId = receiverId, content = content };
         string jsonString = JsonUtility.ToJson(data);
         byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonString);

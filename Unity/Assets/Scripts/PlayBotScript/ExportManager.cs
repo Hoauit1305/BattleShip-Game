@@ -18,7 +18,7 @@ public class ExportManager : MonoBehaviour
 
     private IEnumerator SendShipData(string json)
     {
-        UnityWebRequest request = new UnityWebRequest("http://localhost:3000/api/gameplay/place-ship", "POST");
+        UnityWebRequest request = new UnityWebRequest("https://battleship-game-production.up.railway.app/api/gameplay/place-ship", "POST");
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(json);
         request.uploadHandler = new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = new DownloadHandlerBuffer();

@@ -150,7 +150,7 @@ public class FireBotManager : MonoBehaviour
 
             string gameId = PrefsHelper.GetInt("gameId").ToString();
             string playerId = PrefsHelper.GetInt("playerId").ToString();
-            string apiURL = "http://localhost:3000/api/gameplay/fire-ship/bot";
+            string apiURL = "https://battleship-game-production.up.railway.app/api/gameplay/fire-ship/bot";
 
             ShotRequest shotRequest = new ShotRequest(gameId, playerId, cell.name);
             UnityWebRequest request = CreatePostRequest(apiURL, shotRequest);

@@ -50,7 +50,7 @@ public class ShowPlayerContainer : MonoBehaviour
     IEnumerator LoadAndShowPlayerShips()
     {
         string gameId = PrefsHelper.GetInt("gameId").ToString();
-        string apiURL = "http://localhost:3000/api/gameplay/showship";
+        string apiURL = "https://battleship-game-production.up.railway.app/api/gameplay/showship";
 
         // Tạo request body
         ShowShipRequest request = new ShowShipRequest(gameId);
