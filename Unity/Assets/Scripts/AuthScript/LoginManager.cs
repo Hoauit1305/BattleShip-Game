@@ -4,7 +4,7 @@ using UnityEngine.Networking; // Để gửi HTTP request
 using System.Collections;
 using TMPro;
 using UnityEngine.SceneManagement;
-using ParrelSync;
+//using ParrelSync;
 public class LoginManager : MonoBehaviour
 {
     public GameObject loadingPanel;
@@ -33,7 +33,8 @@ public class LoginManager : MonoBehaviour
         string jsonBody = JsonUtility.ToJson(new LoginRequest(username, password));
 
         // Tạo request
-        UnityWebRequest request = new UnityWebRequest("http://localhost:3000/api/auth/login", "POST");
+        //UnityWebRequest request = new UnityWebRequest("http://localhost:3000/api/auth/login", "POST");
+        UnityWebRequest request = new UnityWebRequest("https://battleship-game-production.up.railway.app//api/auth/login", "POST");
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonBody);
         request.uploadHandler = new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = new DownloadHandlerBuffer();

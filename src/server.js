@@ -3,77 +3,95 @@ const cors = require('cors');
 require('dotenv').config();
 const db = require('./Config/db.config');
 const http = require('http');
-const { Server } = require('socket.io'); // dùng socket.io thay vì ws
+const WebSocket = require('ws');
 
-// Tạo app Express
 const app = express();
-const server = http.createServer(app); // vẫn giữ createServer
+const server = http.createServer(app); // Server HTTP chung
 
-// Khởi tạo Socket.IO server
-const io = new Server(server, {
-    cors: {
-        origin: '*', // cho phép tất cả, khi deploy thì chỉnh lại domain cụ thể
-    }
+// WebSocket server
+const wss = new WebSocket.Server({ server });
+
+const clients = new Map(); // Map: playerId => WebSocket
+
+// Khi có client kết nối WebSocket
+wss.on('connection', (ws, req) => {
+    console.log('🔌 Một client đã kết nối WebSocket');
+
+    // Lắng nghe tin đầu tiên: đăng ký playerId
+    ws.once('message', (msg) => {
+        try {
+            const data = JSON.parse(msg);
+            if (data.type === 'register') {
+                const playerId = data.player_Id;
+                clients.set(playerId, ws);
+                console.log(`✅ Player ${playerId} đã đăng ký`);
+                console.log("🧩 clients hiện tại:", Array.from(clients.keys()));
+
+                // Tiếp tục lắng nghe các message khác
+                ws.on('message', (msg) => {
+                    try {
+                        const parsed = JSON.parse(msg);
+
+                        if (parsed.action === 'send_message') {
+                            const { senderId, receiverId, content } = parsed;
+                            console.log(`💬 ${senderId} → ${receiverId}: ${content}`);
+
+                            const messageModel = require('./Models/Message.model');
+                            messageModel.sendMessage(senderId, receiverId, content, (err, result) => {
+                                if (err) {
+                                    console.error('❌ Lỗi lưu message:', err);
+                                    return;
+                                }
+
+                                console.log('✅ Message đã lưu vào DB:', result);
+
+                                const payload = JSON.stringify({
+                                    type: 'new_message',
+                                    data: {
+                                        senderId,
+                                        content,
+                                        timestamp: new Date().toISOString()
+                                    }
+                                });
+
+                                const receiverSocket = clients.get(receiverId);
+                                if (receiverSocket && receiverSocket.readyState === WebSocket.OPEN) {
+                                    receiverSocket.send(payload);
+                                    console.log(`📨 Gửi realtime tới receiver ${receiverId}`);
+                                }
+
+                                const senderSocket = clients.get(senderId);
+                                if (senderSocket && senderSocket.readyState === WebSocket.OPEN) {
+                                    senderSocket.send(payload);
+                                    console.log(`🔁 Gửi realtime lại cho sender ${senderId}`);
+                                }
+                            });
+                        }
+                    } catch (e) {
+                        console.error('❌ Lỗi xử lý message:', e.message);
+                    }
+                });
+
+                // Xử lý ngắt kết nối
+                ws.on('close', () => {
+                    clients.delete(playerId);
+                    console.log(`❌ Player ${playerId} ngắt kết nối`);
+                });
+            }
+        } catch (e) {
+            console.error('❌ Lỗi đăng ký playerId:', e.message);
+        }
+    });
 });
 
-// Map lưu userId => socketId
-const onlineUsers = new Map();
+// Express middleware & routes
+// app.use(cors());
+app.use(cors({
+    origin: '*'
+}));
 
-// Socket.IO logic
-io.on('connection', (socket) => {
-    console.log('Một client đã kết nối Socket.IO:', socket.id);
+app.use(express.json());
 
-    // Lắng nghe user đăng ký userId
-    socket.on('register', (userId) => {
-        onlineUsers.set(userId, socket.id);
-        console.log(`User ${userId} online với socketId ${socket.id}`);
-    });
-
-    // Lắng nghe gửi message
-    socket.on('send_message', (data) => {
-        const { senderId, receiverId, content } = data;
-        console.log(`Tin nhắn từ ${senderId} tới ${receiverId}: ${content}`);
-
-        // Gửi cho receiver nếu online
-        const receiverSocketId = onlineUsers.get(receiverId);
-        if (receiverSocketId) {
-            io.to(receiverSocketId).emit('receive_message', {
-                senderId,
-                content,
-                timestamp: new Date().toISOString(),
-            });
-            console.log(`Đã gửi realtime tới ${receiverId}`);
-        } else {
-            console.log(`User ${receiverId} offline, không gửi realtime`);
-        }
-
-        // Lưu DB (gọi model)
-        const messageModel = require('./Models/Message.model');
-        messageModel.sendMessage(senderId, receiverId, content, (err, result) => {
-            if (err) {
-                console.error('Lỗi lưu message:', err);
-            } else {
-                console.log('Message đã lưu:', result);
-            }
-        });
-    });
-
-    // Khi user disconnect
-    socket.on('disconnect', () => {
-        console.log('Client disconnect:', socket.id);
-
-        // Xóa user ra khỏi onlineUsers
-        for (const [userId, socketId] of onlineUsers.entries()) {
-            if (socketId === socket.id) {
-                onlineUsers.delete(userId);
-                console.log(`User ${userId} offline`);
-                break;
-            }
-        }
-    });
-});
-
-// Import routes
 const authRoutes = require('./Routes/Auth.route');
 const GameplayRoutes = require('./Routes/Gameplay.route');
 const displayRoutes = require('./Routes/Display.route');
@@ -81,11 +99,6 @@ const roomRoutes = require('./Routes/Room.route');
 const friendRoutes = require('./Routes/Friend.route');
 const messageRoutes = require('./Routes/Message.route');
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-
-// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/gameplay', GameplayRoutes);
 app.use('/api/room', roomRoutes);
@@ -93,15 +106,12 @@ app.use('/api/display', displayRoutes);
 app.use('/api/friend', friendRoutes);
 app.use('/api/message', messageRoutes);
 
-// Test route
 app.get('/', (req, res) => {
-    res.send('Server HTTP + Socket.IO đang chạy 🚀');
+    res.send('🌐 Server HTTP + WebSocket đang chạy 🚀');
 });
 
-// Port
+// Start HTTP server + WebSocket server
 const PORT = process.env.PORT || 3000;
-
-// Start HTTP + Socket.IO server
 server.listen(PORT, () => {
-    console.log(`Server HTTP + Socket.IO đang chạy tại http://localhost:${PORT}`);
+    console.log(`🚀 Server HTTP + WebSocket đang chạy tại http://localhost:${PORT}`);
 });

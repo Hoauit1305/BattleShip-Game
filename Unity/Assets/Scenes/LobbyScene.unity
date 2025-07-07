@@ -2182,7 +2182,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c69015fa7a915de41917cab82d63674a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  listFriend: {fileID: 0}
 --- !u!4 &222542122
 Transform:
   m_ObjectHideFlags: 0
@@ -18690,8 +18689,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1864750290}
-  - component: {fileID: 1864750289}
   - component: {fileID: 1864750291}
+  - component: {fileID: 1864750292}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -18699,19 +18698,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1864750289
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1864750288}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c69015fa7a915de41917cab82d63674a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  listFriend: {fileID: 1864750291}
 --- !u!4 &1864750290
 Transform:
   m_ObjectHideFlags: 0
@@ -18748,6 +18734,18 @@ MonoBehaviour:
   messageItemPrefab: {fileID: 6015887374645757231, guid: ecdc8ce0059a14744874489654774c95, type: 3}
   inputField: {fileID: 622671020}
   sendButton: {fileID: 1403112509}
+--- !u!114 &1864750292
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1864750288}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c69015fa7a915de41917cab82d63674a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1893406384
 GameObject:
   m_ObjectHideFlags: 0
