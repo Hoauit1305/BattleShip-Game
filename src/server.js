@@ -57,6 +57,63 @@ wss.on('connection', (ws, req) => {
                                 console.log(`🔁 Gửi realtime lại cho sender ${senderId}`);
                             }
                         }
+                        // Khi một người tham gia phòng
+                        else if (parsed.action === 'join_room') {
+                            const { roomCode, playerId, playerName, role, targetId } = parsed;
+
+                            const payload = JSON.stringify({
+                                type: 'room_update',
+                                action: 'join',
+                                playerId,
+                                playerName,
+                                role
+                            });
+
+                            const targetSocket = clients.get(targetId);
+                            if (targetSocket && targetSocket.readyState === WebSocket.OPEN) {
+                                targetSocket.send(payload);
+                                console.log(`🔔 ${playerName} đã vào phòng ${roomCode} → gửi đến ${targetId}`);
+                            }
+                        }
+
+                        // Khi một người rời phòng
+                        else if (parsed.action === 'leave_room') {
+                            const { roomCode, playerId, playerName, role, targetId } = parsed;
+
+                            const payload = JSON.stringify({
+                                type: 'room_update',
+                                action: 'leave',
+                                playerId,
+                                playerName,
+                                role
+                            });
+
+                            const targetSocket = clients.get(targetId);
+                            if (targetSocket && targetSocket.readyState === WebSocket.OPEN) {
+                                targetSocket.send(payload);
+                                console.log(`🚪 ${playerName} đã rời phòng ${roomCode} → gửi đến ${targetId}`);
+                            }
+                        }
+
+                        // Khi chủ phòng đóng phòng
+                        else if (parsed.action === 'close_room') {
+                            const { roomCode, ownerId, guestId } = parsed;
+
+                            const payload = JSON.stringify({
+                                type: 'room_update',
+                                action: 'closed',
+                                roomCode
+                            });
+
+                            [ownerId, guestId].forEach(id => {
+                                const socket = clients.get(id);
+                                if (socket && socket.readyState === WebSocket.OPEN) {
+                                    socket.send(payload);
+                                    console.log(`❌ Gửi tín hiệu đóng phòng tới player ${id}`);
+                                }
+                            });
+                        }
+
                     } catch (e) {
                         console.error('❌ Lỗi xử lý message:', e.message);
                     }

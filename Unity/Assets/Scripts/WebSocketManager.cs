@@ -91,6 +91,30 @@ public class WebSocketManager : MonoBehaviour
 
                 StartCoroutine(HandleIncomingMessage(senderId));
             }
+            else if (data["type"] == "room_update")
+            {
+                string action = data["action"];
+                Debug.Log($"📡 Room event: {action}");
+
+                switch (action)
+                {
+                    case "join":
+                        Debug.Log($"👥 {data["playerName"]} đã vào phòng với vai trò {data["role"]}");
+                        // Cập nhật UI nếu cần (ví dụ hiện tên guest)
+                        break;
+
+                    case "leave":
+                        Debug.Log($"🚪 {data["playerName"]} đã rời phòng");
+                        // Xóa UI guest nếu cần
+                        break;
+
+                    case "closed":
+                        Debug.Log($"❌ Phòng {data["roomCode"]} đã bị đóng");
+                        // Thoát scene hoặc popup
+                        // SceneManager.LoadScene("MainMenu");
+                        break;
+                }
+            }
         };
 
         await websocket.Connect();
@@ -194,6 +218,36 @@ public class WebSocketManager : MonoBehaviour
             Debug.Log("✅ Tin nhắn đã lưu vào DB");
         }
     }
+    public void SendRoomEvent(string action, int roomCode, int targetPlayerId = -1)
+    {
+        if (websocket == null || websocket.State != WebSocketState.Open)
+        {
+            Debug.LogWarning("⚠️ WebSocket chưa sẵn sàng gửi room event.");
+            return;
+        }
+
+        string playerName = PrefsHelper.GetString("name");
+
+        // Tạo payload JSON thủ công
+        string json = $"{{" +
+            $"\"action\":\"{action}\"," +
+            $"\"roomCode\":{roomCode}," +
+            $"\"playerId\":{playerId}," +
+            $"\"playerName\":\"{playerName}\"," +
+            $"\"role\":\"{GetRole()}\"," +
+            $"\"targetId\":{targetPlayerId}" +
+            $"}}";
+
+        Debug.Log($"📤 Sending room event: {json}");
+        websocket.SendText(json);
+    }
+
+    private string GetRole()
+    {
+        // Tùy bạn xác định role từ scene hoặc Prefs
+        return PrefsHelper.GetString("isHost") == "true" ? "host" : "guest";
+    }
+
 }
 
 [Serializable]
