@@ -36,36 +36,26 @@ wss.on('connection', (ws, req) => {
                             const { senderId, receiverId, content } = parsed;
                             console.log(`💬 ${senderId} → ${receiverId}: ${content}`);
 
-                            const messageModel = require('./Models/Message.model');
-                            messageModel.sendMessage(senderId, receiverId, content, (err, result) => {
-                                if (err) {
-                                    console.error('❌ Lỗi lưu message:', err);
-                                    return;
-                                }
-
-                                console.log('✅ Message đã lưu vào DB:', result);
-
-                                const payload = JSON.stringify({
-                                    type: 'new_message',
-                                    data: {
-                                        senderId,
-                                        content,
-                                        timestamp: new Date().toISOString()
-                                    }
-                                });
-
-                                const receiverSocket = clients.get(receiverId);
-                                if (receiverSocket && receiverSocket.readyState === WebSocket.OPEN) {
-                                    receiverSocket.send(payload);
-                                    console.log(`📨 Gửi realtime tới receiver ${receiverId}`);
-                                }
-
-                                const senderSocket = clients.get(senderId);
-                                if (senderSocket && senderSocket.readyState === WebSocket.OPEN) {
-                                    senderSocket.send(payload);
-                                    console.log(`🔁 Gửi realtime lại cho sender ${senderId}`);
+                            const payload = JSON.stringify({
+                                type: 'new_message',
+                                data: {
+                                    senderId,
+                                    content,
+                                    timestamp: new Date().toISOString()
                                 }
                             });
+
+                            const receiverSocket = clients.get(receiverId);
+                            if (receiverSocket && receiverSocket.readyState === WebSocket.OPEN) {
+                                receiverSocket.send(payload);
+                                console.log(`📨 Gửi realtime tới receiver ${receiverId}`);
+                            }
+
+                            const senderSocket = clients.get(senderId);
+                            if (senderSocket && senderSocket.readyState === WebSocket.OPEN) {
+                                senderSocket.send(payload);
+                                console.log(`🔁 Gửi realtime lại cho sender ${senderId}`);
+                            }
                         }
                     } catch (e) {
                         console.error('❌ Lỗi xử lý message:', e.message);
