@@ -21,7 +21,7 @@ const createRoom = async (ownerId) => {
         [ownerId, roomCode]
     );
 
-     const [owner] = await query('SELECT Name FROM PLAYER WHERE Player_Id = ?', [ownerId]);
+     const [owner] = await query('SELECT Name FROM Player WHERE Player_Id = ?', [ownerId]);
 
     return {
         roomCode: roomCode,
