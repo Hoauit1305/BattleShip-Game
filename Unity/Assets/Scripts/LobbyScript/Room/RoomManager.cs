@@ -68,6 +68,9 @@ public class RoomManager : MonoBehaviour
     public bool IsRoomOwner()
     {
         // Kiểm tra xem người chơi hiện tại có phải là chủ phòng không
+        Debug.Log("currentRoom: " + currentRoom);
+        Debug.Log("ownerName: " + currentRoom.ownerName);
+        Debug.Log("currentPlayerName: " + currentPlayerName);
         return currentRoom != null && currentRoom.ownerName == currentPlayerName;
     }
 

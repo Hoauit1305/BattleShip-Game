@@ -10,6 +10,7 @@ public class CloseRoomBeforeSwitch : MonoBehaviour
 
     public void CloseRoomAndSwitch()
     {
+        Debug.Log("Is room owner: " + RoomManager.Instance.IsRoomOwner());
         // Kiểm tra xem người chơi hiện tại có phải là chủ phòng không
         if (RoomManager.Instance.IsRoomOwner())
         {

@@ -16,14 +16,19 @@ const createRoom = async (ownerId) => {
         }
     }
 
-    const result = await query(
+    await query(
         'INSERT INTO Room (Owner_Id, Room_code) VALUES (?, ?)',
         [ownerId, roomCode]
     );
 
+     const [owner] = await query('SELECT Name FROM PLAYER WHERE Player_Id = ?', [ownerId]);
+
     return {
         roomCode: roomCode,
-        ownerId: ownerId
+        ownerId: ownerId,
+        ownerName: owner?.Name || 'Unknown',
+        guestId: null,
+        guestName: null
     };
 };
 
