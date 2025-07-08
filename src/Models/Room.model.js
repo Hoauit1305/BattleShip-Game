@@ -73,10 +73,10 @@ const findRoom = async (roomCode, guestId) => {
     await query('UPDATE Room SET Guest_Id = ? WHERE Room_code = ?', [guestId, roomCode]);
 
     // Lấy tên owner
-    const [owner] = await query('SELECT Name FROM PLAYER WHERE Player_Id = ?', [room.Owner_Id]);
+    const [owner] = await query('SELECT Name FROM Player WHERE Player_Id = ?', [room.Owner_Id]);
 
     // Lấy tên guest
-    const [guest] = await query('SELECT Name FROM PLAYER WHERE Player_Id = ?', [guestId]);
+    const [guest] = await query('SELECT Name FROM Player WHERE Player_Id = ?', [guestId]);
 
     return {
         roomCode: room.Room_code,

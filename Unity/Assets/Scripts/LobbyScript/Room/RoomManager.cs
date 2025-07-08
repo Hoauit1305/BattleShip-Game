@@ -129,7 +129,7 @@ public class RoomManager : MonoBehaviour
 
     private IEnumerator CloseRoomCoroutine()
     {
-        string apiUrl = "https://battleship-game-production-1176.up.railway.app/room/close-room";
+        string apiUrl = "https://battleship-game-production-1176.up.railway.app/api/room/close-room";
         UnityWebRequest request = new UnityWebRequest(apiUrl, "POST");
         request.downloadHandler = new DownloadHandlerBuffer();
         string token = PrefsHelper.GetString("token");
