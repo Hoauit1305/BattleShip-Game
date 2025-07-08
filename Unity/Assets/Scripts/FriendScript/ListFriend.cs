@@ -107,8 +107,12 @@ public class ListFriend : MonoBehaviour
     public IEnumerator LoadChatHistory(int receiverId)
     {
         string historyUrl = $"https://battleship-game-production-1176.up.railway.app/api/message/history/{receiverId}";
-        UnityWebRequest request = UnityWebRequest.Get(historyUrl);
+        UnityWebRequest request = new UnityWebRequest(historyUrl, "POST");
+
+        request.uploadHandler = new UploadHandlerRaw(new byte[0]); // Nếu không cần gửi body
+        request.downloadHandler = new DownloadHandlerBuffer();
         request.SetRequestHeader("Authorization", "Bearer " + token);
+        request.SetRequestHeader("Content-Type", "application/json");
         yield return request.SendWebRequest();
 
         if (request.result != UnityWebRequest.Result.Success)

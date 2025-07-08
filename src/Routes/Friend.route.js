@@ -16,6 +16,7 @@ router.post('/list', friendController.getFriends);
 
 // Lấy các lời mời kết bạn đang chờ
 router.get('/pending', friendController.getPendingRequests);
+
 // Tìm bạn theo Id
 router.get('/search/:playerId', friendController.searchPlayer);
 

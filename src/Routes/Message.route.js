@@ -6,6 +6,6 @@ const messageController = require('../Controllers/Message.controller');
 router.post('/send', messageController.sendMessage);
 
 // Lấy lịch sử chat với 1 người
-router.get('/history/:receiverId', messageController.getChatHistory);
+router.post('/history/:receiverId', messageController.getChatHistory);
 
 module.exports = router;
