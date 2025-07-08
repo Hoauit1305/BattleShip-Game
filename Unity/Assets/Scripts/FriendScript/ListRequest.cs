@@ -11,7 +11,6 @@ public class ListRequest : MonoBehaviour
     public GameObject requestItemPrefab; // Prefab dòng bạn bè (có Text + Button)
     public Transform contentPanel;      // Nơi chứa các dòng bạn bè
     public ListFriend listFriendComponent;
-    public string apiUrl = "https://battleship-game-production-1176.up.railway.app/api/friend/pending"; // Thay đổi nếu cần
     private string token; // Gán từ nơi bạn lưu token sau khi đăng nhập
 
     public void Refresh()
@@ -26,6 +25,7 @@ public class ListRequest : MonoBehaviour
 
     IEnumerator GetListRequest()
     {
+        string apiUrl = "https://battleship-game-production-1176.up.railway.app/api/friend/pending";
         UnityWebRequest request = new UnityWebRequest(apiUrl, "POST");
 
         request.uploadHandler = new UploadHandlerRaw(new byte[0]); // Nếu không cần gửi body

@@ -78,7 +78,7 @@ public class RoomManager : MonoBehaviour
 
     private IEnumerator CreateRoomCoroutine()
     {
-        string apiUrl = "http://localhost:3000/api/room/create-room";
+        string apiUrl = "https://battleship-game-production-1176.up.railway.app/api/room/create-room";
         UnityWebRequest request = new UnityWebRequest(apiUrl, "POST");
         request.downloadHandler = new DownloadHandlerBuffer();
 
@@ -126,7 +126,7 @@ public class RoomManager : MonoBehaviour
 
     private IEnumerator CloseRoomCoroutine()
     {
-        string apiUrl = "http://localhost:3000/api/room/close-room";
+        string apiUrl = "https://battleship-game-production-1176.up.railway.app/room/close-room";
         UnityWebRequest request = new UnityWebRequest(apiUrl, "POST");
         request.downloadHandler = new DownloadHandlerBuffer();
         string token = PrefsHelper.GetString("token");
@@ -149,7 +149,7 @@ public class RoomManager : MonoBehaviour
 
     private IEnumerator LeaveRoomCoroutine()
     {
-        string apiUrl = "http://localhost:3000/api/room/leave-room";
+        string apiUrl = "https://battleship-game-production-1176.up.railway.app/api/room/leave-room";
         UnityWebRequest request = new UnityWebRequest(apiUrl, "POST");
         request.downloadHandler = new DownloadHandlerBuffer();
         string token = PrefsHelper.GetString("token");
@@ -173,7 +173,7 @@ public class RoomManager : MonoBehaviour
     public event RoomEvent OnRoomJoinSuccess;
     private IEnumerator FindRoomCoroutine(string roomCode)
     {
-        string apiUrl = "http://localhost:3000/api/room/find-room";
+        string apiUrl = "https://battleship-game-production-1176.up.railway.app/api/room/find-room";
 
         // Chuyển đổi roomCode từ string sang int
         if (!int.TryParse(roomCode, out int roomCodeInt))

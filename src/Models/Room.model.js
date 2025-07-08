@@ -10,14 +10,14 @@ const createRoom = async (ownerId) => {
     // Thử random đến khi room_code không bị trùng
     while (!isUnique) {
         roomCode = Math.floor(100000 + Math.random() * 900000); // Random 6 chữ số
-        const existingRoom = await query('SELECT * FROM ROOM WHERE Room_code = ?', [roomCode]);
+        const existingRoom = await query('SELECT * FROM Room WHERE Room_code = ?', [roomCode]);
         if (existingRoom.length === 0) {
             isUnique = true;
         }
     }
 
     const result = await query(
-        'INSERT INTO ROOM (Owner_Id, Room_code) VALUES (?, ?)',
+        'INSERT INTO Room (Owner_Id, Room_code) VALUES (?, ?)',
         [ownerId, roomCode]
     );
 
@@ -30,7 +30,7 @@ const createRoom = async (ownerId) => {
 const closeRoom = async (ownerId) => {
     // Tìm phòng đang mở của chủ phòng
     const existingRoom = await query(
-        'SELECT * FROM ROOM WHERE Owner_Id = ? AND Status IN ("waiting", "playing")',
+        'SELECT * FROM Room WHERE Owner_Id = ? AND Status IN ("waiting", "playing")',
         [ownerId]
     );
 
@@ -40,7 +40,7 @@ const closeRoom = async (ownerId) => {
 
     // Update status thành close
     await query(
-        'UPDATE ROOM SET Status = ? WHERE Room_Id = ?',
+        'UPDATE Room SET Status = ? WHERE Room_Id = ?',
         ['close', existingRoom[0].Room_Id]
     );
 
@@ -51,7 +51,7 @@ const closeRoom = async (ownerId) => {
 };
 
 const findRoom = async (roomCode, guestId) => {
-    const existingRoom = await query('SELECT * FROM ROOM WHERE Room_code = ? AND Status = ?', 
+    const existingRoom = await query('SELECT * FROM Room WHERE Room_code = ? AND Status = ?', 
         [roomCode, 'waiting']);
 
     if (existingRoom.length === 0) {
@@ -65,7 +65,7 @@ const findRoom = async (roomCode, guestId) => {
     }
 
     // Update Guest_Id dựa trên Room_code
-    await query('UPDATE ROOM SET Guest_Id = ? WHERE Room_code = ?', [guestId, roomCode]);
+    await query('UPDATE Room SET Guest_Id = ? WHERE Room_code = ?', [guestId, roomCode]);
 
     // Lấy tên owner
     const [owner] = await query('SELECT Name FROM PLAYER WHERE Player_Id = ?', [room.Owner_Id]);
@@ -85,7 +85,7 @@ const findRoom = async (roomCode, guestId) => {
 const leaveRoom = async (userId) => {
     // Tìm phòng mà người dùng đang là khách
     const existingRoom = await query(
-        'SELECT * FROM ROOM WHERE Guest_Id = ? AND Status IN ("waiting", "playing")',
+        'SELECT * FROM Room WHERE Guest_Id = ? AND Status IN ("waiting", "playing")',
         [userId]
     );
 
@@ -95,7 +95,7 @@ const leaveRoom = async (userId) => {
 
     // Cập nhật Guest_Id thành null để rời phòng
     await query(
-        'UPDATE ROOM SET Guest_Id = NULL WHERE Room_Id = ?',
+        'UPDATE Room SET Guest_Id = NULL WHERE Room_Id = ?',
         [existingRoom[0].Room_Id]
     );
 

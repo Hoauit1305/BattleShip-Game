@@ -11,7 +11,6 @@ public class FriendSearch : MonoBehaviour
     public Button searchButton;
     public GameObject playerItemPrefab;
     public Transform contentPanel;
-    public string apiBaseUrl = "https://battleship-game-production-1176.up.railway.app/api/friend/search/";
 
     private string token;
     private string myPlayerId;
@@ -39,6 +38,7 @@ public class FriendSearch : MonoBehaviour
 
     IEnumerator SearchPlayer(string playerId)
     {
+        string apiBaseUrl = "https://battleship-game-production-1176.up.railway.app/api/friend/search/";
         string url = apiBaseUrl + playerId;
         UnityWebRequest request = new UnityWebRequest(url, "POST");
 

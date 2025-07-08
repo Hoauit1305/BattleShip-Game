@@ -42,7 +42,7 @@ public class RegisterManager : MonoBehaviour
     {
         string jsonBody = JsonUtility.ToJson(new RegisterRequest(username, email, password));
 
-        UnityWebRequest request = new UnityWebRequest("https://battleship-game-production.up.railway.app/api/auth/register", "POST");
+        UnityWebRequest request = new UnityWebRequest("https://battleship-game-production-1176.up.railway.app/api/auth/register", "POST");
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonBody);
         request.uploadHandler = new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = new DownloadHandlerBuffer();
