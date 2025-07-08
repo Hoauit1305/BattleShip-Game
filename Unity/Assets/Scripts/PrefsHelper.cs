@@ -33,7 +33,10 @@ public static class PrefsHelper
     {
         return PlayerPrefs.GetInt(GetKey(key), 0);
     }
-
+    public static void DeleteKey(string key)
+    {
+        PlayerPrefs.DeleteKey(GetKey(key));
+    }
     public static void DeleteAll()
     {
         PlayerPrefs.DeleteAll(); // hoặc chỉ xóa key theo GetKey() nếu muốn

@@ -18727,7 +18727,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   friendItemPrefab: {fileID: 1274581148664636857, guid: 3b0f49b047ba18f4b8bd82c6b0d680d6, type: 3}
   contentPanel: {fileID: 2025765461}
-  apiUrl: http://localhost:3000/api/friend/list
   chatPanel: {fileID: 106235061}
   receiverNameText: {fileID: 1625228933}
   messageContent: {fileID: 1193858022}
@@ -18777,7 +18776,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   friendItemPrefab: {fileID: 1274581148664636857, guid: 3b0f49b047ba18f4b8bd82c6b0d680d6, type: 3}
   contentPanel: {fileID: 2025765461}
-  apiUrl: http://localhost:3000/api/friend/list
   chatPanel: {fileID: 106235061}
   receiverNameText: {fileID: 1625228933}
   messageContent: {fileID: 1193858022}
@@ -19165,7 +19163,6 @@ MonoBehaviour:
   requestItemPrefab: {fileID: 3245812158863784346, guid: 5c4f7154486f1f44f98fc05937b73501, type: 3}
   contentPanel: {fileID: 613568797}
   listFriendComponent: {fileID: 1893406385}
-  apiUrl: http://localhost:3000/api/friend/pending
 --- !u!4 &1913022689
 Transform:
   m_ObjectHideFlags: 0
@@ -20447,7 +20444,6 @@ MonoBehaviour:
   searchButton: {fileID: 51808558}
   playerItemPrefab: {fileID: 1578507077828871609, guid: 5b34d6d9c0a796d43835ba7b9a3d82dd, type: 3}
   contentPanel: {fileID: 296777148}
-  apiBaseUrl: http://localhost:3000/api/friend/search/
 --- !u!4 &2032097789
 Transform:
   m_ObjectHideFlags: 0

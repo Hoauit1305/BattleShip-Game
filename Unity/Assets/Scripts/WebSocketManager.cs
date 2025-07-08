@@ -93,33 +93,42 @@ public class WebSocketManager : MonoBehaviour
             }
             else if (data["type"] == "room_update")
             {
-                string action = data["action"];
-                Debug.Log($"📡 Room event: {action}");
-
-                switch (action)
-                {
-                    case "join":
-                        Debug.Log($"👥 {data["playerName"]} đã vào phòng với vai trò {data["role"]}");
-                        // Cập nhật UI nếu cần (ví dụ hiện tên guest)
-                        break;
-
-                    case "leave":
-                        Debug.Log($"🚪 {data["playerName"]} đã rời phòng");
-                        // Xóa UI guest nếu cần
-                        break;
-
-                    case "closed":
-                        Debug.Log($"❌ Phòng {data["roomCode"]} đã bị đóng");
-                        // Thoát scene hoặc popup
-                        // SceneManager.LoadScene("MainMenu");
-                        break;
-                }
+                HandleRoomUpdate(data);
             }
         };
 
         await websocket.Connect();
     }
+    void HandleRoomUpdate(JSONNode data)
+    {
+        string action = data["action"];
+        string playerName = data["playerName"];
+        string role = data["role"];
+        int roomCode = data["roomCode"].AsInt;
+        Debug.Log($"📡 Room update: {action} - {playerName} - role: {role}");
 
+        switch (action)
+        {
+            case "join":
+                if (RoomManager.Instance != null && role == "guest")
+                {
+                    RoomManager.Instance.SetGuestName(playerName);
+                }
+                break;
+
+            case "leave":
+                if (RoomManager.Instance != null && role == "guest")
+                {
+                    RoomManager.Instance.SetGuestName("Mời"); // Xoá tên guest
+                }
+                break;
+
+            case "closed":
+                Debug.Log("❌ Phòng đã bị đóng, quay lại scene chính");
+                UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
+                break;
+        }
+    }
     IEnumerator HandleIncomingMessage(int senderId)
     {
         while (ListFriendInstance == null)
@@ -179,14 +188,6 @@ public class WebSocketManager : MonoBehaviour
         }
 
         if (string.IsNullOrWhiteSpace(content)) return;
-
-        //var payload = new Dictionary<string, object>
-        //{
-        //    { "action", "send_message" },
-        //    { "senderId", playerId },
-        //    { "receiverId", receiverId },
-        //    { "content", content }
-        //};
 
         string jsonString = $"{{\"action\":\"send_message\",\"senderId\":{playerId},\"receiverId\":{receiverId},\"content\":\"{content}\"}}";
 

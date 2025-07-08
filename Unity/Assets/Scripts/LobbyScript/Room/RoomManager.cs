@@ -7,7 +7,9 @@ using TMPro; // <- cần thêm để dùng TextMeshPro nếu bạn dùng TMP
 public class Room
 {
     public int roomCode;
+    public int ownerId;
     public string ownerName;
+    public int guestId;
     public string guestName;
 }
 
@@ -100,26 +102,18 @@ public class RoomManager : MonoBehaviour
             CreateRoomResponse response = JsonUtility.FromJson<CreateRoomResponse>(request.downloadHandler.text);
 
             currentRoom = response.room;
+            PrefsHelper.SetInt("ownerId", currentRoom.ownerId);
 
             // Gán vào UI
             if (RoomCodeText != null) RoomCodeText.text = response.room.roomCode.ToString();
             if (OwnerNameText != null) OwnerNameText.text = name;
 
-            //WebSocketClient wsClient = FindObjectOfType<WebSocketClient>();
-            //if (wsClient != null)
-            //{
-            //    string roomCode = currentRoom.roomCode.ToString();
-            //    string guestName = currentPlayerName;
-
-            //    string message = JsonUtility.ToJson(new WebSocketJoinRoomMessage
-            //    {
-            //        type = "join_room",
-            //        roomCode = roomCode,
-            //        guestName = guestName
-            //    });
-
-            //    //wsClient.SendMessage(message);
-            //}
+            // Sau khi tạo phòng thành công
+            PrefsHelper.SetString("isHost", "true"); // Xác định vai trò
+            if (WebSocketManager.Instance != null)
+            {
+                WebSocketManager.Instance.SendRoomEvent("join_room", currentRoom.roomCode);
+            }
         }
         else
         {
@@ -142,7 +136,16 @@ public class RoomManager : MonoBehaviour
         {
             Debug.Log("Đóng phòng thành công!");
 
+            if (WebSocketManager.Instance != null && currentRoom != null)
+            {
+                WebSocketManager.Instance.SendRoomEvent("close_room", currentRoom.roomCode, currentRoom.guestId);
+            }
+
             currentRoom = null;
+
+            PrefsHelper.DeleteKey("ownerId");
+            PrefsHelper.DeleteKey("guestId");
+            PrefsHelper.DeleteKey("isHost");
         }
         else
         {
@@ -164,8 +167,17 @@ public class RoomManager : MonoBehaviour
             Debug.Log("Rời phòng thành công!");
             // Phân tích kết quả nếu cần
             GenericResponse response = JsonUtility.FromJson<GenericResponse>(request.downloadHandler.text);
-            // Làm sạch thông tin phòng
+
+            if (WebSocketManager.Instance != null && currentRoom != null)
+            {
+                WebSocketManager.Instance.SendRoomEvent("leave_room", currentRoom.roomCode, currentRoom.ownerId);
+            }
+
             currentRoom = null;
+
+            PrefsHelper.DeleteKey("ownerId");
+            PrefsHelper.DeleteKey("guestId");
+            PrefsHelper.DeleteKey("isHost");
         }
         else
         {
@@ -211,6 +223,8 @@ public class RoomManager : MonoBehaviour
             {
                 CreateRoomResponse response = JsonUtility.FromJson<CreateRoomResponse>(request.downloadHandler.text);
                 currentRoom = response.room;
+                PrefsHelper.SetInt("ownerId", currentRoom.ownerId);
+                PrefsHelper.SetInt("guestId", currentRoom.guestId);
 
                 // Cập nhật UI
                 if (RoomCodeText != null) RoomCodeText.text = currentRoom.roomCode.ToString();
@@ -220,8 +234,6 @@ public class RoomManager : MonoBehaviour
                     GuestNameText.text = currentPlayerName;
                 // Kích hoạt sự kiện tìm phòng thành công
                 OnRoomJoinSuccess?.Invoke();
-
-                //WebSocketClient wsClient = FindFirstObjectByType<WebSocketClient>();
 
                 string roomCodeStr = currentRoom.roomCode.ToString();
                 string guestName = currentPlayerName;
@@ -233,7 +245,14 @@ public class RoomManager : MonoBehaviour
                     guestName = guestName
                 });
 
-                //wsClient.SendMessage(message);
+                PrefsHelper.SetString("isHost", "false"); // Xác định vai trò
+
+                if (WebSocketManager.Instance != null)
+                {
+                    WebSocketManager.Instance.SendRoomEvent("join_room", currentRoom.roomCode, currentRoom.ownerId);
+
+                }
+
 
             }
             catch (System.Exception e)
