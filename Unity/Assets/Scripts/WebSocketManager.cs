@@ -128,7 +128,7 @@ public class WebSocketManager : MonoBehaviour
 
     public void SendMessage(int receiverId, string content)
     {
-        //StartCoroutine(SendMessageCoroutine(receiverId, content));
+        StartCoroutine(SendMessageCoroutine(receiverId, content));
         SendMessageViaWebSocket(receiverId, content);
     }
 

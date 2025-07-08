@@ -15,10 +15,10 @@ router.post('/reject', friendController.rejectFriendRequest);
 router.post('/list', friendController.getFriends);
 
 // Lấy các lời mời kết bạn đang chờ
-router.get('/pending', friendController.getPendingRequests);
+router.post('/pending', friendController.getPendingRequests);
 
 // Tìm bạn theo Id
-router.get('/search/:playerId', friendController.searchPlayer);
+router.post('/search/:playerId', friendController.searchPlayer);
 
 
 module.exports = router;

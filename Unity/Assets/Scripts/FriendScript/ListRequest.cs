@@ -26,8 +26,12 @@ public class ListRequest : MonoBehaviour
 
     IEnumerator GetListRequest()
     {
-        UnityWebRequest request = UnityWebRequest.Get(apiUrl);
+        UnityWebRequest request = new UnityWebRequest(apiUrl, "POST");
+
+        request.uploadHandler = new UploadHandlerRaw(new byte[0]); // Nếu không cần gửi body
+        request.downloadHandler = new DownloadHandlerBuffer();
         request.SetRequestHeader("Authorization", "Bearer " + token);
+        request.SetRequestHeader("Content-Type", "application/json");
         yield return request.SendWebRequest();
 
         if (request.result != UnityWebRequest.Result.Success)

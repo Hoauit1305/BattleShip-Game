@@ -40,8 +40,12 @@ public class FriendSearch : MonoBehaviour
     IEnumerator SearchPlayer(string playerId)
     {
         string url = apiBaseUrl + playerId;
+        UnityWebRequest request = new UnityWebRequest(url, "POST");
 
-        UnityWebRequest request = UnityWebRequest.Get(url);
+        request.uploadHandler = new UploadHandlerRaw(new byte[0]); // Nếu không cần gửi body
+        request.downloadHandler = new DownloadHandlerBuffer();
+        request.SetRequestHeader("Authorization", "Bearer " + token);
+        request.SetRequestHeader("Content-Type", "application/json");
         request.SetRequestHeader("Authorization", "Bearer " + token);
 
         yield return request.SendWebRequest();
