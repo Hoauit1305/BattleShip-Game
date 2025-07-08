@@ -12,7 +12,7 @@ router.post('/accept', friendController.acceptFriendRequest);
 router.post('/reject', friendController.rejectFriendRequest);
 
 // Lấy danh sách bạn bè
-router.get('/list', friendController.getFriends);
+router.post('/list', friendController.getFriends);
 
 // Lấy các lời mời kết bạn đang chờ
 router.get('/pending', friendController.getPendingRequests);

@@ -10,7 +10,6 @@ public class ListFriend : MonoBehaviour
 {
     public GameObject friendItemPrefab;
     public Transform contentPanel;
-    public string apiUrl = "https://battleship-game-production.up.railway.app/api/friend/list";
     private string token;
 
     public GameObject chatPanel;
@@ -37,8 +36,13 @@ public class ListFriend : MonoBehaviour
 
     IEnumerator GetFriendList()
     {
-        UnityWebRequest request = UnityWebRequest.Get(apiUrl);
+        string apiUrl = "https://battleship-game-production-1176.up.railway.app/api/friend/list";
+        UnityWebRequest request = new UnityWebRequest(apiUrl, "POST");
+
+        request.uploadHandler = new UploadHandlerRaw(new byte[0]); // Nếu không cần gửi body
+        request.downloadHandler = new DownloadHandlerBuffer();
         request.SetRequestHeader("Authorization", "Bearer " + token);
+        request.SetRequestHeader("Content-Type", "application/json");
         yield return request.SendWebRequest();
 
         if (request.result != UnityWebRequest.Result.Success)
@@ -102,7 +106,7 @@ public class ListFriend : MonoBehaviour
 
     public IEnumerator LoadChatHistory(int receiverId)
     {
-        string historyUrl = $"https://battleship-game-production.up.railway.app/api/message/history/{receiverId}";
+        string historyUrl = $"https://battleship-game-production-1176.up.railway.app/api/message/history/{receiverId}";
         UnityWebRequest request = UnityWebRequest.Get(historyUrl);
         request.SetRequestHeader("Authorization", "Bearer " + token);
         yield return request.SendWebRequest();

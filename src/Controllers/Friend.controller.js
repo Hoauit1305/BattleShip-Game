@@ -13,7 +13,7 @@ const getUserIdFromToken = (req) => {
     } catch {
         return null;
     }
-};
+}
 
 // Gửi lời mời kết bạn
 const sendFriendRequest = (req, res) => {

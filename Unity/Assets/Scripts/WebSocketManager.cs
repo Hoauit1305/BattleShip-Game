@@ -49,7 +49,7 @@ public class WebSocketManager : MonoBehaviour
     {
         playerId = PrefsHelper.GetInt("playerId");
     
-        websocket = new WebSocket("wss://battleship-game-production.up.railway.app/");
+        websocket = new WebSocket("wss://battleship-game-production-1176.up.railway.app/");
 
         websocket.OnOpen += () =>
         {

@@ -11,7 +11,7 @@ public class ListRequest : MonoBehaviour
     public GameObject requestItemPrefab; // Prefab dòng bạn bè (có Text + Button)
     public Transform contentPanel;      // Nơi chứa các dòng bạn bè
     public ListFriend listFriendComponent;
-    public string apiUrl = "https://battleship-game-production.up.railway.app/api/friend/pending"; // Thay đổi nếu cần
+    public string apiUrl = "https://battleship-game-production-1176.up.railway.app/api/friend/pending"; // Thay đổi nếu cần
     private string token; // Gán từ nơi bạn lưu token sau khi đăng nhập
 
     public void Refresh()
@@ -73,7 +73,7 @@ public class ListRequest : MonoBehaviour
     }
     IEnumerator HandleFriendRequest(string action, string requesterId, GameObject itemToRemove)
     {
-        string url = $"https://battleship-game-production.up.railway.app/api/friend/{action}";
+        string url = $"https://battleship-game-production-1176.up.railway.app/api/friend/{action}";
 
         UnityWebRequest request = new UnityWebRequest(url, "POST");
         request.SetRequestHeader("Authorization", "Bearer " + token);
