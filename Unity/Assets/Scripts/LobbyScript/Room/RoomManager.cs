@@ -122,9 +122,14 @@ public class RoomManager : MonoBehaviour
             currentRoom = response.room;
             PrefsHelper.SetInt("ownerId", currentRoom.ownerId);
 
+            currentRoom.guestName = null;
+            currentRoom.guestId = 0;
+
             // Gán vào UI
             if (RoomCodeText != null) RoomCodeText.text = response.room.roomCode.ToString();
             if (OwnerNameText != null) OwnerNameText.text = name;
+
+            if (GuestNameText != null) GuestNameText.text = "...";
 
             // Sau khi tạo phòng thành công
             PrefsHelper.SetString("isHost", "true"); // Xác định vai trò
