@@ -13,12 +13,25 @@ const placeShips = async (gameId, playerId, ownerType, ships) => {
         }
     }
 };
-// Set ID
+// Set ID đánh với bot
 const setID = async (playerId) => {
     try {
         const result = await query(
             'INSERT INTO Game (Player_Id_1, Player_Id_2, Status, Current_Turn_Player_Id) VALUES (?, ?, ?, ?)',
             [playerId, -1, 'in_progress', playerId]
+        );
+        const gameId = result.insertId;
+        return gameId;  // ✅ trả về gameId
+    } catch (err) {
+        throw new Error(err.message);
+    }
+}
+// Set ID đánh với người
+const setID1 = async (playerId1, playerId2) => {
+    try {
+        const result = await query(
+            'INSERT INTO Game (Player_Id_1, Player_Id_2, Status, Current_Turn_Player_Id) VALUES (?, ?, ?, ?)',
+            [playerId1, playerId2, 'in_progress', playerId1]
         );
         const gameId = result.insertId;
         return gameId;  // ✅ trả về gameId
@@ -413,6 +426,7 @@ module.exports = {
     fireAtPosition, 
     fireWithBot, 
     setID, 
+    setID1,
     generateBotShips,
     placeBotShips,
     showPositionShips,
