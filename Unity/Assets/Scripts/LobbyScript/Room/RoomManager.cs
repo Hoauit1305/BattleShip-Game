@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.Networking;
 using TMPro; // <- cần thêm để dùng TextMeshPro nếu bạn dùng TMP
-
+using UnityEngine.SceneManagement;
 [System.Serializable]
 public class Room
 {
@@ -79,6 +79,11 @@ public class RoomManager : MonoBehaviour
     public void FindRoom(string roomCode)
     {
         StartCoroutine(FindRoomCoroutine(roomCode));
+    }
+
+    public void StartPersonGame()
+    {
+        StartCoroutine(CreateGameIdForPersonCoroutine());
     }
 
     private IEnumerator CreateRoomCoroutine()
@@ -224,7 +229,6 @@ public class RoomManager : MonoBehaviour
                 CreateRoomResponse response = JsonUtility.FromJson<CreateRoomResponse>(request.downloadHandler.text);
                 currentRoom = response.room;
                 PrefsHelper.SetInt("ownerId", currentRoom.ownerId);
-                PrefsHelper.SetInt("guestId", currentRoom.guestId);
 
                 // Cập nhật UI
                 if (RoomCodeText != null) RoomCodeText.text = currentRoom.roomCode.ToString();
@@ -278,6 +282,59 @@ public class RoomManager : MonoBehaviour
             currentRoom.guestName = guestName;
         }
     }
+    private IEnumerator CreateGameIdForPersonCoroutine()
+    {
+        string token = PrefsHelper.GetString("token");
+        int ownerId = PrefsHelper.GetInt("ownerId");
+        int guestId = PrefsHelper.GetInt("guestId");
+        if (string.IsNullOrEmpty(token) || ownerId == 0 || guestId == 0)
+        {
+            Debug.LogError("Thiếu token hoặc ownerId/guestId");
+            yield break;
+        }
+
+        // Gửi request tạo gameId giữa 2 người
+        var requestBody = new PlayerPairRequest { playerId1 = ownerId, playerId2 = guestId };
+        string jsonBody = JsonUtility.ToJson(requestBody);
+        byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonBody);
+
+        UnityWebRequest request = new UnityWebRequest("https://battleship-game-production-1176.up.railway.app/api/gameplay/create-gameid-fire-person", "POST");
+        request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+        request.downloadHandler = new DownloadHandlerBuffer();
+        request.SetRequestHeader("Authorization", "Bearer " + token);
+        request.SetRequestHeader("Content-Type", "application/json");
+
+        yield return request.SendWebRequest();
+
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+            GameIDResponse response = JsonUtility.FromJson<GameIDResponse>(request.downloadHandler.text);
+            PrefsHelper.SetInt("gameId", response.gameId);
+            Debug.Log($"✅ Đã tạo gameId: {response.gameId}");
+
+            // Chuyển đến scene chiến đấu người
+            SceneManager.LoadScene("PlayPersonScene");
+        }
+        else
+        {
+            Debug.LogError($"❌ Lỗi tạo gameId cho người: {request.error} - {request.downloadHandler.text}");
+        }
+    }
+
+    [System.Serializable]
+    public class PlayerPairRequest
+    {
+        public int playerId1;
+        public int playerId2;
+    }
+
+    [System.Serializable]
+    public class GameIDResponse
+    {
+        public string message;
+        public int gameId;
+    }
+
     [System.Serializable]
     public class RoomCodeRequest
     {
