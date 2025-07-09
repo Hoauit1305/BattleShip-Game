@@ -6,18 +6,17 @@ const http = require('http');
 const WebSocket = require('ws');
 
 const app = express();
-const server = http.createServer(app); // Server HTTP chung
+const server = http.createServer(app);
 
 // WebSocket server
 const wss = new WebSocket.Server({ server });
 
 const clients = new Map(); // Map: playerId => WebSocket
 const readyPlayers = new Map(); // Map gameId → Set playerId đã sẵn sàng
-// Khi có client kết nối WebSocket
+
 wss.on('connection', (ws, req) => {
     console.log('🔌 Một client đã kết nối WebSocket');
 
-    // Lắng nghe tin đầu tiên: đăng ký playerId
     ws.once('message', (msg) => {
         try {
             const data = JSON.parse(msg);
@@ -27,7 +26,6 @@ wss.on('connection', (ws, req) => {
                 console.log(`✅ Player ${playerId} đã đăng ký`);
                 console.log("🧩 clients hiện tại:", Array.from(clients.keys()));
 
-                // Tiếp tục lắng nghe các message khác
                 ws.on('message', (msg) => {
                     try {
                         const parsed = JSON.parse(msg);
@@ -57,7 +55,6 @@ wss.on('connection', (ws, req) => {
                                 console.log(`🔁 Gửi realtime lại cho sender ${senderId}`);
                             }
                         }
-                        // Khi một người tham gia phòng
                         else if (parsed.action === 'join_room') {
                             const { roomCode, playerId, playerName, role, targetId } = parsed;
 
@@ -75,8 +72,6 @@ wss.on('connection', (ws, req) => {
                                 console.log(`🔔 ${playerName} đã vào phòng ${roomCode} → gửi đến ${targetId}`);
                             }
                         }
-
-                        // Khi một người rời phòng
                         else if (parsed.action === 'leave_room') {
                             const { roomCode, playerId, playerName, role, targetId } = parsed;
 
@@ -94,8 +89,6 @@ wss.on('connection', (ws, req) => {
                                 console.log(`🚪 ${playerName} đã rời phòng ${roomCode} → gửi đến ${targetId}`);
                             }
                         }
-
-                        // Khi chủ phòng đóng phòng
                         else if (parsed.action === 'close_room') {
                             const { roomCode, ownerId, guestId } = parsed;
 
@@ -119,7 +112,7 @@ wss.on('connection', (ws, req) => {
                             const payload = JSON.stringify({
                                 type: 'goto_place_ship',
                                 roomCode: roomCode,
-                                gameId: gameId, // ← thêm dòng này
+                                gameId: gameId,
                                 message: 'Cả hai đã sẵn sàng, chuyển đến scene đặt tàu!'
                             });
 
@@ -135,16 +128,16 @@ wss.on('connection', (ws, req) => {
                             const { gameId, playerId, opponentId } = parsed;
                             console.log(`📦 Player ${playerId} đã sẵn sàng đặt tàu (game ${gameId})`);
 
-                            // Nếu chưa có gameId thì khởi tạo
                             if (!readyPlayers.has(gameId)) {
                                 readyPlayers.set(gameId, new Set());
                             }
 
-                            // Thêm playerId vào set ready
                             readyPlayers.get(gameId).add(playerId);
 
-                            // Kiểm tra nếu đủ 2 người rồi thì gửi start_countdown cho cả 2
-                            if (readyPlayers.get(gameId).has(playerId) && readyPlayers.get(gameId).has(opponentId)) {
+                            // Kiểm tra nếu cả hai người chơi đều sẵn sàng
+                            const readySet = readyPlayers.get(gameId);
+                            const allPlayers = new Set([playerId, opponentId]);
+                            if (readySet.size === 2 && [...readySet].every(id => allPlayers.has(id))) {
                                 const payload = JSON.stringify({
                                     type: 'start_countdown'
                                 });
@@ -156,9 +149,9 @@ wss.on('connection', (ws, req) => {
                                 if (socketB && socketB.readyState === WebSocket.OPEN) socketB.send(payload);
 
                                 console.log(`🚀 Bắt đầu đếm ngược cho game ${gameId}`);
-
-                                // Xoá trạng thái để tránh lặp lại
-                                readyPlayers.delete(gameId);
+                                readyPlayers.delete(gameId); // Xóa trạng thái sau khi hoàn tất
+                            } else {
+                                console.log(`⏳ Chờ ${opponentId} sẵn sàng cho game ${gameId}`);
                             }
                         }
                     } catch (e) {
@@ -166,7 +159,6 @@ wss.on('connection', (ws, req) => {
                     }
                 });
 
-                // Xử lý ngắt kết nối
                 ws.on('close', () => {
                     clients.delete(playerId);
                     console.log(`❌ Player ${playerId} ngắt kết nối`);
@@ -179,7 +171,6 @@ wss.on('connection', (ws, req) => {
 });
 
 // Express middleware & routes
-// app.use(cors());
 app.use(cors({
     origin: '*'
 }));
@@ -204,7 +195,6 @@ app.get('/', (req, res) => {
     res.send('🌐 Server HTTP + WebSocket đang chạy 🚀');
 });
 
-// Start HTTP server + WebSocket server
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`🚀 Server HTTP + WebSocket đang chạy tại http://localhost:${PORT}`);

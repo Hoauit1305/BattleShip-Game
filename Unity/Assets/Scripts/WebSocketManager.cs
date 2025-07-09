@@ -48,7 +48,7 @@ public class WebSocketManager : MonoBehaviour
     async void Start()
     {
         playerId = PrefsHelper.GetInt("playerId");
-    
+
         websocket = new WebSocket("wss://battleship-game-production-1176.up.railway.app/");
 
         websocket.OnOpen += () =>
@@ -63,7 +63,6 @@ public class WebSocketManager : MonoBehaviour
             string json = JsonUtility.ToJson(registerMsg);
             Debug.Log("📤 Gửi đăng ký WebSocket: " + json);
             websocket.SendText(json);
-
         };
 
         websocket.OnError += (e) =>
@@ -104,7 +103,7 @@ public class WebSocketManager : MonoBehaviour
             {
                 Debug.Log("⏳ Nhận được tín hiệu start_countdown");
                 // Gọi CountdownManager thực thi
-                CountdownPersonManager countdown = FindObjectOfType<CountdownPersonManager>();
+                CountdownPersonManager countdown = FindFirstObjectByType<CountdownPersonManager>();
                 if (countdown != null)
                 {
                     StartCoroutine(countdown.StartCountdown(() => {
@@ -117,6 +116,7 @@ public class WebSocketManager : MonoBehaviour
 
         await websocket.Connect();
     }
+
     void HandleRoomUpdate(JSONNode data)
     {
         string action = data["action"];
@@ -137,8 +137,8 @@ public class WebSocketManager : MonoBehaviour
             case "leave":
                 if (RoomManager.Instance != null && role == "guest")
                 {
-                    RoomManager.Instance.SetGuestName("..."); // Xoá tên guest
-                    RoomManager.Instance.SetGuestId(0); //← xoá guestId
+                    RoomManager.Instance.SetGuestName("...");
+                    RoomManager.Instance.SetGuestId(0);
                 }
                 break;
             case "closed":
@@ -147,6 +147,7 @@ public class WebSocketManager : MonoBehaviour
                 break;
         }
     }
+
     IEnumerator HandleIncomingMessage(int senderId)
     {
         while (ListFriendInstance == null)
@@ -212,6 +213,7 @@ public class WebSocketManager : MonoBehaviour
         Debug.Log("📤 Sending WebSocket message: " + jsonString);
         await websocket.SendText(jsonString);
     }
+
     public void SendRawJson(string json)
     {
         if (websocket != null && websocket.State == WebSocketState.Open)
@@ -224,6 +226,7 @@ public class WebSocketManager : MonoBehaviour
             Debug.LogWarning("⚠️ WebSocket chưa kết nối.");
         }
     }
+
     private IEnumerator SendMessageToApi(int receiverId, string content)
     {
         string sendUrl = "https://battleship-game-production-1176.up.railway.app/api/message/send";
@@ -248,6 +251,7 @@ public class WebSocketManager : MonoBehaviour
             Debug.Log("✅ Tin nhắn đã lưu vào DB");
         }
     }
+
     public void SendRoomEvent(string action, int roomCode, int targetPlayerId = -1)
     {
         if (websocket == null || websocket.State != WebSocketState.Open)
@@ -258,7 +262,6 @@ public class WebSocketManager : MonoBehaviour
 
         string playerName = PrefsHelper.GetString("name");
 
-        // Tạo payload JSON thủ công
         string json = $"{{" +
             $"\"action\":\"{action}\"," +
             $"\"roomCode\":{roomCode}," +
@@ -271,6 +274,7 @@ public class WebSocketManager : MonoBehaviour
         Debug.Log($"📤 Sending room event: {json}");
         websocket.SendText(json);
     }
+
     public void SendRoomClosedEvent(int roomCode, int ownerId, int guestId)
     {
         if (websocket == null || websocket.State != WebSocketState.Open)
@@ -289,12 +293,11 @@ public class WebSocketManager : MonoBehaviour
         Debug.Log($"📤 Gửi close_room WebSocket: {json}");
         websocket.SendText(json);
     }
+
     private string GetRole()
     {
-        // Tùy bạn xác định role từ scene hoặc Prefs
         return PrefsHelper.GetString("isHost") == "true" ? "host" : "guest";
     }
-
 }
 
 [Serializable]
@@ -305,10 +308,10 @@ public class OutgoingMessage
     public int receiverId;
     public string content;
 }
+
 [Serializable]
 public class RegisterPayload
 {
     public string type = "register";
     public int player_Id;
 }
-
