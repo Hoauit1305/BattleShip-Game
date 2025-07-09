@@ -278,6 +278,23 @@ public class RoomManager : MonoBehaviour
             currentRoom.guestName = guestName;
         }
     }
+    public void SetGuestId(int id)
+    {
+        if (currentRoom != null)
+        {
+            currentRoom.guestId = id;
+            if (id > 0)
+            {
+                PrefsHelper.SetInt("guestId", id);
+                Debug.Log($"✅ Set guestId = {id}");
+            }
+            else
+            {
+                PrefsHelper.DeleteKey("guestId");
+                Debug.Log("🗑 Xoá guestId");
+            }
+        }
+    }
     [System.Serializable]
     public class RoomCodeRequest
     {

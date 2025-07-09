@@ -113,16 +113,16 @@ public class WebSocketManager : MonoBehaviour
                 if (RoomManager.Instance != null && role == "guest")
                 {
                     RoomManager.Instance.SetGuestName(playerName);
+                    RoomManager.Instance.SetGuestId(playerId);
                 }
                 break;
-
             case "leave":
                 if (RoomManager.Instance != null && role == "guest")
                 {
                     RoomManager.Instance.SetGuestName("Mời"); // Xoá tên guest
+                    RoomManager.Instance.SetGuestId(0); //← xoá guestId
                 }
                 break;
-
             case "closed":
                 Debug.Log("❌ Phòng đã bị đóng, quay lại scene chính");
                 UnityEngine.SceneManagement.SceneManager.LoadScene("LobbyScene");
