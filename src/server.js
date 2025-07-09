@@ -12,7 +12,7 @@ const server = http.createServer(app); // Server HTTP chung
 const wss = new WebSocket.Server({ server });
 
 const clients = new Map(); // Map: playerId => WebSocket
-
+const readyPlayers = new Map(); // Map gameId → Set playerId đã sẵn sàng
 // Khi có client kết nối WebSocket
 wss.on('connection', (ws, req) => {
     console.log('🔌 Một client đã kết nối WebSocket');
@@ -130,6 +130,36 @@ wss.on('connection', (ws, req) => {
                                     console.log(`🚀 Gửi goto_place_ship tới player ${pid} (gameId: ${gameId})`);
                                 }
                             });
+                        }
+                        else if (parsed.action === 'ready_place_ship') {
+                            const { gameId, playerId, opponentId } = parsed;
+                            console.log(`📦 Player ${playerId} đã sẵn sàng đặt tàu (game ${gameId})`);
+
+                            // Nếu chưa có gameId thì khởi tạo
+                            if (!readyPlayers.has(gameId)) {
+                                readyPlayers.set(gameId, new Set());
+                            }
+
+                            // Thêm playerId vào set ready
+                            readyPlayers.get(gameId).add(playerId);
+
+                            // Kiểm tra nếu đủ 2 người rồi thì gửi start_countdown cho cả 2
+                            if (readyPlayers.get(gameId).has(playerId) && readyPlayers.get(gameId).has(opponentId)) {
+                                const payload = JSON.stringify({
+                                    type: 'start_countdown'
+                                });
+
+                                const socketA = clients.get(playerId);
+                                const socketB = clients.get(opponentId);
+
+                                if (socketA && socketA.readyState === WebSocket.OPEN) socketA.send(payload);
+                                if (socketB && socketB.readyState === WebSocket.OPEN) socketB.send(payload);
+
+                                console.log(`🚀 Bắt đầu đếm ngược cho game ${gameId}`);
+
+                                // Xoá trạng thái để tránh lặp lại
+                                readyPlayers.delete(gameId);
+                            }
                         }
                     } catch (e) {
                         console.error('❌ Lỗi xử lý message:', e.message);

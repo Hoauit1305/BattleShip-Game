@@ -359,7 +359,7 @@ public class RoomManager : MonoBehaviour
             }
 
             // Chủ phòng vào scene đặt tàu ngay (guest sẽ vào khi nhận được socket)
-            SceneManager.LoadScene("PlaceShipScene");
+            SceneManager.LoadScene("PlayPersonScene");
         }
         else
         {

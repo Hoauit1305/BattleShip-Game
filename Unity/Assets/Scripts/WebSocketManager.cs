@@ -98,7 +98,20 @@ public class WebSocketManager : MonoBehaviour
             else if (data["type"] == "goto_place_ship")
             {
                 Debug.Log("🎯 Nhận được tín hiệu từ server: chuyển sang scene đặt tàu");
-                UnityEngine.SceneManagement.SceneManager.LoadScene("PlaceShipScene");
+                UnityEngine.SceneManagement.SceneManager.LoadScene("PlayPersonScene");
+            }
+            else if (data["type"] == "start_countdown")
+            {
+                Debug.Log("⏳ Nhận được tín hiệu start_countdown");
+                // Gọi CountdownManager thực thi
+                CountdownPersonManager countdown = FindObjectOfType<CountdownPersonManager>();
+                if (countdown != null)
+                {
+                    StartCoroutine(countdown.StartCountdown(() => {
+                        Debug.Log("🎮 Countdown kết thúc, bắt đầu game!");
+                        // Load scene game hoặc enable gameplay ở đây nếu cần
+                    }));
+                }
             }
         };
 
