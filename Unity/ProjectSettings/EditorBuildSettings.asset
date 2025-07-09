@@ -20,6 +20,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/FindMatchesScene.unity
     guid: ca2031a57697f7b4b9068ac6dadcb452
+  - enabled: 1
+    path: Assets/Scenes/PlayPersonScene.unity
+    guid: 2cea2b5086babd04d9c2ab0ecef7a061
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0
