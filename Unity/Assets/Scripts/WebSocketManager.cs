@@ -125,7 +125,7 @@ public class WebSocketManager : MonoBehaviour
 
             case "closed":
                 Debug.Log("❌ Phòng đã bị đóng, quay lại scene chính");
-                UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
+                UnityEngine.SceneManagement.SceneManager.LoadScene("LobbyScene");
                 break;
         }
     }
@@ -242,7 +242,24 @@ public class WebSocketManager : MonoBehaviour
         Debug.Log($"📤 Sending room event: {json}");
         websocket.SendText(json);
     }
+    public void SendRoomClosedEvent(int roomCode, int ownerId, int guestId)
+    {
+        if (websocket == null || websocket.State != WebSocketState.Open)
+        {
+            Debug.LogWarning("⚠️ WebSocket chưa sẵn sàng gửi close_room event.");
+            return;
+        }
 
+        string json = $"{{" +
+            $"\"action\":\"close_room\"," +
+            $"\"roomCode\":{roomCode}," +
+            $"\"ownerId\":{ownerId}," +
+            $"\"guestId\":{guestId}" +
+            $"}}";
+
+        Debug.Log($"📤 Gửi close_room WebSocket: {json}");
+        websocket.SendText(json);
+    }
     private string GetRole()
     {
         // Tùy bạn xác định role từ scene hoặc Prefs

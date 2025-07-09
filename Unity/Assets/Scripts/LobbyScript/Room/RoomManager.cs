@@ -138,7 +138,7 @@ public class RoomManager : MonoBehaviour
 
             if (WebSocketManager.Instance != null && currentRoom != null)
             {
-                WebSocketManager.Instance.SendRoomEvent("close_room", currentRoom.roomCode, currentRoom.guestId);
+                WebSocketManager.Instance.SendRoomClosedEvent(currentRoom.roomCode, currentRoom.ownerId, currentRoom.guestId);
             }
 
             currentRoom = null;
