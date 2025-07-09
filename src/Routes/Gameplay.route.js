@@ -5,6 +5,7 @@ const {
     fireController, 
     fireWithBotController, 
     setidController, 
+    setid1Controller, 
     placeBotShipController,
     getPositionController,
     fireWithPersonController
@@ -24,6 +25,9 @@ router.post('/fire-ship/person', fireWithPersonController);
 
 //API tạo id trận đấu
 router.post('/create-gameid', setidController);
+
+//API tạo id trận đấu
+router.post('/create-gameid-fire-person', setid1Controller);
 
 // API đặt tàu cho bot
 router.post('/place-ship/bot', placeBotShipController);

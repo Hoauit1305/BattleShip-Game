@@ -7,6 +7,7 @@ const {
     fireAtPosition, 
     fireWithBot, 
     setID,  
+    setID1,
     generateBotShips, 
     placeBotShips,
     showPositionShips
@@ -32,6 +33,37 @@ const setidController = async (req, res) => {
 
     try {
         const gameId = await setID(playerId);
+        return res.json({ message: "Tạo ID trận đấu thành công!", gameId });
+    } catch (err) {
+        console.error("❌ Lỗi khi tạo ID:", err);
+        return res.status(500).json({ message: "Lỗi server khi tạo ID trận đấu" });
+    }
+};
+
+const setid1Controller = async (req, res) => {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(403).json({ message: "Không có token hoặc token không hợp lệ!" });
+    }
+
+    const token = authHeader.split(" ")[1];
+    let decoded;
+
+    try {
+        decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (err) {
+        return res.status(401).json({ message: "Token không hợp lệ" });
+    }
+
+    const { playerId1, playerId2 } = req.body;
+
+    if (!playerId1 || !playerId2 || playerId1 === playerId2) {
+        return res.status(400).json({ message: "Thiếu hoặc trùng playerId1 và playerId2" });
+    }
+
+    try {
+        const gameId = await setID(playerId1, playerId2);
         return res.json({ message: "Tạo ID trận đấu thành công!", gameId });
     } catch (err) {
         console.error("❌ Lỗi khi tạo ID:", err);
@@ -272,6 +304,7 @@ module.exports = {
     fireController, 
     fireWithBotController, 
     setidController, 
+    setid1Controller,
     placeBotShipController,
     getPositionController,
     fireWithPersonController
