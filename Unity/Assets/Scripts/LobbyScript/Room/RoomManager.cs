@@ -83,7 +83,20 @@ public class RoomManager : MonoBehaviour
 
     public void StartPersonGame()
     {
-        StartCoroutine(CreateGameIdForPersonCoroutine());
+        if (currentRoom == null)
+        {
+            Debug.LogError("❌ currentRoom null!");
+            return;
+        }
+        // Chỉ cho chủ phòng thực hiện
+        if (!IsRoomOwner())
+        {
+            Debug.LogWarning("⚠️ Chỉ chủ phòng được bắt đầu.");
+            return;
+        }
+
+        // Gọi API tạo gameId trước
+        StartCoroutine(CreateGameIdThenNotify());
     }
 
     private IEnumerator CreateRoomCoroutine()
@@ -229,7 +242,7 @@ public class RoomManager : MonoBehaviour
                 CreateRoomResponse response = JsonUtility.FromJson<CreateRoomResponse>(request.downloadHandler.text);
                 currentRoom = response.room;
                 PrefsHelper.SetInt("ownerId", currentRoom.ownerId);
-
+                PrefsHelper.SetInt("guestId", currentRoom.ownerId);
                 // Cập nhật UI
                 if (RoomCodeText != null) RoomCodeText.text = currentRoom.roomCode.ToString();
                 if (OwnerNameText != null && response.room.ownerName != null)
@@ -300,12 +313,11 @@ public class RoomManager : MonoBehaviour
             }
         }
     }
-
-    private IEnumerator CreateGameIdForPersonCoroutine()
+    private IEnumerator CreateGameIdThenNotify()
     {
         string token = PrefsHelper.GetString("token");
-        int ownerId = PrefsHelper.GetInt("ownerId");
-        int guestId = PrefsHelper.GetInt("guestId");
+        int ownerId = currentRoom.ownerId;
+        int guestId = currentRoom.guestId;
         if (string.IsNullOrEmpty(token) || ownerId == 0 || guestId == 0)
         {
             Debug.LogError("Thiếu token hoặc ownerId/guestId");
@@ -331,8 +343,23 @@ public class RoomManager : MonoBehaviour
             PrefsHelper.SetInt("gameId", response.gameId);
             Debug.Log($"✅ Đã tạo gameId: {response.gameId}");
 
-            // Chuyển đến scene chiến đấu người
-            SceneManager.LoadScene("PlayPersonScene");
+            // Gửi WebSocket "start_game" để cả 2 cùng vào scene đặt tàu
+            if (WebSocketManager.Instance != null)
+            {
+                string json = $"{{" +
+                    $"\"action\":\"start_game\"," +
+                    $"\"roomCode\":{currentRoom.roomCode}," +
+                    $"\"ownerId\":{ownerId}," +
+                    $"\"guestId\":{guestId}," +
+                    $"\"gameId\":{response.gameId}" +
+                $"}}";
+
+                WebSocketManager.Instance.SendRawJson(json);
+                Debug.Log("📤 Gửi start_game WebSocket cho server");
+            }
+
+            // Chủ phòng vào scene đặt tàu ngay (guest sẽ vào khi nhận được socket)
+            SceneManager.LoadScene("PlaceShipScene");
         }
         else
         {

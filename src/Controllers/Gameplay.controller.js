@@ -63,7 +63,7 @@ const setid1Controller = async (req, res) => {
     }
 
     try {
-        const gameId = await setID(playerId1, playerId2);
+        const gameId = await setID1(playerId1, playerId2);
         return res.json({ message: "Tạo ID trận đấu thành công!", gameId });
     } catch (err) {
         console.error("❌ Lỗi khi tạo ID:", err);

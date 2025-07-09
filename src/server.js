@@ -113,7 +113,24 @@ wss.on('connection', (ws, req) => {
                                 }
                             });
                         }
+                        else if (parsed.action === 'start_game') {
+                            const { ownerId, guestId, roomCode, gameId } = parsed;
 
+                            const payload = JSON.stringify({
+                                type: 'goto_place_ship',
+                                roomCode: roomCode,
+                                gameId: gameId, // ← thêm dòng này
+                                message: 'Cả hai đã sẵn sàng, chuyển đến scene đặt tàu!'
+                            });
+
+                            [ownerId, guestId].forEach(pid => {
+                                const wsClient = clients.get(pid);
+                                if (wsClient && wsClient.readyState === WebSocket.OPEN) {
+                                    wsClient.send(payload);
+                                    console.log(`🚀 Gửi goto_place_ship tới player ${pid} (gameId: ${gameId})`);
+                                }
+                            });
+                        }
                     } catch (e) {
                         console.error('❌ Lỗi xử lý message:', e.message);
                     }

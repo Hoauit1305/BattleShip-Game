@@ -95,6 +95,11 @@ public class WebSocketManager : MonoBehaviour
             {
                 HandleRoomUpdate(data);
             }
+            else if (data["type"] == "goto_place_ship")
+            {
+                Debug.Log("🎯 Nhận được tín hiệu từ server: chuyển sang scene đặt tàu");
+                UnityEngine.SceneManagement.SceneManager.LoadScene("PlaceShipScene");
+            }
         };
 
         await websocket.Connect();
@@ -113,7 +118,7 @@ public class WebSocketManager : MonoBehaviour
                 if (RoomManager.Instance != null && role == "guest")
                 {
                     RoomManager.Instance.SetGuestName(playerName);
-                    RoomManager.Instance.SetGuestId(playerId);
+                    RoomManager.Instance.SetGuestId(data["playerId"].AsInt);
                 }
                 break;
             case "leave":
@@ -194,7 +199,18 @@ public class WebSocketManager : MonoBehaviour
         Debug.Log("📤 Sending WebSocket message: " + jsonString);
         await websocket.SendText(jsonString);
     }
-
+    public void SendRawJson(string json)
+    {
+        if (websocket != null && websocket.State == WebSocketState.Open)
+        {
+            Debug.Log("📤 Gửi JSON WebSocket: " + json);
+            websocket.SendText(json);
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ WebSocket chưa kết nối.");
+        }
+    }
     private IEnumerator SendMessageToApi(int receiverId, string content)
     {
         string sendUrl = "https://battleship-game-production.up.railway.app/api/message/send";
