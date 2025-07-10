@@ -109,6 +109,12 @@ wss.on('connection', (ws, req) => {
                         else if (parsed.action === 'start_game') {
                             const { ownerId, guestId, roomCode, gameId } = parsed;
 
+                            // Xóa trạng thái readyPlayers cũ khi bắt đầu game mới
+                            if (readyPlayers.has(gameId)) {
+                                readyPlayers.delete(gameId);
+                                console.log(`🧹 Xóa trạng thái readyPlayers cho game ${gameId}`);
+                            }
+
                             const payload = JSON.stringify({
                                 type: 'goto_place_ship',
                                 roomCode: roomCode,
