@@ -128,16 +128,19 @@ wss.on('connection', (ws, req) => {
                             const { gameId, playerId, opponentId } = parsed;
                             console.log(`📦 Player ${playerId} đã sẵn sàng đặt tàu (game ${gameId})`);
 
+                            // Khởi tạo lại set cho gameId mới
                             if (!readyPlayers.has(gameId)) {
                                 readyPlayers.set(gameId, new Set());
                             }
 
-                            readyPlayers.get(gameId).add(playerId);
+                            // Thêm playerId vào set ready
+                            const currentReadySet = readyPlayers.get(gameId);
+                            currentReadySet.add(playerId);
+                            console.log(`🕒 readyPlayers cho game ${gameId}: ${Array.from(currentReadySet)}`);
 
-                            // Kiểm tra nếu cả hai người chơi đều sẵn sàng
-                            const readySet = readyPlayers.get(gameId);
+                            // Kiểm tra nếu cả hai người chơi đều sẵn sàng trong cùng một game
                             const allPlayers = new Set([playerId, opponentId]);
-                            if (readySet.size === 2 && [...readySet].every(id => allPlayers.has(id))) {
+                            if (currentReadySet.size === 2 && [...currentReadySet].every(id => allPlayers.has(id))) {
                                 const payload = JSON.stringify({
                                     type: 'start_countdown'
                                 });
@@ -148,10 +151,10 @@ wss.on('connection', (ws, req) => {
                                 if (socketA && socketA.readyState === WebSocket.OPEN) socketA.send(payload);
                                 if (socketB && socketB.readyState === WebSocket.OPEN) socketB.send(payload);
 
-                                console.log(`🚀 Bắt đầu đếm ngược cho game ${gameId}`);
+                                console.log(`🚀 Bắt đầu đếm ngược cho game ${gameId} với ${playerId} và ${opponentId}`);
                                 readyPlayers.delete(gameId); // Xóa trạng thái sau khi hoàn tất
                             } else {
-                                console.log(`⏳ Chờ ${opponentId} sẵn sàng cho game ${gameId}`);
+                                console.log(`⏳ Chờ ${opponentId} sẵn sàng cho game ${gameId}, hiện tại: ${currentReadySet.size}/2`);
                             }
                         }
                     } catch (e) {
