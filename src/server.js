@@ -115,20 +115,8 @@ wss.on('connection', (ws, req) => {
                                 console.log(`🧹 Xóa trạng thái readyPlayers cho game ${gameId}`);
                             }
 
-                            const payload = JSON.stringify({
-                                type: 'goto_place_ship',
-                                roomCode: roomCode,
-                                gameId: gameId,
-                                message: 'Cả hai đã sẵn sàng, chuyển đến scene đặt tàu!'
-                            });
-
-                            [ownerId, guestId].forEach(pid => {
-                                const wsClient = clients.get(pid);
-                                if (wsClient && wsClient.readyState === WebSocket.OPEN) {
-                                    wsClient.send(payload);
-                                    console.log(`🚀 Gửi goto_place_ship tới player ${pid} (gameId: ${gameId})`);
-                                }
-                            });
+                            // Không gửi goto_place_ship ngay, chờ ready_place_ship từ cả hai
+                            console.log(`⏳ Chờ cả hai sẵn sàng cho game ${gameId} với ownerId ${ownerId} và guestId ${guestId}`);
                         }
                         else if (parsed.action === 'ready_place_ship') {
                             const { gameId, playerId, opponentId } = parsed;
