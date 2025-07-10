@@ -119,6 +119,8 @@ wss.on('connection', (ws, req) => {
                                 type: 'goto_place_ship',
                                 roomCode: roomCode,
                                 gameId: gameId,
+                                ownerId: ownerId,
+                                guestId: guestId,
                                 message: 'Cả hai đã sẵn sàng, chuyển đến scene đặt tàu!'
                             });
 

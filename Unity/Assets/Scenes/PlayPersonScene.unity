@@ -5791,7 +5791,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 222017289}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1eeab2ebbdf50a444a70d347ecddeac5, type: 3}
+  m_Script: {fileID: 11500000, guid: 84e6939a13a54e942869ac8463be1139, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   diamondObject: {fileID: 1291261584}
@@ -16303,8 +16303,8 @@ GameObject:
   - component: {fileID: 638796314}
   - component: {fileID: 638796313}
   - component: {fileID: 638796312}
-  - component: {fileID: 638796311}
   - component: {fileID: 638796316}
+  - component: {fileID: 638796317}
   m_Layer: 5
   m_Name: ResetButton
   m_TagString: Untagged
@@ -16332,24 +16332,6 @@ RectTransform:
   m_AnchoredPosition: {x: 508, y: 244}
   m_SizeDelta: {x: 268.2677, y: 65}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &638796311
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 638796309}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7087f03c2733b5849bf896ffb6b622e9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ships:
-  - {fileID: 7585708799657950424}
-  - {fileID: 1299673412483622403}
-  - {fileID: 8539170893984536377}
-  - {fileID: 7318784018937040716}
-  - {fileID: 3703428738865204164}
 --- !u!114 &638796312
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16408,8 +16390,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 638796311}
-        m_TargetAssemblyTypeName: ResetButton, Assembly-CSharp
+      - m_Target: {fileID: 638796317}
+        m_TargetAssemblyTypeName: ResetShipPersonButton, Assembly-CSharp
         m_MethodName: OnResetClicked
         m_Mode: 1
         m_Arguments:
@@ -16471,6 +16453,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   clickSound: {fileID: 8300000, guid: 2a0f96c4f4ab14ffe9756d36e2897252, type: 3}
+--- !u!114 &638796317
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 638796309}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e5de936370bd624c8d418cdd42999e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ships:
+  - {fileID: 7585708799657950424}
+  - {fileID: 1299673412483622403}
+  - {fileID: 8539170893984536377}
+  - {fileID: 7318784018937040716}
+  - {fileID: 3703428738865204164}
 --- !u!1 &641717713
 GameObject:
   m_ObjectHideFlags: 0
@@ -23594,8 +23594,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 874926721}
-  - component: {fileID: 874926722}
   - component: {fileID: 874926723}
+  - component: {fileID: 874926724}
   m_Layer: 5
   m_Name: FirePersonManager
   m_TagString: Untagged
@@ -23622,33 +23622,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &874926722
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 874926720}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62d80cd8add617148abf29758cf0deba, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  diamondObject: {fileID: 973279467}
-  rectangleObject: {fileID: 1011237807}
-  circleWhiteObject: {fileID: 285497804}
-  circleRedObject: {fileID: 1855821635}
-  fireBotPanel: {fileID: 1030964516}
-  botFirePanel: {fileID: 11451036}
-  winGamePanel: {fileID: 1496294142}
-  loseGamePanel: {fileID: 1944102922}
-  ship2Prefab: {fileID: 1877119802}
-  ship31Prefab: {fileID: 856016096}
-  ship32Prefab: {fileID: 2115440994}
-  ship4Prefab: {fileID: 731623289}
-  ship5Prefab: {fileID: 1013713645}
-  changeTurnPanel: {fileID: 1102745813}
-  FrameColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!82 &874926723
 AudioSource:
   m_ObjectHideFlags: 0
@@ -23746,6 +23719,33 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &874926724
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 874926720}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e74490cbf5369f40bc2b44a90e8cbdf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  diamondObject: {fileID: 973279467}
+  rectangleObject: {fileID: 1011237807}
+  circleWhiteObject: {fileID: 285497804}
+  circleRedObject: {fileID: 1855821635}
+  fireBotPanel: {fileID: 1030964516}
+  botFirePanel: {fileID: 11451036}
+  winGamePanel: {fileID: 1496294142}
+  loseGamePanel: {fileID: 1944102922}
+  ship2Prefab: {fileID: 1877119802}
+  ship31Prefab: {fileID: 856016096}
+  ship32Prefab: {fileID: 2115440994}
+  ship4Prefab: {fileID: 731623289}
+  ship5Prefab: {fileID: 1013713645}
+  changeTurnPanel: {fileID: 1102745813}
+  FrameColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!1001 &875345666
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -32425,11 +32425,11 @@ GameObject:
   - component: {fileID: 1230580426}
   - component: {fileID: 1230580425}
   - component: {fileID: 1230580424}
-  - component: {fileID: 1230580427}
   - component: {fileID: 1230580428}
   - component: {fileID: 1230580429}
-  - component: {fileID: 1230580430}
   - component: {fileID: 1230580431}
+  - component: {fileID: 1230580433}
+  - component: {fileID: 1230580432}
   m_Layer: 5
   m_Name: DoneButton
   m_TagString: Untagged
@@ -32501,8 +32501,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1230580427}
-        m_TargetAssemblyTypeName: ExportManager, Assembly-CSharp
+      - m_Target: {fileID: 1230580433}
+        m_TargetAssemblyTypeName: ExportPersonManager, Assembly-CSharp
         m_MethodName: ExportToBackend
         m_Mode: 1
         m_Arguments:
@@ -32551,20 +32551,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1230580421}
   m_CullTransparentMesh: 1
---- !u!114 &1230580427
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1230580421}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ba2dbc10437d09646a6b50aff814d531, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  switchPanelButton: {fileID: 1230580429}
-  countdownManager: {fileID: 1230580430}
 --- !u!114 &1230580428
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -32593,20 +32579,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SourcePanel: {fileID: 676161572}
   DestinationPanel: {fileID: 1030964516}
---- !u!114 &1230580430
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1230580421}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5c6423e63df2f4743a2f88ec26fec976, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  countdownText: {fileID: 1950776721}
-  CountdownPanel: {fileID: 739672798}
 --- !u!114 &1230580431
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -32620,6 +32592,34 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   clickSound: {fileID: 8300000, guid: 2a0f96c4f4ab14ffe9756d36e2897252, type: 3}
+--- !u!114 &1230580432
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1230580421}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4992136adfeeb9438b5690a45c90269, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  countdownText: {fileID: 1950776721}
+  CountdownPanel: {fileID: 739672798}
+--- !u!114 &1230580433
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1230580421}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61abaefca2e6d4944a926ea31b3ea58e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  switchPanelButton: {fileID: 1230580429}
+  countdownManager: {fileID: 1230580432}
 --- !u!224 &1239882635 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1127732142116094653, guid: bab017cbc5272ca448d0a200dcfdf932, type: 3}

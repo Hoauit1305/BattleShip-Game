@@ -42,5 +42,23 @@ public class CountdownPersonManager : MonoBehaviour
         countdownText.gameObject.SetActive(false);
         CountdownPanel.SetActive(false);
         onComplete?.Invoke(); // gọi hành động tiếp theo (bắt đầu game)
+
+        int playerId = PrefsHelper.GetInt("playerId");
+        int ownerId = PrefsHelper.GetInt("ownerId");
+
+        if (playerId == ownerId)
+        {
+            Debug.Log("🚀 Player này là owner — chuyển sang panel bắn tàu.");
+            // Enable FirePersonPanel
+            GameObject.Find("FirePersonPanel").SetActive(true);
+            GameObject.Find("PersonFirePanel").SetActive(false);
+        }
+        else
+        {
+            Debug.Log("👀 Player này là guest — chuyển sang panel xem owner bắn.");
+            // Enable PersonFirePanel
+            GameObject.Find("FirePersonPanel").SetActive(false);
+            GameObject.Find("PersonFirePanel").SetActive(true);
+        }
     }
 }

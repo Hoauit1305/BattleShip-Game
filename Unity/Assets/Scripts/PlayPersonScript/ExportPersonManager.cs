@@ -4,9 +4,7 @@ using System.Collections;
 
 public class ExportPersonManager : MonoBehaviour
 {
-    public SwitchPanelButton switchPanelButton;
-
-    public CountdownManager countdownManager;
+    public CountdownPersonManager countdownManager;
     public void ExportToBackend()
     {
         int gameId = PrefsHelper.GetInt("gameId");
@@ -36,11 +34,7 @@ public class ExportPersonManager : MonoBehaviour
         if (request.result == UnityWebRequest.Result.Success)
         {
             Debug.Log("✅ Gửi dữ liệu thành công! Phản hồi: " + request.downloadHandler.text);
-            // Gọi countdown trước khi chuyển cảnh
-            yield return StartCoroutine(countdownManager.StartCountdown(() =>
-            {
-                switchPanelButton.SwitchPanel();
-            }));
+            countdownManager.OnFinishPlacingShips();
         }
         else
         {
