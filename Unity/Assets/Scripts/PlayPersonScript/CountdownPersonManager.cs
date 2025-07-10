@@ -23,7 +23,7 @@ public class CountdownPersonManager : MonoBehaviour
         $"}}";
 
         WebSocketManager.Instance.SendRawJson(json);
-        Debug.Log("📤 Đã gửi ready_place_ship với playerId: {playerId}, opponentId: {opponentId}");
+        Debug.Log("📤 Đã gửi ready_place_ship");
     }
 
     public IEnumerator StartCountdown(System.Action onComplete)
@@ -41,26 +41,6 @@ public class CountdownPersonManager : MonoBehaviour
 
         countdownText.gameObject.SetActive(false);
         CountdownPanel.SetActive(false);
-        onComplete?.Invoke(); // Gửi start_game sau đếm ngược
-        SendStartGame();
-    }
-
-    private void SendStartGame()
-    {
-        int gameId = PrefsHelper.GetInt("gameId");
-        int playerId = PrefsHelper.GetInt("playerId");
-        int opponentId = PrefsHelper.GetInt("opponentId");
-        int roomCode = PrefsHelper.GetInt("roomCode"); // Giả sử roomCode được lưu
-
-        string json = $"{{" +
-            $"\"action\":\"start_game\"," +
-            $"\"ownerId\":{playerId}," +
-            $"\"guestId\":{opponentId}," +
-            $"\"roomCode\":{roomCode}," +
-            $"\"gameId\":{gameId}" +
-        $"}}";
-
-        WebSocketManager.Instance.SendRawJson(json);
-        Debug.Log($"📤 Gửi start_game với ownerId: {playerId}, guestId: {opponentId}, gameId: {gameId}");
+        onComplete?.Invoke(); // gọi hành động tiếp theo (bắt đầu game)
     }
 }

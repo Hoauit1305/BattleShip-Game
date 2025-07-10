@@ -108,6 +108,7 @@ public class WebSocketManager : MonoBehaviour
                 {
                     StartCoroutine(countdown.StartCountdown(() => {
                         Debug.Log("🎮 Countdown kết thúc, bắt đầu game!");
+                        // Load scene game hoặc enable gameplay ở đây nếu cần
                     }));
                 }
             }
