@@ -5,60 +5,54 @@ using UnityEngine.Networking;
 using System.Collections;
 using System.Collections.Generic;
 using WebSocketSharp;
-using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
+using SimpleJSON;
 
-public class FirePersonManager : MonoBehaviour
+public class FirePersonCellManager : MonoBehaviour
 {
     public GameObject diamondObject;
     public GameObject rectangleObject;
     public GameObject circleWhiteObject;
     public GameObject circleRedObject;
-    public GameObject fireBotPanel;
-    public GameObject botFirePanel;
-
-    // Thêm hai panel mới cho kết quả trò chơi
+    public GameObject fireBotPanel; // Used as FirePersonPanel
+    public GameObject botFirePanel; // Used as PersonFirePanel
     public GameObject winGamePanel;
     public GameObject loseGamePanel;
+    public GameObject changeTurnPanel;
 
-    // Thêm các prefab tàu
+    // Ship prefabs
     public GameObject ship2Prefab;
     public GameObject ship31Prefab;
     public GameObject ship32Prefab;
     public GameObject ship4Prefab;
     public GameObject ship5Prefab;
 
-    // Dictionary để theo dõi các tàu đã được đặt trên bảng
+    // Dictionary to track placed ships
     private Dictionary<string, GameObject> placedShips = new Dictionary<string, GameObject>();
 
     public static GameObject globalDiamond;
-
     public static bool isPlayerTurn = true;
-    public GameObject changeTurnPanel;
-    //Hightlight
     private List<GameObject> frameObjects = new List<GameObject>();
     public Color FrameColor = Color.red;
-
-    public WebSocket socket; // socket truyền vào từ lúc tạo phòng
+    public WebSocket socket;
 
     void Start()
     {
-       
-
         globalDiamond = diamondObject;
         globalDiamond.GetComponent<Image>().enabled = false;
 
-        // Tắt hình ảnh của tất cả các prefab tàu khi khởi tạo
+        // Disable ship prefab images
         DisableAllShipPrefabImages();
 
-        // Đảm bảo các panel kết quả trò chơi bị ẩn khi bắt đầu
+        // Hide game result panels
         if (winGamePanel != null) winGamePanel.SetActive(false);
         if (loseGamePanel != null) loseGamePanel.SetActive(false);
 
+        // Initialize grid cells with event triggers
         GameObject[] cells = GameObject.FindGameObjectsWithTag("GridCell");
         foreach (GameObject cell in cells)
         {
-            if (cell.GetComponent<GridCellStatus>() == null)
-                cell.AddComponent<GridCellStatus>();
+            if (cell.GetComponent<GridCellStatusPerson>() == null)
+                cell.AddComponent<GridCellStatusPerson>();
 
             EventTrigger trigger = cell.GetComponent<EventTrigger>();
             if (trigger == null)
@@ -68,9 +62,39 @@ public class FirePersonManager : MonoBehaviour
             AddEventTrigger(trigger, EventTriggerType.PointerExit, (eventData) => { OnCellPointerExit(); });
             AddEventTrigger(trigger, EventTriggerType.PointerClick, (eventData) => { OnCellPointerClick(cell); });
         }
+
+        // Set initial panel visibility based on turn
+        UpdatePanelVisibility();
+
+        // Set up WebSocket message handling
+        if (socket != null && socket.IsAlive)
+        {
+            socket.OnMessage += (sender, e) =>
+            {
+                Debug.Log("[SOCKET] Received message: " + e.Data);
+                JSONNode data = JSON.Parse(e.Data);
+
+                if (data["type"] == "fire_result")
+                {
+                    FireResultPerson result = JsonUtility.FromJson<FireResultPerson>(e.Data);
+                    StartCoroutine(HandleOpponentFire(result));
+                }
+                else if (data["type"] == "switch_turn")
+                {
+                    int myId = PrefsHelper.GetInt("playerId");
+                    int toPlayerId = data["toPlayerId"].AsInt;
+                    if (toPlayerId == myId)
+                    {
+                        Debug.Log("[SOCKET] Received switch_turn, it's my turn!");
+                        isPlayerTurn = true;
+                        StartCoroutine(ShowChangeTurnPanel());
+                        UpdatePanelVisibility();
+                    }
+                }
+            };
+        }
     }
 
-    // Hàm tắt hình ảnh của tất cả các prefab tàu
     void DisableAllShipPrefabImages()
     {
         if (ship2Prefab != null) ship2Prefab.GetComponent<Image>().enabled = false;
@@ -91,7 +115,7 @@ public class FirePersonManager : MonoBehaviour
     void OnCellPointerEnter(GameObject cell)
     {
         if (!isPlayerTurn) return;
-        if (cell.GetComponent<GridCellStatus>().isClicked)
+        if (cell.GetComponent<GridCellStatusPerson>().isClicked)
             return;
 
         globalDiamond.transform.SetParent(cell.transform);
@@ -107,11 +131,9 @@ public class FirePersonManager : MonoBehaviour
 
     void OnCellPointerClick(GameObject cell)
     {
-       
-
         if (!isPlayerTurn) return;
 
-        GridCellStatus status = cell.GetComponent<GridCellStatus>();
+        GridCellStatusPerson status = cell.GetComponent<GridCellStatusPerson>();
         if (status != null && status.isClicked)
             return;
 
@@ -124,20 +146,21 @@ public class FirePersonManager : MonoBehaviour
             globalDiamond.GetComponent<Image>().enabled = false;
 
         Transform existingRect = cell.transform.Find("Rectangle(Clone)");
+        GameObject newRect;
         if (existingRect == null)
         {
-            GameObject newRect = Instantiate(rectangleObject, cell.transform);
+            newRect = Instantiate(rectangleObject, cell.transform);
             newRect.name = "Rectangle";
             newRect.GetComponent<Image>().enabled = true;
             newRect.transform.localPosition = Vector3.zero;
-
-            StartCoroutine(ChangeToCircleAndCallAPI(newRect, cell));
         }
         else
         {
-            existingRect.GetComponent<Image>().enabled = true;
-            StartCoroutine(ChangeToCircleAndCallAPI(existingRect.gameObject, cell));
+            newRect = existingRect.gameObject;
+            newRect.GetComponent<Image>().enabled = true;
         }
+
+        StartCoroutine(ChangeToCircleAndCallAPI(newRect, cell));
     }
 
     IEnumerator ChangeToCircleAndCallAPI(GameObject rectObj, GameObject cell)
@@ -148,92 +171,88 @@ public class FirePersonManager : MonoBehaviour
         {
             Transform parent = rectObj.transform.parent;
             Vector3 pos = rectObj.transform.localPosition;
-
             Destroy(rectObj);
 
-            // Gửi socket bắn sang server
             string gameId = PrefsHelper.GetInt("gameId").ToString();
             string playerId = PrefsHelper.GetInt("playerId").ToString();
             string position = cell.name;
             string apiURL = "https://battleship-game-production.up.railway.app/api/gameplay/fire-ship/person";
 
-            ShotRequest shotRequest = new ShotRequest(gameId, playerId, cell.name);
-            UnityWebRequest request = CreatePostRequest(apiURL, shotRequest);
+            ShotRequestPerson ShotRequestPerson = new ShotRequestPerson(gameId, playerId, position);
+            UnityWebRequest request = CreatePostRequest(apiURL, ShotRequestPerson);
 
-            Debug.Log($"Gửi request đến API với gameId: {gameId}, playerId: {playerId}, position: {cell.name}");
+            Debug.Log($"Sending request to API with gameId: {gameId}, playerId: {playerId}, position: {position}");
             yield return request.SendWebRequest();
 
-            string shotType = "miss"; // default
-            SunkShip sunkShipData = null;
-            GameResult gameResultData = null; // Biến lưu kết quả trò chơi
-
-            Debug.Log($"API response status: {request.result}, responseCode: {request.responseCode}");
+            string shotType = "miss";
+            SunkShipPerson SunkShipPersonData = null;
+            GameResultPerson GameResultPersonData = null;
 
             if (request.result == UnityWebRequest.Result.Success)
             {
-                // Log response nguyên bản để debug
                 string responseText = request.downloadHandler.text;
                 Debug.Log($"API response text: {responseText}");
 
                 try
                 {
-                    ShotResponse response = JsonUtility.FromJson<ShotResponse>(responseText);
+                    ShotResponsePerson response = JsonUtility.FromJson<ShotResponsePerson>(responseText);
 
-                    if (response != null)
+                    if (response != null && response.PlayerShotPerson != null)
                     {
-                        Debug.Log($"Parsed response - message: {response.message}");
+                        shotType = response.PlayerShotPerson.result;
+                        SunkShipPersonData = response.PlayerShotPerson.SunkShipPerson;
+                        GameResultPersonData = response.PlayerShotPerson.GameResultPerson;
 
-                        if (response.playerShot != null)
+                        Debug.Log($"Parsed response - message: {response.message}, position: {response.PlayerShotPerson.position}, result: {shotType}");
+
+                        if (SunkShipPersonData != null)
                         {
-                            shotType = response.playerShot.result;
-                            sunkShipData = response.playerShot.sunkShip;
-                            gameResultData = response.playerShot.gameResult; // Lấy kết quả trò chơi từ response
+                            Debug.Log($"SunkShipPerson: id={SunkShipPersonData.shipId}, type={SunkShipPersonData.shipType}, positions: {string.Join(", ", SunkShipPersonData.positions)}");
+                        }
+                        if (GameResultPersonData != null)
+                        {
+                            Debug.Log($"Game result: status={GameResultPersonData.status}, winnerId={GameResultPersonData.winnerId}");
+                        }
 
-                            Debug.Log($"playerShot: position={response.playerShot.position}, result={response.playerShot.result}");
-                            // Log thông tin gameResult
-                            if (gameResultData != null)
+                        if (socket != null && socket.IsAlive)
+                        {
+                            var FireResultPerson = new
                             {
-                                Debug.Log($"Game result: status={gameResultData.status}, winnerId={gameResultData.winnerId}");
-                            }
-                            else
+                                type = "fire_result",
+                                position = response.PlayerShotPerson.position,
+                                result = response.PlayerShotPerson.result,
+                                SunkShipPerson = response.PlayerShotPerson.SunkShipPerson,
+                                GameResultPerson = response.PlayerShotPerson.GameResultPerson
+                            };
+
+                            string jsonFireResultPerson = JsonUtility.ToJson(FireResultPerson);
+                            Debug.Log($"[SOCKET] Sending fire_result: {jsonFireResultPerson}");
+                            socket.Send(jsonFireResultPerson);
+
+                            // If the shot is a miss, send switch_turn message
+                            if (shotType == "miss")
                             {
-                                Debug.Log("Game result is null - game still in progress");
-                            }
-                            if (sunkShipData != null)
-                            {
-                                Debug.Log($"SunkShip: id={sunkShipData.shipId}, type={sunkShipData.shipType}");
-                                if (sunkShipData.positions != null)
+                                int opponentId = GetOpponentId(gameId, int.Parse(playerId));
+                                var switchTurn = new
                                 {
-                                    Debug.Log($"Ship positions: {string.Join(", ", sunkShipData.positions)}");
-                                }
-                            }
-                            if (socket != null && socket.IsAlive)
-                            {
-                                // Tạo JSON gửi socket
-                                var fireResult = new
-                                {
-                                    position = response.playerShot.position,
-                                    result = response.playerShot.result,
-                                    sunkShip = response.playerShot.sunkShip, // có thể null
-                                    gameResult = response.playerShot.gameResult // có thể null
+                                    type = "switch_turn",
+                                    fromPlayerId = int.Parse(playerId),
+                                    toPlayerId = opponentId
                                 };
 
-                                string jsonFireResult = JsonUtility.ToJson(fireResult);
-                                Debug.Log($"[SOCKET] Gửi fire-result: {jsonFireResult}");
-
-                                // Emit socket fire-result (tùy SocketSharp hay IO client mà .Send hoặc Emit)
-                                socket.Send(jsonFireResult);
+                                string jsonSwitchTurn = JsonUtility.ToJson(switchTurn);
+                                Debug.Log($"[SOCKET] Sending switch_turn: {jsonSwitchTurn}");
+                                socket.Send(jsonSwitchTurn);
                             }
-                            else
-                            {
-                                Debug.LogWarning("[SOCKET] Socket null hoặc chưa connect");
-                            }
-
                         }
                         else
                         {
-                            Debug.LogError("Error: response is null after parsing");
+                            Debug.LogWarning("[SOCKET] Socket null or not connected");
                         }
+                    }
+                    else
+                    {
+                        Debug.LogError("Error: response or PlayerShotPerson is null after parsing");
                     }
                 }
                 catch (System.Exception e)
@@ -246,17 +265,14 @@ public class FirePersonManager : MonoBehaviour
                 Debug.LogError("API error: " + request.error);
             }
 
-            // Kiểm tra nếu có tàu bị chìm
-            if (sunkShipData != null && sunkShipData.positions != null && sunkShipData.positions.Length > 0)
+            // Handle sunk ship
+            if (SunkShipPersonData != null && SunkShipPersonData.positions != null && SunkShipPersonData.positions.Length > 0)
             {
-                // Hiển thị frame highlight cho tất cả các ô của tàu bị chìm
-                ShowSunkShipHighlights(sunkShipData.positions);
-                // Hiển thị hình ảnh tàu dựa trên shipType và vị trí
-                ShowSunkShip(sunkShipData);
+                ShowSunkShipPersonHighlights(SunkShipPersonData.positions);
+                ShowSunkShipPerson(SunkShipPersonData);
             }
             else
             {
-                // Hiển thị hình tròn bình thường (trắng hoặc đỏ)
                 GameObject circlePrefab = (shotType == "hit") ? circleRedObject : circleWhiteObject;
                 if (circlePrefab != null)
                 {
@@ -267,89 +283,127 @@ public class FirePersonManager : MonoBehaviour
                 }
             }
 
-            // Kiểm tra kết quả trò chơi
-            if (gameResultData != null && gameResultData.status == "completed")
+            // Handle game result
+            if (GameResultPersonData != null && GameResultPersonData.status == "completed")
             {
-                // Lấy ID của người chơi hiện tại
                 int currentPlayerId = PrefsHelper.GetInt("playerId");
-                Debug.Log($"Kiểm tra kết quả trò chơi: status={gameResultData.status}, winnerId={gameResultData.winnerId}, currentPlayerId={currentPlayerId}");
-
-                // So sánh kết quả trò chơi với ID người chơi
-                bool isWinner = gameResultData.winnerId.ToString() == currentPlayerId.ToString();
-                // Hiển thị panel kết quả phù hợp
-                Debug.Log(isWinner ? "Người chơi thắng!" : "Người chơi thua!");
+                bool isWinner = GameResultPersonData.winnerId == currentPlayerId;
+                Debug.Log($"Game result: {(isWinner ? "Win" : "Lose")}");
                 yield return new WaitForSeconds(0.7f);
-                ShowGameResultPanel(isWinner);
-                yield break; // Kết thúc luồng nếu trò chơi đã kết thúc
+                ShowGameResultPersonPanel(isWinner);
+                yield break;
             }
 
-            yield return new WaitForSeconds(0.5f);
-
+            // Update panel visibility if shot is a miss
             if (shotType == "miss")
             {
-                
+                UpdatePanelVisibility();
             }
             else
             {
-                isPlayerTurn = true; // Nếu là hit → cho tiếp tục bắn
+                isPlayerTurn = true; // Continue shooting if hit
+                UpdatePanelVisibility();
             }
         }
     }
 
-    // Hiển thị panel kết quả trò chơi
-    void ShowGameResultPanel(bool isWin)
+    void UpdatePanelVisibility()
     {
-        // Đảm bảo rằng các panel kết quả trò chơi đã được gán
+        fireBotPanel.SetActive(isPlayerTurn);
+        botFirePanel.SetActive(!isPlayerTurn);
+        changeTurnPanel.SetActive(false);
+        Debug.Log($"Panel visibility updated: FirePersonPanel={(isPlayerTurn ? "Active" : "Inactive")}, PersonFirePanel={(!isPlayerTurn ? "Active" : "Inactive")}");
+    }
+
+    IEnumerator HandleOpponentFire(FireResultPerson shot)
+    {
+        Debug.Log($"Opponent fired at: {shot.position}, result: {shot.result}");
+
+        GameObject cell = GameObject.Find(shot.position);
+        if (cell == null)
+        {
+            Debug.LogError($"Cell not found: {shot.position}");
+            yield break;
+        }
+
+        FireAudioManager.Instance?.PlayFireSound();
+
+        GameObject diamond = Instantiate(diamondObject, cell.transform);
+        diamond.GetComponent<Image>().enabled = true;
+        diamond.transform.localPosition = Vector3.zero;
+        yield return new WaitForSeconds(0.5f);
+        Destroy(diamond);
+
+        GameObject rectangle = Instantiate(rectangleObject, cell.transform);
+        rectangle.GetComponent<Image>().enabled = true;
+        rectangle.transform.localPosition = Vector3.zero;
+        yield return new WaitForSeconds(0.5f);
+        Destroy(rectangle);
+
+        if (shot.SunkShipPerson != null && shot.SunkShipPerson.positions != null && shot.SunkShipPerson.positions.Length > 0)
+        {
+            ShowSunkShipPersonHighlights(shot.SunkShipPerson.positions);
+            ShowSunkShipPerson(shot.SunkShipPerson);
+        }
+        else
+        {
+            GameObject circlePrefab = (shot.result == "hit") ? circleRedObject : circleWhiteObject;
+            GameObject circle = Instantiate(circlePrefab, cell.transform);
+            circle.GetComponent<Image>().enabled = true;
+            circle.transform.localPosition = Vector3.zero;
+        }
+
+        if (shot.GameResultPerson != null && shot.GameResultPerson.status == "completed")
+        {
+            int currentPlayerId = PrefsHelper.GetInt("playerId");
+            bool isWin = shot.GameResultPerson.winnerId == currentPlayerId;
+            ShowGameResultPersonPanel(isWin);
+            yield break;
+        }
+    }
+
+    void ShowGameResultPersonPanel(bool isWin)
+    {
         if (winGamePanel == null || loseGamePanel == null)
         {
             Debug.LogError("Game result panels have not been assigned in the inspector!");
             return;
         }
 
-        // Ẩn các panel khác
         fireBotPanel.SetActive(false);
         botFirePanel.SetActive(false);
         changeTurnPanel.SetActive(false);
 
         if (isWin)
         {
-            // Hiển thị panel thắng
             winGamePanel.SetActive(true);
             loseGamePanel.SetActive(false);
-
-            // Thêm hiệu ứng animation nếu cần
             winGamePanel.transform.localScale = Vector3.zero;
             LeanTween.scale(winGamePanel, Vector3.one, 0.5f).setEaseOutBack();
         }
         else
         {
-            // Hiển thị panel thua
             loseGamePanel.SetActive(true);
             winGamePanel.SetActive(false);
-
-            // Thêm hiệu ứng animation nếu cần
             loseGamePanel.transform.localScale = Vector3.zero;
             LeanTween.scale(loseGamePanel, Vector3.one, 0.5f).setEaseOutBack();
         }
 
-        Debug.Log($"Hiển thị panel kết quả trò chơi: {(isWin ? "Thắng" : "Thua")}");
+        Debug.Log($"Showing game result panel: {(isWin ? "Win" : "Lose")}");
     }
-    void ShowSunkShipHighlights(string[] positions)
-    {
-        // Use fireBotPanel instead of root canvas
-        Transform parentTransform = fireBotPanel.transform;
 
+    void ShowSunkShipPersonHighlights(string[] positions)
+    {
+        Transform parentTransform = fireBotPanel.transform;
         foreach (string positionName in positions)
         {
             GameObject cell = GameObject.Find(positionName);
             if (cell != null)
             {
-                // Tạo frame highlight cho mỗi ô
                 GameObject frame = new GameObject("FireBotHighlight");
                 RectTransform frameTransform = frame.AddComponent<RectTransform>();
                 frame.transform.SetParent(parentTransform);
 
-                // Thiết lập vị trí và kích thước
                 RectTransform cellRect = cell.GetComponent<RectTransform>();
                 if (cellRect != null)
                 {
@@ -357,68 +411,54 @@ public class FirePersonManager : MonoBehaviour
                     frameTransform.sizeDelta = cellRect.sizeDelta;
                     frameTransform.localScale = Vector3.one;
 
-                    // Thêm component Image và thiết lập màu
                     Image frameImage = frame.AddComponent<Image>();
-                    frameImage.color = new Color(FrameColor.r, FrameColor.g, FrameColor.b, 0.4f); // Màu đỏ semi-transparent
-
-                    // Thêm vào danh sách để có thể xóa sau này
+                    frameImage.color = new Color(FrameColor.r, FrameColor.g, FrameColor.b, 0.4f);
                     frameObjects.Add(frame);
-
-                    Debug.Log($"Đã tạo highlight cho ô {positionName}");
+                    Debug.Log($"Created highlight for cell {positionName}");
                 }
             }
         }
     }
-    // Hàm hiển thị tàu bị chìm
-    void ShowSunkShip(SunkShip sunkShip)
+
+    void ShowSunkShipPerson(SunkShipPerson SunkShipPerson)
     {
-        Debug.Log($"Hiển thị tàu chìm: {sunkShip.shipType} tại {string.Join(", ", sunkShip.positions)}");
+        Debug.Log($"Showing sunk ship: {SunkShipPerson.shipType} at {string.Join(", ", SunkShipPerson.positions)}");
 
-        // Xác định prefab tàu dựa trên shipType
-        GameObject shipPrefab = GetShipPrefabByType(sunkShip.shipType);
-
+        GameObject shipPrefab = GetShipPrefabByType(SunkShipPerson.shipType);
         if (shipPrefab == null)
         {
-            Debug.LogError($"Không tìm thấy prefab cho tàu: {sunkShip.shipType}");
+            Debug.LogError($"No prefab found for ship: {SunkShipPerson.shipType}");
             return;
         }
 
-        // Kiểm tra xem tàu này đã được đặt trước đó chưa
-        string shipKey = sunkShip.shipId.ToString();
+        string shipKey = SunkShipPerson.shipId.ToString();
         GameObject shipInstance;
 
         if (placedShips.ContainsKey(shipKey))
         {
-            // Nếu tàu đã tồn tại, di chuyển nó đến vị trí mới
             shipInstance = placedShips[shipKey];
-            Debug.Log($"Tàu {shipKey} đã tồn tại, di chuyển đến vị trí mới");
+            Debug.Log($"Ship {shipKey} already exists, moving to new position");
         }
         else
         {
-            // Lấy ô đầu tiên để đặt tàu
-            GameObject firstCell = GameObject.Find(sunkShip.positions[0]);
+            GameObject firstCell = GameObject.Find(SunkShipPerson.positions[0]);
             if (firstCell == null)
             {
-                Debug.LogError($"Không tìm thấy ô: {sunkShip.positions[0]}");
+                Debug.LogError($"Cell not found: {SunkShipPerson.positions[0]}");
                 return;
             }
 
-            // Tạo instance mới của tàu
             shipInstance = Instantiate(shipPrefab, firstCell.transform);
-            shipInstance.name = sunkShip.shipType;
-
-            // Lưu vào dictionary để tái sử dụng sau này
+            shipInstance.name = SunkShipPerson.shipType;
             placedShips.Add(shipKey, shipInstance);
-            Debug.Log($"Tàu mới {shipKey} đã được tạo");
+            Debug.Log($"Created new ship {shipKey}");
         }
 
-        // Xóa các vòng tròn đỏ tại các vị trí của tàu
-        foreach (string positionName in sunkShip.positions)
+        foreach (string positionName in SunkShipPerson.positions)
         {
             GameObject cell = GameObject.Find(positionName);
             if (cell != null)
             {
-                // Xóa các circle hiện tại trên cell này
                 Transform circleTransform = cell.transform.Find("Circle");
                 if (circleTransform != null)
                 {
@@ -427,52 +467,38 @@ public class FirePersonManager : MonoBehaviour
             }
         }
 
-        // Đặt tàu vào vị trí đầu tiên
-        GameObject startCell = GameObject.Find(sunkShip.positions[0]);
+        GameObject startCell = GameObject.Find(SunkShipPerson.positions[0]);
         if (startCell != null)
         {
-            // Di chuyển tàu đến ô đầu tiên
             shipInstance.transform.SetParent(startCell.transform);
             shipInstance.transform.localPosition = Vector3.zero;
 
-            // Xác định hướng tàu
-            bool isVertical = IsShipVertical(sunkShip.positions);
+            bool isVertical = IsShipVertical(SunkShipPerson.positions);
+            ConfigureShipVisual(shipInstance, SunkShipPerson, isVertical);
 
-            // Cấu hình hình ảnh và kích thước của tàu
-            ConfigureShipVisual(shipInstance, sunkShip, isVertical);
-
-            // Bật (enable) hình ảnh của tàu
             Image shipImage = shipInstance.GetComponent<Image>();
             if (shipImage != null)
             {
                 shipImage.enabled = true;
-                Debug.Log($"Đã bật hình ảnh cho tàu {sunkShip.shipType}");
+                Debug.Log($"Enabled image for ship {SunkShipPerson.shipType}");
             }
             else
             {
-                Debug.LogError($"Không tìm thấy component Image trên tàu {sunkShip.shipType}");
+                Debug.LogError($"No Image component on ship {SunkShipPerson.shipType}");
             }
         }
         else
         {
-            Debug.LogError($"Không tìm thấy ô bắt đầu: {sunkShip.positions[0]}");
+            Debug.LogError($"Start cell not found: {SunkShipPerson.positions[0]}");
         }
     }
 
-    // Xác định tàu đặt theo chiều dọc hay ngang
     bool IsShipVertical(string[] positions)
     {
         if (positions.Length <= 1) return false;
-
-        // Lấy ký tự đầu tiên (chữ cái) của vị trí đầu tiên và thứ hai
-        char firstLetter = positions[0][0];
-        char secondLetter = positions[1][0];
-
-        // Nếu chữ cái khác nhau => tàu đặt theo chiều dọc
-        return firstLetter != secondLetter;
+        return positions[0][0] != positions[1][0];
     }
 
-    // Lấy prefab tàu dựa vào loại
     GameObject GetShipPrefabByType(string shipType)
     {
         switch (shipType)
@@ -486,40 +512,31 @@ public class FirePersonManager : MonoBehaviour
         }
     }
 
-    // Thiết lập hiển thị cho tàu (kích thước, hướng)
-    void ConfigureShipVisual(GameObject shipObject, SunkShip sunkShip, bool isVertical)
+    void ConfigureShipVisual(GameObject shipObject, SunkShipPerson SunkShipPerson, bool isVertical)
     {
         RectTransform rectTransform = shipObject.GetComponent<RectTransform>();
         if (rectTransform == null) return;
 
-        // Lấy kích thước của một ô
-        GameObject firstCell = GameObject.Find(sunkShip.positions[0]);
+        GameObject firstCell = GameObject.Find(SunkShipPerson.positions[0]);
         RectTransform cellRect = firstCell?.GetComponent<RectTransform>();
         if (cellRect == null) return;
         float cellSize = cellRect.rect.width;
 
-        // Số ô mà tàu chiếm
-        int shipSize = GetShipSizeFromType(sunkShip.shipType);
+        int shipSize = GetShipSizeFromType(SunkShipPerson.shipType);
 
-        // Reset rotation và scale trước khi điều chỉnh
         rectTransform.localRotation = Quaternion.identity;
         rectTransform.localScale = Vector3.one;
 
-        // Giảm kích thước để tránh dính lưới
         float scaleFactor = 0.9f;
-
-        // Thiết lập kích thước tàu ngang (cơ bản)
         rectTransform.sizeDelta = new Vector2(cellSize * shipSize * scaleFactor, cellSize * scaleFactor);
 
-        // Nếu là tàu dọc thì xoay 90 độ
         if (isVertical)
         {
             rectTransform.Rotate(0, 0, 90);
         }
 
-        // Lấy các ô đầu và cuối để xác định vị trí chính xác
-        string firstCellName = sunkShip.positions[0];
-        string lastCellName = sunkShip.positions[sunkShip.positions.Length - 1];
+        string firstCellName = SunkShipPerson.positions[0];
+        string lastCellName = SunkShipPerson.positions[SunkShipPerson.positions.Length - 1];
 
         GameObject firstCellObj = GameObject.Find(firstCellName);
         GameObject lastCellObj = GameObject.Find(lastCellName);
@@ -528,35 +545,23 @@ public class FirePersonManager : MonoBehaviour
         {
             Vector3 firstPos = firstCellObj.transform.position;
             Vector3 lastPos = lastCellObj.transform.position;
-
-            // Xác định vị trí trung tâm của tàu
             Vector3 centerPos = (firstPos + lastPos) / 2f;
-
-            // Di chuyển tàu đến vị trí trung tâm
             rectTransform.position = centerPos;
         }
 
-        // Đảm bảo tàu hiển thị phía trên các phần tử khác
         shipObject.transform.SetAsLastSibling();
 
-        // Đảm bảo hình ảnh của tàu được hiển thị rõ ràng
         Image shipImage = shipObject.GetComponent<Image>();
         if (shipImage != null)
         {
             shipImage.raycastTarget = false;
-
-            if (shipImage is UnityEngine.UI.Image)
+            if (shipImage is UnityEngine.UI.Image uiImage && uiImage.type == UnityEngine.UI.Image.Type.Sliced)
             {
-                UnityEngine.UI.Image uiImage = shipImage as UnityEngine.UI.Image;
-                if (uiImage.type == UnityEngine.UI.Image.Type.Sliced)
-                {
-                    uiImage.pixelsPerUnitMultiplier = 1;
-                }
+                uiImage.pixelsPerUnitMultiplier = 1;
             }
         }
     }
 
-    // Lấy kích thước tàu từ loại tàu
     int GetShipSizeFromType(string shipType)
     {
         switch (shipType)
@@ -570,40 +575,62 @@ public class FirePersonManager : MonoBehaviour
         }
     }
 
-    IEnumerator OpenBotFirePanel()
+    IEnumerator ShowChangeTurnPanel()
     {
-        Debug.Log("OpenBotFirePanel() được gọi");
-
-        changeTurnPanel.SetActive(true);
-        changeTurnPanel.transform.localScale = Vector3.zero;
-
-        LeanTween.scale(changeTurnPanel, Vector3.one, 0.4f).setEaseOutBack();
-
-        yield return new WaitForSeconds(1.2f);
-
-        changeTurnPanel.SetActive(false);
-        fireBotPanel.SetActive(false);
-        botFirePanel.SetActive(true);
+        if (changeTurnPanel != null)
+        {
+            changeTurnPanel.SetActive(true);
+            changeTurnPanel.transform.localScale = Vector3.zero;
+            LeanTween.scale(changeTurnPanel, Vector3.one, 0.4f).setEaseOutBack();
+            yield return new WaitForSeconds(1.2f);
+            changeTurnPanel.SetActive(false);
+        }
     }
 
-    UnityWebRequest CreatePostRequest(string url, ShotRequest shotRequest)
+    UnityWebRequest CreatePostRequest(string url, ShotRequestPerson ShotRequestPerson)
     {
-        string jsonBody = JsonUtility.ToJson(shotRequest);
+        string jsonBody = JsonUtility.ToJson(ShotRequestPerson);
         UnityWebRequest request = new UnityWebRequest(url, "POST");
-
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonBody);
         request.uploadHandler = new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
-
         string token = PrefsHelper.GetString("token");
         request.SetRequestHeader("Authorization", "Bearer " + token);
-
         return request;
+    }
+
+    int GetOpponentId(string gameId, int currentPlayerId)
+    {
+        // This assumes you have a way to retrieve game data, e.g., from PrefsHelper or API
+        // For simplicity, assuming game data is stored in PrefsHelper
+        string gameData = PrefsHelper.GetString("gameData");
+        if (!string.IsNullOrEmpty(gameData))
+        {
+            JSONNode gameJson = JSON.Parse(gameData);
+            int playerId1 = gameJson["Player_Id_1"].AsInt;
+            int playerId2 = gameJson["Player_Id_2"].AsInt;
+            return currentPlayerId == playerId1 ? playerId2 : playerId1;
+        }
+        return -1; // Fallback, should be handled with proper error
     }
 }
 
-// Cấu trúc các class JSON - Sửa lại để phù hợp với cấu trúc phản hồi từ API
+[System.Serializable]
+public class ShotRequestPerson
+{
+    public string gameId;
+    public string playerId;
+    public string position;
+
+    public ShotRequestPerson(string gameId, string playerId, string position)
+    {
+        this.gameId = gameId;
+        this.playerId = playerId;
+        this.position = position;
+    }
+}
+
 [System.Serializable]
 public class GameResultPerson
 {
@@ -612,20 +639,19 @@ public class GameResultPerson
 }
 
 [System.Serializable]
-public class PlayerPersonShot
+public class PlayerShotPerson
 {
     public string position;
     public string result;
-    public SunkShip sunkShip;
-    public GameResult gameResult;
+    public SunkShipPerson SunkShipPerson;
+    public GameResultPerson GameResultPerson;
 }
 
 [System.Serializable]
-public class ShotPersonResponse
+public class ShotResponsePerson
 {
     public string message;
-    public PlayerShot playerShot;
-    public BotShot[] botShots;
+    public PlayerShotPerson PlayerShotPerson;
 }
 
 [System.Serializable]
@@ -637,21 +663,16 @@ public class SunkShipPerson
 }
 
 [System.Serializable]
-public class ShotPersonRequest
+public class FireResultPerson
 {
-    public string gameId;
-    public string playerId;
+    public string type;
     public string position;
-
-    public ShotPersonRequest(string gameId, string playerId, string position)
-    {
-        this.gameId = gameId;
-        this.playerId = playerId;
-        this.position = position;
-    }   
+    public string result;
+    public SunkShipPerson SunkShipPerson;
+    public GameResultPerson GameResultPerson;
 }
 
-public class GridCellPersonStatus : MonoBehaviour
+public class GridCellStatusPerson : MonoBehaviour
 {
     public bool isClicked = false;
 }
