@@ -5,7 +5,7 @@ using System.Collections;
 using WebSocketSharp;
 using SimpleJSON;
 
-public class PersonFireManager : MonoBehaviour
+public class PersonFireCellManager : MonoBehaviour
 {
     public GameObject diamondObject;
     public GameObject rectangleObject;

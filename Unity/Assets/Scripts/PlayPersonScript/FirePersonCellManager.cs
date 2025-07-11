@@ -4,7 +4,6 @@ using UnityEngine.UI;
 using UnityEngine.Networking;
 using System.Collections;
 using System.Collections.Generic;
-using WebSocketSharp;
 using SimpleJSON;
 
 public class FirePersonCellManager : MonoBehaviour
@@ -33,10 +32,13 @@ public class FirePersonCellManager : MonoBehaviour
     public static bool isPlayerTurn = true;
     private List<GameObject> frameObjects = new List<GameObject>();
     public Color FrameColor = Color.red;
-    public WebSocket socket;
+
+    public static FirePersonCellManager Instance;
 
     void Start()
     {
+        Instance = this;
+
         globalDiamond = diamondObject;
         globalDiamond.GetComponent<Image>().enabled = false;
 
@@ -67,32 +69,6 @@ public class FirePersonCellManager : MonoBehaviour
         UpdatePanelVisibility();
 
         // Set up WebSocket message handling
-        if (socket != null && socket.IsAlive)
-        {
-            socket.OnMessage += (sender, e) =>
-            {
-                Debug.Log("[SOCKET] Received message: " + e.Data);
-                JSONNode data = JSON.Parse(e.Data);
-
-                if (data["type"] == "fire_result")
-                {
-                    FireResultPerson result = JsonUtility.FromJson<FireResultPerson>(e.Data);
-                    StartCoroutine(HandleOpponentFire(result));
-                }
-                else if (data["type"] == "switch_turn")
-                {
-                    int myId = PrefsHelper.GetInt("playerId");
-                    int toPlayerId = data["toPlayerId"].AsInt;
-                    if (toPlayerId == myId)
-                    {
-                        Debug.Log("[SOCKET] Received switch_turn, it's my turn!");
-                        isPlayerTurn = true;
-                        StartCoroutine(ShowChangeTurnPanel());
-                        UpdatePanelVisibility();
-                    }
-                }
-            };
-        }
     }
 
     void DisableAllShipPrefabImages()
@@ -214,41 +190,36 @@ public class FirePersonCellManager : MonoBehaviour
                             Debug.Log($"Game result: status={GameResultPersonData.status}, winnerId={GameResultPersonData.winnerId}");
                         }
 
-                        if (socket != null && socket.IsAlive)
+                        var FireResultPerson = new FireResultPerson
                         {
-                            var FireResultPerson = new
+                            type = "fire_result",
+                            position = response.PlayerShotPerson.position,
+                            result = response.PlayerShotPerson.result,
+                            SunkShipPerson = response.PlayerShotPerson.SunkShipPerson,
+                            GameResultPerson = response.PlayerShotPerson.GameResultPerson
+                        };
+
+                        string jsonFireResultPerson = JsonUtility.ToJson(FireResultPerson);
+                        Debug.Log($"[WS] Gửi fire_result: {jsonFireResultPerson}");
+                        WebSocketManager.Instance?.SendRawJson(jsonFireResultPerson);
+
+                        // Nếu là "miss" thì chuyển lượt
+                        if (shotType == "miss")
+                        {
+                            int opponentId = PrefsHelper.GetInt("opponentId");
+
+                            var switchTurn = new
                             {
-                                type = "fire_result",
-                                position = response.PlayerShotPerson.position,
-                                result = response.PlayerShotPerson.result,
-                                SunkShipPerson = response.PlayerShotPerson.SunkShipPerson,
-                                GameResultPerson = response.PlayerShotPerson.GameResultPerson
+                                type = "switch_turn",
+                                fromPlayerId = int.Parse(playerId),
+                                toPlayerId = opponentId
                             };
 
-                            string jsonFireResultPerson = JsonUtility.ToJson(FireResultPerson);
-                            Debug.Log($"[SOCKET] Sending fire_result: {jsonFireResultPerson}");
-                            socket.Send(jsonFireResultPerson);
-
-                            // If the shot is a miss, send switch_turn message
-                            if (shotType == "miss")
-                            {
-                                int opponentId = GetOpponentId(gameId, int.Parse(playerId));
-                                var switchTurn = new
-                                {
-                                    type = "switch_turn",
-                                    fromPlayerId = int.Parse(playerId),
-                                    toPlayerId = opponentId
-                                };
-
-                                string jsonSwitchTurn = JsonUtility.ToJson(switchTurn);
-                                Debug.Log($"[SOCKET] Sending switch_turn: {jsonSwitchTurn}");
-                                socket.Send(jsonSwitchTurn);
-                            }
+                            string jsonSwitchTurn = JsonUtility.ToJson(switchTurn);
+                            Debug.Log($"[WS] Gửi switch_turn: {jsonSwitchTurn}");
+                            WebSocketManager.Instance?.SendRawJson(jsonSwitchTurn);
                         }
-                        else
-                        {
-                            Debug.LogWarning("[SOCKET] Socket null or not connected");
-                        }
+
                     }
                     else
                     {
@@ -307,7 +278,7 @@ public class FirePersonCellManager : MonoBehaviour
         }
     }
 
-    void UpdatePanelVisibility()
+    public void UpdatePanelVisibility()
     {
         fireBotPanel.SetActive(isPlayerTurn);
         botFirePanel.SetActive(!isPlayerTurn);
@@ -315,7 +286,7 @@ public class FirePersonCellManager : MonoBehaviour
         Debug.Log($"Panel visibility updated: FirePersonPanel={(isPlayerTurn ? "Active" : "Inactive")}, PersonFirePanel={(!isPlayerTurn ? "Active" : "Inactive")}");
     }
 
-    IEnumerator HandleOpponentFire(FireResultPerson shot)
+    public IEnumerator HandleOpponentFire(FireResultPerson shot)
     {
         Debug.Log($"Opponent fired at: {shot.position}, result: {shot.result}");
 
@@ -575,7 +546,7 @@ public class FirePersonCellManager : MonoBehaviour
         }
     }
 
-    IEnumerator ShowChangeTurnPanel()
+    public IEnumerator ShowChangeTurnPanel()
     {
         if (changeTurnPanel != null)
         {

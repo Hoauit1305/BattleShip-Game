@@ -183,20 +183,67 @@ wss.on('connection', (ws, req) => {
                         }
                         // 👉 Xử lý chuyển lượt giữa người chơi
                         else if (data.type === 'switch_turn') {
-                        const { fromPlayerId, toPlayerId } = data;
-                        const targetSocket = clients.get(toPlayerId);
-                        
-                        if (targetSocket && targetSocket.readyState === WebSocket.OPEN) {
-                            targetSocket.send(JSON.stringify({
-                            type: 'switch_turn',
-                            fromPlayerId,
-                            toPlayerId
-                            }));
-                            console.log(`🔄 Gửi switch_turn từ ${fromPlayerId} → ${toPlayerId}`);
-                        } else {
-                            console.warn(`⚠️ Không tìm thấy socket hoặc socket đóng cho toPlayerId: ${toPlayerId}`);
+                            const { fromPlayerId, toPlayerId } = data;
+                            const targetSocket = clients.get(toPlayerId);
+                            
+                            if (targetSocket && targetSocket.readyState === WebSocket.OPEN) {
+                                targetSocket.send(JSON.stringify({
+                                type: 'switch_turn',
+                                fromPlayerId,
+                                toPlayerId
+                                }));
+                                console.log(`🔄 Gửi switch_turn từ ${fromPlayerId} → ${toPlayerId}`);
+                            } else {
+                                console.warn(`⚠️ Không tìm thấy socket hoặc socket đóng cho toPlayerId: ${toPlayerId}`);
+                            }
                         }
+                        else if (parsed.action === 'fire_result') {
+                            const {
+                                gameId,
+                                shooterId,
+                                opponentId,
+                                cellX,
+                                cellY,
+                                result,        // "hit", "miss", "destroy"
+                                shipId,
+                                isWin
+                            } = parsed;
+
+                            const payload = JSON.stringify({
+                                type: 'fire_result',
+                                gameId,
+                                shooterId,
+                                opponentId,
+                                cellX,
+                                cellY,
+                                result,
+                                shipId,
+                                isWin
+                            });
+
+                            const targetSocket = clients.get(opponentId);
+                            if (targetSocket && targetSocket.readyState === WebSocket.OPEN) {
+                                targetSocket.send(payload);
+                                console.log(`🎯 Gửi fire_result từ ${shooterId} đến ${opponentId}: [${cellX},${cellY}] = ${result}`);
+                            }
+
+                            // Nếu cần server gửi switch_turn tự động
+                            if (result === 'miss') {
+                                const switchPayload = JSON.stringify({
+                                    type: 'switch_turn',
+                                    fromPlayerId: shooterId,
+                                    toPlayerId: opponentId
+                                });
+
+                                const opponentSocket = clients.get(opponentId);
+                                if (opponentSocket && opponentSocket.readyState === WebSocket.OPEN) {
+                                    opponentSocket.send(switchPayload);
+                                }
+
+                                console.log(`🔄 Server chuyển lượt: ${shooterId} → ${opponentId}`);
+                            }
                         }
+
                     } catch (e) {
                         console.error('❌ Lỗi xử lý message:', e.message);
                     }

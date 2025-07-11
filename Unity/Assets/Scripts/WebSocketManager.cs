@@ -7,7 +7,8 @@ using System.Text;
 using System.Collections;
 using UnityEngine.Networking;
 using System.Collections.Generic;
-
+using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 public class WebSocketManager : MonoBehaviour
 {
     private WebSocket websocket;
@@ -106,11 +107,13 @@ public class WebSocketManager : MonoBehaviour
             {
                 Debug.Log("🎯 Nhận được tín hiệu từ server: chuyển sang scene đặt tàu");
 
+                int gameId = data["gameId"].AsInt;
                 int ownerId = data["ownerId"].AsInt;
                 int guestId = data["guestId"].AsInt;
                 int myId = PrefsHelper.GetInt("playerId");
                 int opponentId = (myId == ownerId) ? guestId : ownerId;
 
+                PrefsHelper.SetInt("gameId", gameId);
                 PrefsHelper.SetInt("ownerId", ownerId);
                 PrefsHelper.SetInt("guestId", guestId);
                 PrefsHelper.SetInt("opponentId", opponentId); // 👉 DÒNG QUAN TRỌNG!
@@ -151,6 +154,26 @@ public class WebSocketManager : MonoBehaviour
                 // Vào scene chơi
                 UnityEngine.SceneManagement.SceneManager.LoadScene("PlayPersonScene");
             }
+            else if (data["type"] == "fire_result")
+            {
+                Debug.Log("📨 Nhận fire_result từ đối thủ");
+
+                FireResultPerson result = JsonUtility.FromJson<FireResultPerson>(message);
+                FirePersonCellManager.Instance?.StartCoroutine(FirePersonCellManager.Instance.HandleOpponentFire(result));
+            }
+            else if (data["type"] == "switch_turn")
+            {
+                int myId = PrefsHelper.GetInt("playerId");
+                int toPlayerId = data["toPlayerId"].AsInt;
+                if (toPlayerId == myId)
+                {
+                    Debug.Log("🔁 Đến lượt mình!");
+                    FirePersonCellManager.isPlayerTurn = true;
+                    FirePersonCellManager.Instance?.StartCoroutine(FirePersonCellManager.Instance.ShowChangeTurnPanel());
+                    FirePersonCellManager.Instance?.UpdatePanelVisibility();
+                }
+            }
+
         };
 
         await websocket.Connect();
