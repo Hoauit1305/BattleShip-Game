@@ -6,6 +6,7 @@ const {
     placeShips, 
     fireAtPosition, 
     fireWithBot, 
+    fireWithPerson, 
     setID,  
     setID1,
     generateBotShips, 

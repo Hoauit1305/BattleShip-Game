@@ -32588,6 +32588,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   countdownText: {fileID: 1950776721}
   CountdownPanel: {fileID: 739672798}
+  SourcePanel: {fileID: 676161572}
+  Destination1Panel: {fileID: 1030964516}
+  Destination2Panel: {fileID: 11451036}
 --- !u!114 &1230580433
 MonoBehaviour:
   m_ObjectHideFlags: 0

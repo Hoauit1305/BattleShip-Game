@@ -176,7 +176,7 @@ public class FirePersonCellManager : MonoBehaviour
             string gameId = PrefsHelper.GetInt("gameId").ToString();
             string playerId = PrefsHelper.GetInt("playerId").ToString();
             string position = cell.name;
-            string apiURL = "https://battleship-game-production.up.railway.app/api/gameplay/fire-ship/person";
+            string apiURL = "https://battleship-game-production-1176.up.railway.app/api/gameplay/fire-ship/person";
 
             ShotRequestPerson ShotRequestPerson = new ShotRequestPerson(gameId, playerId, position);
             UnityWebRequest request = CreatePostRequest(apiURL, ShotRequestPerson);

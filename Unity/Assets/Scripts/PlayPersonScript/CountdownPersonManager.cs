@@ -7,7 +7,9 @@ public class CountdownPersonManager : MonoBehaviour
 {
     public TMP_Text countdownText; // hoặc TMP_Text nếu dùng TMP
     public GameObject CountdownPanel;
-
+    public GameObject SourcePanel;
+    public GameObject Destination1Panel;
+    public GameObject Destination2Panel;
     public void OnFinishPlacingShips()
     {
         // Gửi socket báo đã sẵn sàng
@@ -50,15 +52,15 @@ public class CountdownPersonManager : MonoBehaviour
         {
             Debug.Log("🚀 Player này là owner — chuyển sang panel bắn tàu.");
             // Enable FirePersonPanel
-            GameObject.Find("FirePersonPanel").SetActive(true);
-            GameObject.Find("PersonFirePanel").SetActive(false);
+            if (SourcePanel != null) SourcePanel.SetActive(false);
+            if (Destination1Panel != null) Destination1Panel.SetActive(true);
         }
         else
         {
             Debug.Log("👀 Player này là guest — chuyển sang panel xem owner bắn.");
             // Enable PersonFirePanel
-            GameObject.Find("FirePersonPanel").SetActive(false);
-            GameObject.Find("PersonFirePanel").SetActive(true);
+            if (SourcePanel != null) SourcePanel.SetActive(false);
+            if (Destination2Panel != null) Destination2Panel.SetActive(true);
         }
     }
 }

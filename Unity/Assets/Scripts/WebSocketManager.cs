@@ -105,6 +105,16 @@ public class WebSocketManager : MonoBehaviour
             else if (data["type"] == "goto_place_ship")
             {
                 Debug.Log("🎯 Nhận được tín hiệu từ server: chuyển sang scene đặt tàu");
+
+                int ownerId = data["ownerId"].AsInt;
+                int guestId = data["guestId"].AsInt;
+                int myId = PrefsHelper.GetInt("playerId");
+                int opponentId = (myId == ownerId) ? guestId : ownerId;
+
+                PrefsHelper.SetInt("ownerId", ownerId);
+                PrefsHelper.SetInt("guestId", guestId);
+                PrefsHelper.SetInt("opponentId", opponentId); // 👉 DÒNG QUAN TRỌNG!
+
                 UnityEngine.SceneManagement.SceneManager.LoadScene("PlayPersonScene");
             }
             else if (data["type"] == "start_countdown")
@@ -119,6 +129,27 @@ public class WebSocketManager : MonoBehaviour
                         // Load scene game hoặc enable gameplay ở đây nếu cần
                     }));
                 }
+            }
+            else if (data["action"] == "start_game")
+            {
+                Debug.Log("🎯 Nhận được tín hiệu start_game từ server");
+
+                int gameId = data["gameId"].AsInt;
+                int roomCode = data["roomCode"].AsInt;
+                int ownerId = data["ownerId"].AsInt;
+                int guestId = data["guestId"].AsInt;
+                int myId = PrefsHelper.GetInt("playerId");
+                int opponentId = (myId == ownerId) ? guestId : ownerId;
+
+                PrefsHelper.SetInt("gameId", gameId);
+                PrefsHelper.SetInt("ownerId", ownerId);
+                PrefsHelper.SetInt("guestId", guestId);
+                PrefsHelper.SetInt("opponentId", opponentId);
+
+                Debug.Log($"📝 Đã lưu gameId = {gameId}, đối thủ = {opponentId}");
+
+                // Vào scene chơi
+                UnityEngine.SceneManagement.SceneManager.LoadScene("PlayPersonScene");
             }
         };
 
