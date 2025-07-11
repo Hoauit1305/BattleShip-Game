@@ -55,10 +55,7 @@ public class WebSocketManager : MonoBehaviour
         {
             Debug.Log("✅ WebSocket connected!");
 
-            var registerMsg = new RegisterPayload
-            {
-                player_Id = playerId
-            };
+            var registerMsg = new RegisterPayload(playerId); // ✔ truyền đúng tham số
 
             string json = JsonUtility.ToJson(registerMsg);
             Debug.Log("📤 Gửi đăng ký WebSocket: " + json);
@@ -312,6 +309,12 @@ public class OutgoingMessage
 [Serializable]
 public class RegisterPayload
 {
-    public string type = "register";
+    public string type;
     public int player_Id;
+
+    public RegisterPayload(int id)
+    {
+        type = "register";
+        player_Id = id;
+    }
 }

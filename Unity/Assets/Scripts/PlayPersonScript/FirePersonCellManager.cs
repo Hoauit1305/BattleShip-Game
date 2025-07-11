@@ -31,7 +31,7 @@ public class FirePersonManager : MonoBehaviour
     private Dictionary<string, GameObject> placedShips = new Dictionary<string, GameObject>();
 
     public static GameObject globalDiamond;
-    public static List<BotShot> globalBotShots = new List<BotShot>();
+
     public static bool isPlayerTurn = true;
     public GameObject changeTurnPanel;
     //Hightlight
@@ -207,91 +207,33 @@ public class FirePersonManager : MonoBehaviour
                                     Debug.Log($"Ship positions: {string.Join(", ", sunkShipData.positions)}");
                                 }
                             }
-
-                            if (shotType == "miss")
+                            if (socket != null && socket.IsAlive)
                             {
-                                Debug.Log($"botShots array: {(response.botShots != null ? response.botShots.Length : 0)} items");
-
-                                // Kiểm tra null và độ dài
-                                if (response.botShots == null || response.botShots.Length == 0)
+                                // Tạo JSON gửi socket
+                                var fireResult = new
                                 {
-                                    Debug.LogError("API trả về response.botShots là null hoặc rỗng!");
+                                    position = response.playerShot.position,
+                                    result = response.playerShot.result,
+                                    sunkShip = response.playerShot.sunkShip, // có thể null
+                                    gameResult = response.playerShot.gameResult // có thể null
+                                };
 
-                                    // Tạo dữ liệu mẫu để kiểm tra luồng dữ liệu
-                                    Debug.Log("Tạo dữ liệu botShots mẫu để kiểm tra luồng...");
-                                    BotShot testShot = new BotShot();
-                                    testShot.position = "A1";
-                                    testShot.result = "miss";
+                                string jsonFireResult = JsonUtility.ToJson(fireResult);
+                                Debug.Log($"[SOCKET] Gửi fire-result: {jsonFireResult}");
 
-                                    // Thêm vào danh sách
-                                    globalBotShots.Clear();
-                                    globalBotShots.Add(testShot);
-
-                                    // Đảm bảo BotFireManager có dữ liệu
-                                    BotFireManager.botShotsData.Clear();
-                                    BotFireManager.botShotsData.Add(testShot);
-                                }
-                                else
-                                {
-                                    // Cập nhật cả globalBotShots và botShotData của BotFireManager
-                                    globalBotShots.Clear();
-                                    BotFireManager.botShotsData.Clear();
-
-                                    // Sao chép dữ liệu từ response
-                                    globalBotShots.AddRange(response.botShots);
-                                    BotFireManager.botShotsData.AddRange(response.botShots);
-
-                                    // Log chi tiết
-                                    Debug.Log($"Dữ liệu botShots đã được cập nhật: {response.botShots.Length} shots");
-                                    for (int i = 0; i < response.botShots.Length; i++)
-                                    {
-                                        BotShot shot = response.botShots[i];
-                                        Debug.Log($"Shot {i + 1}: Position: {shot.position}, Result: {shot.result}");
-                                        // Kiểm tra xem bot có thắng không
-                                        if (shot.gameResult != null && shot.gameResult.status == "completed")
-                                        {
-                                            Debug.Log($"Bot thắng! winnerId: {shot.gameResult.winnerId}");
-                                            int currentPlayerId = PrefsHelper.GetInt("playerId");
-                                            ShowGameResultPanel(shot.gameResult.winnerId.ToString() == currentPlayerId.ToString());
-                                            yield break;
-                                        }
-                                    }
-                                }
-
-                                // Kiểm tra dữ liệu sau khi cập nhật
-                                Debug.Log($"Sau khi cập nhật - globalBotShots: {globalBotShots.Count}, BotFireManager.botShotsData: {BotFireManager.botShotsData.Count}");
+                                // Emit socket fire-result (tùy SocketSharp hay IO client mà .Send hoặc Emit)
+                                socket.Send(jsonFireResult);
                             }
-                        }
-                        else
-                        {
-                            Debug.LogError("Error: playerShot is null in response");
-                        }
-                        if (socket != null && socket.IsAlive)
-                        {
-                            // Tạo JSON gửi socket
-                            var fireResult = new
+                            else
                             {
-                                position = response.playerShot.position,
-                                result = response.playerShot.result,
-                                sunkShip = response.playerShot.sunkShip, // có thể null
-                                gameResult = response.playerShot.gameResult // có thể null
-                            };
+                                Debug.LogWarning("[SOCKET] Socket null hoặc chưa connect");
+                            }
 
-                            string jsonFireResult = JsonUtility.ToJson(fireResult);
-                            Debug.Log($"[SOCKET] Gửi fire-result: {jsonFireResult}");
-
-                            // Emit socket fire-result (tùy SocketSharp hay IO client mà .Send hoặc Emit)
-                            socket.Send(jsonFireResult);
                         }
                         else
                         {
-                            Debug.LogWarning("[SOCKET] Socket null hoặc chưa connect");
+                            Debug.LogError("Error: response is null after parsing");
                         }
-
-                    }
-                    else
-                    {
-                        Debug.LogError("Error: response is null after parsing");
                     }
                 }
                 catch (System.Exception e)
@@ -345,28 +287,7 @@ public class FirePersonManager : MonoBehaviour
 
             if (shotType == "miss")
             {
-                // Tìm component BotFireManager trước khi chuyển đổi panel
-                BotFireManager botFireManager = botFirePanel.GetComponent<BotFireManager>();
-                if (botFireManager != null)
-                {
-                    Debug.Log("Tìm thấy BotFireManager component, gọi SetBotShotsData");
-                    botFireManager.SetBotShotsData(globalBotShots);
-                }
-                else
-                {
-                    Debug.LogError("Không tìm thấy BotFireManager component trên botFirePanel!");
-                }
-
-                // Đảm bảo có dữ liệu trước khi chuyển panel
-                if (globalBotShots.Count > 0 && BotFireManager.botShotsData.Count > 0)
-                {
-                    Debug.Log($"Trước khi chuyển panel: {globalBotShots.Count} shots sẵn sàng");
-                    StartCoroutine(OpenBotFirePanel());
-                }
-                else
-                {
-                    Debug.LogError("Không có dữ liệu botShots mặc dù trạng thái là miss!");
-                }
+                
             }
             else
             {

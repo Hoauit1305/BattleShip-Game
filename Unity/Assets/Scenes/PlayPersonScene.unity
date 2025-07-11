@@ -32426,7 +32426,6 @@ GameObject:
   - component: {fileID: 1230580425}
   - component: {fileID: 1230580424}
   - component: {fileID: 1230580428}
-  - component: {fileID: 1230580429}
   - component: {fileID: 1230580431}
   - component: {fileID: 1230580433}
   - component: {fileID: 1230580432}
@@ -32565,20 +32564,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buttonText: {fileID: 63442089}
   scaleFactor: 1.2
---- !u!114 &1230580429
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1230580421}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 73c6818e0faede042b75217e8cd2ebcb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  SourcePanel: {fileID: 676161572}
-  DestinationPanel: {fileID: 1030964516}
 --- !u!114 &1230580431
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -32618,7 +32603,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61abaefca2e6d4944a926ea31b3ea58e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  switchPanelButton: {fileID: 1230580429}
   countdownManager: {fileID: 1230580432}
 --- !u!224 &1239882635 stripped
 RectTransform:

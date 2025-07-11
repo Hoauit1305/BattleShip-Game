@@ -165,6 +165,22 @@ wss.on('connection', (ws, req) => {
                                 console.log(`⏳ Chờ ${opponentId} sẵn sàng cho game ${gameId}, hiện tại: ${currentReadySet.size}/2`);
                             }
                         }
+                        // 👉 Xử lý chuyển lượt giữa người chơi
+                        else if (data.type === 'switch_turn') {
+                        const { fromPlayerId, toPlayerId } = data;
+                        const targetSocket = clients.get(toPlayerId);
+                        
+                        if (targetSocket && targetSocket.readyState === WebSocket.OPEN) {
+                            targetSocket.send(JSON.stringify({
+                            type: 'switch_turn',
+                            fromPlayerId,
+                            toPlayerId
+                            }));
+                            console.log(`🔄 Gửi switch_turn từ ${fromPlayerId} → ${toPlayerId}`);
+                        } else {
+                            console.warn(`⚠️ Không tìm thấy socket hoặc socket đóng cho toPlayerId: ${toPlayerId}`);
+                        }
+                        }
                     } catch (e) {
                         console.error('❌ Lỗi xử lý message:', e.message);
                     }
