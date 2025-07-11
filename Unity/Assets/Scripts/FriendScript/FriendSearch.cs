@@ -185,6 +185,17 @@ public class FriendSearch : MonoBehaviour
 
             // Ẩn nút Add
             sendButton.gameObject.SetActive(false);
+
+            string myName = PrefsHelper.GetString("name");
+
+            string wsJson = $"{{" +
+                $"\"action\":\"send_friend_request\"," +
+                $"\"fromId\":{myPlayerId}," +
+                $"\"toId\":{addresseeId}," +
+                $"\"fromName\":\"{myName}\"" +
+                $"}}";
+
+            WebSocketManager.Instance.SendRawJson(wsJson);
         }
     }
 }

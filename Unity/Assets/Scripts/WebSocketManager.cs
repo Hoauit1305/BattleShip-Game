@@ -90,6 +90,17 @@ public class WebSocketManager : MonoBehaviour
                 Debug.Log($"💬 Tin nhắn từ {senderId}: {content}");
 
                 StartCoroutine(HandleIncomingMessage(senderId));
+
+                // Nếu không phải người đang chat thì hiện dấu chấm than
+                if (ListFriendInstance == null || senderId != ListFriendInstance.CurrentReceiverId)
+                {
+                    NotifyController.Instance?.ShowFriendNotify();
+                }
+            }
+            else if (data["type"] == "friend_notify")
+            {
+                Debug.Log($"🔔 Nhận được lời mời kết bạn từ {data["fromName"]} (id={data["fromId"]})");
+                NotifyController.Instance?.ShowFriendNotify();
             }
             else if (data["type"] == "room_update")
             {

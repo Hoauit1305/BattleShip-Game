@@ -57,6 +57,21 @@ wss.on('connection', (ws, req) => {
                                 console.log(`🔁 Gửi realtime lại cho sender ${senderId}`);
                             }
                         }
+                        else if (parsed.action === 'send_friend_request') {
+                            const { fromId, toId, fromName } = parsed;
+
+                            const payload = JSON.stringify({
+                                type: 'friend_notify',
+                                fromId,
+                                fromName
+                            });
+
+                            const targetSocket = clients.get(toId);
+                            if (targetSocket && targetSocket.readyState === WebSocket.OPEN) {
+                                targetSocket.send(payload);
+                                console.log(`🤝 Gửi lời mời kết bạn từ ${fromName} (id=${fromId}) đến ${toId}`);
+                            }
+                        }
                         // Khi một người tham gia phòng
                         else if (parsed.action === 'join_room') {
                             const { roomCode, playerId, playerName, role, targetId } = parsed;
