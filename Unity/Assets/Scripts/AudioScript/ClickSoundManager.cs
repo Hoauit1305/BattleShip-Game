@@ -7,21 +7,34 @@ public class ButtonClickSound : MonoBehaviour
     public AudioClip clickSound;
     private AudioSource audioSource;
 
+    void Awake()
+    {
+        // Nếu button chưa có AudioSource thì thêm vào
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
+
+        audioSource.playOnAwake = false;
+        audioSource.spatialBlend = 0f; // 2D
+    }
+
     void Start()
     {
-        // Thêm AudioSource riêng hoặc dùng AudioSource chung nếu có
-        audioSource = gameObject.AddComponent<AudioSource>();
-        audioSource.playOnAwake = false;
-
-        // Đăng ký sự kiện click cho Button
         GetComponent<Button>().onClick.AddListener(PlayClickSound);
     }
 
     void PlayClickSound()
     {
+        if (!gameObject.activeInHierarchy) return;
         if (clickSound != null)
         {
             audioSource.PlayOneShot(clickSound);
+        }
+        else
+        {
+            Debug.LogWarning($"{gameObject.name} chưa gán file âm thanh click.");
         }
     }
 }
