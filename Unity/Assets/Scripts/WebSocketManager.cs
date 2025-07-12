@@ -11,6 +11,10 @@ using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 public class WebSocketManager : MonoBehaviour
 {
+    [SerializeField] private GameObject firePersonPanel;
+    [SerializeField] private GameObject personFirePanel;
+
+
     private WebSocket websocket;
     public static WebSocketManager Instance;
 
@@ -38,12 +42,34 @@ public class WebSocketManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(this);
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
             Destroy(gameObject);
         }
+    }
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void SetupSceneLoadHook()
+    {
+        SceneManager.sceneLoaded += OnSceneLoadedStatic;
+    }
+    private static void OnSceneLoadedStatic(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name == "PlayPersonScene" && Instance != null)
+        {
+            Instance.LateBindPanels();
+        }
+    }
+    private void LateBindPanels()
+    {
+        firePersonPanel = GameObject.Find("FirePersonPanel");
+        personFirePanel = GameObject.Find("PersonFirePanel");
+
+        if (firePersonPanel == null || personFirePanel == null)
+            Debug.LogError("❌ Không tìm thấy panel sau khi load scene!");
+        else
+            Debug.Log("✅ Gán thành công panel sau khi load scene!");
     }
 
     async void Start()
@@ -127,7 +153,8 @@ public class WebSocketManager : MonoBehaviour
                 CountdownPersonManager countdown = FindFirstObjectByType<CountdownPersonManager>();
                 if (countdown != null)
                 {
-                    StartCoroutine(countdown.StartCountdown(() => {
+                    StartCoroutine(countdown.StartCountdown(() =>
+                    {
                         Debug.Log("🎮 Countdown kết thúc, bắt đầu game!");
                         // Load scene game hoặc enable gameplay ở đây nếu cần
                     }));
@@ -165,12 +192,13 @@ public class WebSocketManager : MonoBehaviour
             {
                 int myId = PrefsHelper.GetInt("playerId");
                 int toPlayerId = data["toPlayerId"].AsInt;
+
+                Debug.Log($"🛰 Nhận switch_turn: toPlayerId={toPlayerId}, myId={myId}");
+
                 if (toPlayerId == myId)
                 {
                     Debug.Log("🔁 Đến lượt mình!");
-                    FirePersonCellManager.isPlayerTurn = true;
-                    FirePersonCellManager.Instance?.StartCoroutine(FirePersonCellManager.Instance.ShowChangeTurnPanel());
-                    FirePersonCellManager.Instance?.UpdatePanelVisibility();
+                    StartCoroutine(SwitchPanelThenEnableTurnUI());
                 }
             }
 
@@ -356,12 +384,102 @@ public class WebSocketManager : MonoBehaviour
         websocket.SendText(json);
     }
 
+    public void SendFireResult(int cellX, int cellY, string result, int shipId, bool isWin)
+    {
+        if (websocket == null || websocket.State != WebSocketState.Open)
+        {
+            Debug.LogWarning("⚠️ WebSocket chưa kết nối để gửi fire_result.");
+            return;
+        }
+        int gameId = PrefsHelper.GetInt("gameId");
+        int opponentId = PrefsHelper.GetInt("opponentId");
+
+        string json = $"{{" +
+            $"\"action\":\"fire_result\"," +
+            $"\"gameId\":{gameId}," +
+            $"\"shooterId\":{playerId}," +
+            $"\"opponentId\":{opponentId}," +
+            $"\"cellX\":{cellX}," +
+            $"\"cellY\":{cellY}," +
+            $"\"result\":\"{result}\"," +
+            $"\"shipId\":{shipId}," +
+            $"\"isWin\":{isWin.ToString().ToLower()}" +
+            $"}}";
+
+        Debug.Log("📤 Gửi fire_result WebSocket: " + json);
+        websocket.SendText(json);
+    }
+
     private string GetRole()
     {
         return PrefsHelper.GetString("isHost") == "true" ? "host" : "guest";
     }
-}
+    private IEnumerator SwitchPanelThenEnableTurnUI()
+    {
+        // 🔁 Chờ tới khi panel được gán
+        float wait = 0f;
+        while ((firePersonPanel == null || personFirePanel == null) && wait < 5f)
+        {
+            Debug.Log("⏳ Đang chờ panel được gán trong LateBindPanels...");
+            yield return null;
+            wait += Time.deltaTime;
+        }
 
+        if (personFirePanel != null)
+            SetPanelVisible(personFirePanel, false);
+        else
+        {
+            Debug.LogError("❌ personFirePanel vẫn null sau khi đợi!");
+            yield break;
+        }
+
+        if (firePersonPanel != null)
+        {
+            SetPanelVisible(firePersonPanel, true);
+            Debug.Log("✅ FirePersonPanel đã bật");
+        }
+        else
+        {
+            Debug.LogError("❌ firePersonPanel vẫn null sau khi đợi!");
+            yield break;
+        }
+
+        // Đợi Awake chạy xong
+        yield return null;
+
+        const float TIMEOUT = 10f;
+        float t = 0f;
+        while (FirePersonCellManager.Instance == null && t < TIMEOUT)
+        {
+            yield return null;
+            t += Time.deltaTime;
+        }
+
+        if (FirePersonCellManager.Instance == null)
+        {
+            Debug.LogError("❌ FirePersonCellManager vẫn null sau timeout!");
+            yield break;
+        }
+
+        FirePersonCellManager.isPlayerTurn = true;
+        FirePersonCellManager.Instance.StartCoroutine(
+            FirePersonCellManager.Instance.ShowChangeTurnPanel());
+        FirePersonCellManager.Instance.UpdatePanelVisibility();
+    }
+    public void SetPanelVisible(GameObject panel, bool visible)
+    {
+        if (panel == null) return;
+
+        CanvasGroup cg = panel.GetComponent<CanvasGroup>();
+        if (cg == null)
+            cg = panel.AddComponent<CanvasGroup>(); // thêm nếu thiếu
+
+        cg.alpha = visible ? 1f : 0f;
+        cg.interactable = visible;
+        cg.blocksRaycasts = visible;
+    }
+
+}
 [Serializable]
 public class OutgoingMessage
 {

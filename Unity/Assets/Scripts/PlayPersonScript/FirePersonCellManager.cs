@@ -35,41 +35,51 @@ public class FirePersonCellManager : MonoBehaviour
 
     public static FirePersonCellManager Instance;
 
-    void Start()
+    void Awake()
     {
         Instance = this;
-
+    }
+    void Start()
+    {
         globalDiamond = diamondObject;
         globalDiamond.GetComponent<Image>().enabled = false;
 
-        // Disable ship prefab images
         DisableAllShipPrefabImages();
+        if (winGamePanel) winGamePanel.SetActive(false);
+        if (loseGamePanel) loseGamePanel.SetActive(false);
 
-        // Hide game result panels
-        if (winGamePanel != null) winGamePanel.SetActive(false);
-        if (loseGamePanel != null) loseGamePanel.SetActive(false);
+        // Hoãn phần grid sang coroutine:
+        StartCoroutine(LateInit());
+    }
 
-        // Initialize grid cells with event triggers
+    private IEnumerator LateInit()
+    {
+        // Đợi cho tới khi ít nhất 1 frame trôi qua
+        yield return null;
+
+        // Hoặc đợi đến khi sinh đủ ô (ví dụ 100 ô cho bàn 10x10)
+        while (GameObject.FindGameObjectsWithTag("GridCell").Length < 100)
+            yield return null;   // chưa đủ, tiếp tục chờ
+
+        // Giờ thì gắn trigger
         GameObject[] cells = GameObject.FindGameObjectsWithTag("GridCell");
         foreach (GameObject cell in cells)
         {
-            if (cell.GetComponent<GridCellStatusPerson>() == null)
+            if (!cell.TryGetComponent(out GridCellStatusPerson _))
                 cell.AddComponent<GridCellStatusPerson>();
 
-            EventTrigger trigger = cell.GetComponent<EventTrigger>();
-            if (trigger == null)
+            if (!cell.TryGetComponent(out EventTrigger trigger))
                 trigger = cell.AddComponent<EventTrigger>();
 
-            AddEventTrigger(trigger, EventTriggerType.PointerEnter, (eventData) => { OnCellPointerEnter(cell); });
-            AddEventTrigger(trigger, EventTriggerType.PointerExit, (eventData) => { OnCellPointerExit(); });
-            AddEventTrigger(trigger, EventTriggerType.PointerClick, (eventData) => { OnCellPointerClick(cell); });
+            AddEventTrigger(trigger, EventTriggerType.PointerEnter, _ => OnCellPointerEnter(cell));
+            AddEventTrigger(trigger, EventTriggerType.PointerExit, _ => OnCellPointerExit());
+            AddEventTrigger(trigger, EventTriggerType.PointerClick, _ => OnCellPointerClick(cell));
         }
 
-        // Set initial panel visibility based on turn
         UpdatePanelVisibility();
-
-        // Set up WebSocket message handling
+        Debug.Log("✅ FirePersonCellManager LateInit hoàn tất – đã gắn trigger cho " + cells.Length + " ô.");
     }
+
 
     void DisableAllShipPrefabImages()
     {
@@ -171,64 +181,57 @@ public class FirePersonCellManager : MonoBehaviour
 
                 try
                 {
-                    ShotResponsePerson response = JsonUtility.FromJson<ShotResponsePerson>(responseText);
-
-                    if (response != null && response.PlayerShotPerson != null)
+                    var json = JSON.Parse(responseText);
+                    var playerShot = json["playerShot"];
+                    if (playerShot != null)
                     {
-                        shotType = response.PlayerShotPerson.result;
-                        SunkShipPersonData = response.PlayerShotPerson.SunkShipPerson;
-                        GameResultPersonData = response.PlayerShotPerson.GameResultPerson;
+                        shotType = playerShot["result"];
+                        string positionFromApi = playerShot["position"];
+                        Debug.Log($"✅ Bắn vị trí: {positionFromApi}, result = {shotType}");
 
-                        Debug.Log($"Parsed response - message: {response.message}, position: {response.PlayerShotPerson.position}, result: {shotType}");
-
-                        if (SunkShipPersonData != null)
+                        // Gán dữ liệu chìm tàu nếu có
+                        if (playerShot["sunkShip"] != null)
                         {
-                            Debug.Log($"SunkShipPerson: id={SunkShipPersonData.shipId}, type={SunkShipPersonData.shipType}, positions: {string.Join(", ", SunkShipPersonData.positions)}");
-                        }
-                        if (GameResultPersonData != null)
-                        {
-                            Debug.Log($"Game result: status={GameResultPersonData.status}, winnerId={GameResultPersonData.winnerId}");
-                        }
-
-                        var FireResultPerson = new FireResultPerson
-                        {
-                            type = "fire_result",
-                            position = response.PlayerShotPerson.position,
-                            result = response.PlayerShotPerson.result,
-                            SunkShipPerson = response.PlayerShotPerson.SunkShipPerson,
-                            GameResultPerson = response.PlayerShotPerson.GameResultPerson
-                        };
-
-                        string jsonFireResultPerson = JsonUtility.ToJson(FireResultPerson);
-                        Debug.Log($"[WS] Gửi fire_result: {jsonFireResultPerson}");
-                        WebSocketManager.Instance?.SendRawJson(jsonFireResultPerson);
-
-                        // Nếu là "miss" thì chuyển lượt
-                        if (shotType == "miss")
-                        {
-                            int opponentId = PrefsHelper.GetInt("opponentId");
-
-                            var switchTurn = new
+                            JSONArray positionsJson = playerShot["sunkShip"]["positions"].AsArray;
+                            List<string> positionsList = new List<string>();
+                            foreach (JSONNode node in positionsJson)
                             {
-                                type = "switch_turn",
-                                fromPlayerId = int.Parse(playerId),
-                                toPlayerId = opponentId
-                            };
+                                positionsList.Add(node.Value);
+                            }
 
-                            string jsonSwitchTurn = JsonUtility.ToJson(switchTurn);
-                            Debug.Log($"[WS] Gửi switch_turn: {jsonSwitchTurn}");
-                            WebSocketManager.Instance?.SendRawJson(jsonSwitchTurn);
+                            SunkShipPersonData = new SunkShipPerson
+                            {
+                                shipId = playerShot["sunkShip"]["shipId"].AsInt,
+                                shipType = playerShot["sunkShip"]["shipType"],
+                                positions = positionsList.ToArray()
+                            };
                         }
 
+                        if (playerShot["gameResult"] != null)
+                        {
+                            GameResultPersonData = new GameResultPerson
+                            {
+                                status = playerShot["gameResult"]["status"],
+                                winnerId = playerShot["gameResult"]["winnerId"].AsInt
+                            };
+                        }
+
+                        WebSocketManager.Instance.SendFireResult(
+                            int.Parse(cell.name.Substring(1)),       // cellX
+                            cell.name[0] - 'A',                      // cellY
+                            shotType,
+                            SunkShipPersonData?.shipId ?? -1,
+                            GameResultPersonData?.status == "completed" && GameResultPersonData.winnerId == PrefsHelper.GetInt("playerId")
+                        );
                     }
                     else
                     {
-                        Debug.LogError("Error: response or PlayerShotPerson is null after parsing");
+                        Debug.LogError("❌ Không lấy được playerShot từ response JSON");
                     }
                 }
                 catch (System.Exception e)
                 {
-                    Debug.LogError($"Error parsing JSON: {e.Message}");
+                    Debug.LogError($"❌ Lỗi parse JSON với SimpleJSON: {e.Message}");
                 }
             }
             else
@@ -265,16 +268,21 @@ public class FirePersonCellManager : MonoBehaviour
                 yield break;
             }
 
-            // Update panel visibility if shot is a miss
             if (shotType == "miss")
             {
+                // Hết lượt mình → ẩn FirePersonPanel, hiện PersonFirePanel
+                WebSocketManager.Instance?.SetPanelVisible(fireBotPanel, false);
+                WebSocketManager.Instance?.SetPanelVisible(botFirePanel, true);
                 UpdatePanelVisibility();
             }
             else
             {
-                isPlayerTurn = true; // Continue shooting if hit
+                isPlayerTurn = true; // Vẫn tới lượt mình nếu trúng
+                WebSocketManager.Instance?.SetPanelVisible(fireBotPanel, true);
+                WebSocketManager.Instance?.SetPanelVisible(botFirePanel, false);
                 UpdatePanelVisibility();
             }
+
         }
     }
 
