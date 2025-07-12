@@ -2,39 +2,27 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(Button))]
-public class ButtonClickSound : MonoBehaviour
+[RequireComponent(typeof(AudioSource))]
+public class ClickSoundManager : MonoBehaviour
 {
     public AudioClip clickSound;
     private AudioSource audioSource;
-
+    private Button button;
     void Awake()
     {
-        // Nếu button chưa có AudioSource thì thêm vào
         audioSource = GetComponent<AudioSource>();
-        if (audioSource == null)
-        {
-            audioSource = gameObject.AddComponent<AudioSource>();
-        }
-
         audioSource.playOnAwake = false;
-        audioSource.spatialBlend = 0f; // 2D
+        audioSource.spatialBlend = 0;
+
+        button = GetComponent<Button>();
+        button.onClick.AddListener(PlayClick);
     }
 
-    void Start()
+    public void PlayClick()
     {
-        GetComponent<Button>().onClick.AddListener(PlayClickSound);
-    }
-
-    void PlayClickSound()
-    {
-        if (!gameObject.activeInHierarchy) return;
-        if (clickSound != null)
+        if (clickSound != null && audioSource.enabled && gameObject.activeInHierarchy)
         {
             audioSource.PlayOneShot(clickSound);
-        }
-        else
-        {
-            Debug.LogWarning($"{gameObject.name} chưa gán file âm thanh click.");
         }
     }
 }
