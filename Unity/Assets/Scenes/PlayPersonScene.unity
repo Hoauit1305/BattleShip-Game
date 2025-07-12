@@ -5852,7 +5852,7 @@ MonoBehaviour:
   circleWhiteObject: {fileID: 1310527090}
   circleRedObject: {fileID: 900981729}
   firePanel: {fileID: 1030964516}
-  changeTurnPanel: {fileID: 521499516}
+  PersonChangeTurnPanel: {fileID: 521499516}
   winGamePanel: {fileID: 1496294142}
   loseGamePanel: {fileID: 1944102922}
   ship2Prefab: {fileID: 1866084774}
@@ -13361,7 +13361,7 @@ GameObject:
   - component: {fileID: 521499521}
   - component: {fileID: 521499520}
   m_Layer: 5
-  m_Name: ChangeTurnPanel
+  m_Name: PersonChangeTurnPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13455,7 +13455,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
-  m_AdditionalShaderChannelsFlag: 0
+  m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 20
@@ -29897,7 +29897,7 @@ GameObject:
   - component: {fileID: 1102745818}
   - component: {fileID: 1102745817}
   m_Layer: 5
-  m_Name: ChangeTurnPanel
+  m_Name: FireChangeTurnPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -207,13 +207,21 @@ public class WebSocketManager : MonoBehaviour
                 if (toPlayerId == myId)
                 {
                     Debug.Log("🔁 Đến lượt mình!");
-                    StartCoroutine(SwitchToPlayerTurn());
+                    Debug.Log("🔁 Đến lượt mình – sẽ chuyển sau 0.5s để hiệu ứng được hiển thị");
+                    StartCoroutine(DelayedSwitchToPlayerTurn());
                 }
             }
         };
 
         await websocket.Connect();
     }
+
+    private IEnumerator DelayedSwitchToPlayerTurn()
+    {
+        yield return new WaitForSeconds(1.5f); // ⏳ Cho hiệu ứng chấm trắng có thời gian hiển thị
+        yield return StartCoroutine(SwitchToPlayerTurn());
+    }
+
 
     void HandleRoomUpdate(JSONNode data)
     {
@@ -467,12 +475,15 @@ public class WebSocketManager : MonoBehaviour
         // Chuyển lượt
         FirePersonCellManager.isPlayerTurn = true;
 
-        // Hiển thị panel change turn
-        FirePersonCellManager.Instance.StartCoroutine(
-            FirePersonCellManager.Instance.ShowChangeTurnPanel());
+        yield return PersonFireCellManager.Instance.PersonShowChangeTurnPanel();
+     
 
         // Cập nhật panel visibility
         FirePersonCellManager.Instance.UpdatePanelVisibility();
+
+        var showPlayerContainer = FindFirstObjectByType<ShowPlayerPersonContainer>();
+        if (showPlayerContainer != null)
+            showPlayerContainer.HideAllShips();
     }
 
     /// <summary>

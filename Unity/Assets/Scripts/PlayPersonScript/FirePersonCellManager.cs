@@ -318,11 +318,17 @@ public class FirePersonCellManager : MonoBehaviour
 
             if (shotType == "miss")
             {
-                yield return new WaitForSeconds(0.2f);
+                yield return new WaitForSeconds(0.5f);
+                yield return StartCoroutine(FireShowChangeTurnPanel());
                 // Hết lượt mình → ẩn FirePersonPanel, hiện PersonFirePanel
                 WebSocketManager.Instance?.SetPanelVisible(fireBotPanel, false);
                 WebSocketManager.Instance?.SetPanelVisible(botFirePanel, true);
+                var showPlayerContainer = FindFirstObjectByType<ShowPlayerPersonContainer>();
+                if (showPlayerContainer != null)
+                    showPlayerContainer.RefreshPlayerShips();   
                 UpdatePanelVisibility();
+
+                
             }
             else
             {
@@ -629,15 +635,22 @@ public class FirePersonCellManager : MonoBehaviour
         }
     }
 
-    public IEnumerator ShowChangeTurnPanel()
+    public IEnumerator FireShowChangeTurnPanel()
     {
         if (changeTurnPanel != null)
         {
+            Debug.Log("Fire ChangeTurnPanel đã hiển thị");
             changeTurnPanel.SetActive(true);
+            changeTurnPanel.transform.SetAsLastSibling();
             changeTurnPanel.transform.localScale = Vector3.zero;
             LeanTween.scale(changeTurnPanel, Vector3.one, 0.4f).setEaseOutBack();
             yield return new WaitForSeconds(1.2f);
             changeTurnPanel.SetActive(false);
+        }
+        else
+        {
+            yield return null;
+            Debug.Log("ChangeTurnPanel is null");
         }
     }
 

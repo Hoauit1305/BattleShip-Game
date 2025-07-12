@@ -12,7 +12,7 @@ public class PersonFireCellManager : MonoBehaviour
     public GameObject circleWhiteObject;
     public GameObject circleRedObject;
     public GameObject firePanel;
-    public GameObject changeTurnPanel;
+    public GameObject PersonChangeTurnPanel;
     public GameObject winGamePanel;
     public GameObject loseGamePanel;
 
@@ -23,7 +23,11 @@ public class PersonFireCellManager : MonoBehaviour
     public GameObject ship5Prefab;
 
     public WebSocket socket;
-
+    public static PersonFireCellManager Instance;
+    private void Awake()
+    {
+        Instance = this; // ✅ Gán thể hiện singleton
+    }
     private void Start()
     {
         if (socket != null && socket.IsAlive)
@@ -45,15 +49,26 @@ public class PersonFireCellManager : MonoBehaviour
                     if (toPlayer == myId)
                     {
                         Debug.Log("[SOCKET] Nhận switch_turn, đến lượt mình!");
-                        StartCoroutine(ShowChangeTurnPanel());
-                        firePanel.SetActive(true);
+
+                        firePanel.SetActive(false); // Ẩn panel cũ trước
+                        StartCoroutine(ShowChangeTurnPanelThenNotifyManager());
                     }
+
                 }
             };
         }
 
         if (winGamePanel != null) winGamePanel.SetActive(false);
         if (loseGamePanel != null) loseGamePanel.SetActive(false);
+    }
+    private IEnumerator ShowChangeTurnPanelThenNotifyManager()
+    {
+        yield return StartCoroutine(PersonShowChangeTurnPanel());
+
+        // ✅ Gọi lại SwitchToPlayerTurn ở WebSocketManager (nếu cần)
+        // Hoặc bật FirePersonPanel ở đây nếu bạn không dùng WebSocketManager nữa
+        FirePersonCellManager.isPlayerTurn = true;
+        FirePersonCellManager.Instance?.UpdatePanelVisibility();
     }
 
     private IEnumerator HandleOpponentFire(FireResult shot)
@@ -102,14 +117,14 @@ public class PersonFireCellManager : MonoBehaviour
             yield break;
         }
 
-        yield return StartCoroutine(ShowChangeTurnPanel());
+        yield return StartCoroutine(PersonShowChangeTurnPanel());
         firePanel.SetActive(true);
     }
 
     private void ShowGameResult1Panel(bool isWin)
     {
         firePanel.SetActive(false);
-        changeTurnPanel.SetActive(false);
+        PersonChangeTurnPanel.SetActive(false);
 
         if (isWin)
         {
@@ -125,16 +140,18 @@ public class PersonFireCellManager : MonoBehaviour
         }
     }
 
-    private IEnumerator ShowChangeTurnPanel()
+    public IEnumerator PersonShowChangeTurnPanel()
     {
-        if (changeTurnPanel != null)
+        if (PersonChangeTurnPanel != null)
         {
-            changeTurnPanel.SetActive(true);
-            changeTurnPanel.transform.localScale = Vector3.zero;
-            LeanTween.scale(changeTurnPanel, Vector3.one, 0.4f).setEaseOutBack();
+            Debug.Log("Person ChangeTurnPanel đã hiển thị");
+
+            PersonChangeTurnPanel.SetActive(true);
+            PersonChangeTurnPanel.transform.localScale = Vector3.zero;
+            LeanTween.scale(PersonChangeTurnPanel, Vector3.one, 0.4f).setEaseOutBack();
 
             yield return new WaitForSeconds(1.2f);
-            changeTurnPanel.SetActive(false);
+            PersonChangeTurnPanel.SetActive(false);
         }
         else
         {

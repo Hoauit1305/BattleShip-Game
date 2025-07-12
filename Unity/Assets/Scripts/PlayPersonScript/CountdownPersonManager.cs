@@ -61,6 +61,9 @@ public class CountdownPersonManager : MonoBehaviour
             // Enable PersonFirePanel
             if (SourcePanel != null) SourcePanel.SetActive(false);
             if (Destination2Panel != null) Destination2Panel.SetActive(true);
+            var showPlayerContainer = FindFirstObjectByType<ShowPlayerPersonContainer>();
+            if (showPlayerContainer != null)
+                showPlayerContainer.RefreshPlayerShips();
         }
     }
 }

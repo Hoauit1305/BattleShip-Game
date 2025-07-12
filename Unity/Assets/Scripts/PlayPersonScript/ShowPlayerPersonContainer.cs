@@ -343,6 +343,17 @@ public class ShowPlayerPersonContainer : MonoBehaviour
         // Load lại tàu từ API
         StartCoroutine(LoadAndShowPlayerShips());
     }
+    public void HideAllShips()
+    {
+        foreach (var ship in placedPlayerShips.Values)
+        {
+            if (ship != null)
+            {
+                Destroy(ship);
+            }
+        }
+        placedPlayerShips.Clear();
+    }
 }
 
 // Cấu trúc dữ liệu cho request
