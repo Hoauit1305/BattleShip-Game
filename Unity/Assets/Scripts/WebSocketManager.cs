@@ -9,11 +9,11 @@ using UnityEngine.Networking;
 using System.Collections.Generic;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+
 public class WebSocketManager : MonoBehaviour
 {
     [SerializeField] private GameObject firePersonPanel;
     [SerializeField] private GameObject personFirePanel;
-
 
     private WebSocket websocket;
     public static WebSocketManager Instance;
@@ -49,11 +49,13 @@ public class WebSocketManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void SetupSceneLoadHook()
     {
         SceneManager.sceneLoaded += OnSceneLoadedStatic;
     }
+
     private static void OnSceneLoadedStatic(Scene scene, LoadSceneMode mode)
     {
         if (scene.name == "PlayPersonScene" && Instance != null)
@@ -61,15 +63,27 @@ public class WebSocketManager : MonoBehaviour
             Instance.LateBindPanels();
         }
     }
+
     private void LateBindPanels()
     {
+        // Tìm panel theo tên GameObject
         firePersonPanel = GameObject.Find("FirePersonPanel");
         personFirePanel = GameObject.Find("PersonFirePanel");
 
         if (firePersonPanel == null || personFirePanel == null)
+        {
             Debug.LogError("❌ Không tìm thấy panel sau khi load scene!");
+            Debug.LogError($"FirePersonPanel: {(firePersonPanel != null ? "✅" : "❌")}");
+            Debug.LogError($"PersonFirePanel: {(personFirePanel != null ? "✅" : "❌")}");
+        }
         else
+        {
             Debug.Log("✅ Gán thành công panel sau khi load scene!");
+
+            // ✅ Ẩn cả 2 panel ngay khi vào scene (đang trong giai đoạn đặt tàu)
+            SetPanelVisible(firePersonPanel, false);
+            SetPanelVisible(personFirePanel, false);
+        }
     }
 
     async void Start()
@@ -82,8 +96,7 @@ public class WebSocketManager : MonoBehaviour
         {
             Debug.Log("✅ WebSocket connected!");
 
-            var registerMsg = new RegisterPayload(playerId); // ✔ truyền đúng tham số
-
+            var registerMsg = new RegisterPayload(playerId);
             string json = JsonUtility.ToJson(registerMsg);
             Debug.Log("📤 Gửi đăng ký WebSocket: " + json);
             websocket.SendText(json);
@@ -114,7 +127,6 @@ public class WebSocketManager : MonoBehaviour
 
                 StartCoroutine(HandleIncomingMessage(senderId));
 
-                // Nếu không phải người đang chat thì hiện dấu chấm than
                 if (ListFriendInstance == null || senderId != ListFriendInstance.CurrentReceiverId)
                 {
                     NotifyController.Instance?.ShowFriendNotify();
@@ -142,21 +154,19 @@ public class WebSocketManager : MonoBehaviour
                 PrefsHelper.SetInt("gameId", gameId);
                 PrefsHelper.SetInt("ownerId", ownerId);
                 PrefsHelper.SetInt("guestId", guestId);
-                PrefsHelper.SetInt("opponentId", opponentId); // 👉 DÒNG QUAN TRỌNG!
+                PrefsHelper.SetInt("opponentId", opponentId);
 
                 UnityEngine.SceneManagement.SceneManager.LoadScene("PlayPersonScene");
             }
             else if (data["type"] == "start_countdown")
             {
                 Debug.Log("⏳ Nhận được tín hiệu start_countdown");
-                // Gọi CountdownManager thực thi
                 CountdownPersonManager countdown = FindFirstObjectByType<CountdownPersonManager>();
                 if (countdown != null)
                 {
                     StartCoroutine(countdown.StartCountdown(() =>
                     {
                         Debug.Log("🎮 Countdown kết thúc, bắt đầu game!");
-                        // Load scene game hoặc enable gameplay ở đây nếu cần
                     }));
                 }
             }
@@ -178,7 +188,6 @@ public class WebSocketManager : MonoBehaviour
 
                 Debug.Log($"📝 Đã lưu gameId = {gameId}, đối thủ = {opponentId}");
 
-                // Vào scene chơi
                 UnityEngine.SceneManagement.SceneManager.LoadScene("PlayPersonScene");
             }
             else if (data["type"] == "fire_result")
@@ -198,10 +207,9 @@ public class WebSocketManager : MonoBehaviour
                 if (toPlayerId == myId)
                 {
                     Debug.Log("🔁 Đến lượt mình!");
-                    StartCoroutine(SwitchPanelThenEnableTurnUI());
+                    StartCoroutine(SwitchToPlayerTurn());
                 }
             }
-
         };
 
         await websocket.Connect();
@@ -414,45 +422,40 @@ public class WebSocketManager : MonoBehaviour
     {
         return PrefsHelper.GetString("isHost") == "true" ? "host" : "guest";
     }
-    private IEnumerator SwitchPanelThenEnableTurnUI()
+
+    /// <summary>
+    /// ✅ Hàm mới: Chuyển sang lượt người chơi khi nhận switch_turn
+    /// </summary>
+    private IEnumerator SwitchToPlayerTurn()
     {
-        // 🔁 Chờ tới khi panel được gán
-        float wait = 0f;
-        while ((firePersonPanel == null || personFirePanel == null) && wait < 5f)
+        // Kiểm tra xem còn đang đặt tàu không
+        GameObject placeShipPanel = GameObject.Find("PlaceShipPanel");
+        if (placeShipPanel != null && placeShipPanel.activeInHierarchy)
         {
-            Debug.Log("⏳ Đang chờ panel được gán trong LateBindPanels...");
-            yield return null;
-            wait += Time.deltaTime;
-        }
-
-        if (personFirePanel != null)
-            SetPanelVisible(personFirePanel, false);
-        else
-        {
-            Debug.LogError("❌ personFirePanel vẫn null sau khi đợi!");
+            Debug.LogWarning("⛔ Đang đặt tàu (PlaceShipPanel active), chưa được chuyển turn.");
             yield break;
         }
 
-        if (firePersonPanel != null)
+        // Đợi panel được gán
+        float waitTime = 0f;
+        while ((firePersonPanel == null || personFirePanel == null) && waitTime < 5f)
         {
-            SetPanelVisible(firePersonPanel, true);
-            Debug.Log("✅ FirePersonPanel đã bật");
+            yield return null;
+            waitTime += Time.deltaTime;
         }
-        else
+
+        if (firePersonPanel == null || personFirePanel == null)
         {
-            Debug.LogError("❌ firePersonPanel vẫn null sau khi đợi!");
+            Debug.LogError("❌ Panel vẫn null sau khi đợi!");
             yield break;
         }
 
-        // Đợi Awake chạy xong
-        yield return null;
-
-        const float TIMEOUT = 10f;
-        float t = 0f;
-        while (FirePersonCellManager.Instance == null && t < TIMEOUT)
+        // Đợi FirePersonCellManager được khởi tạo
+        waitTime = 0f;
+        while (FirePersonCellManager.Instance == null && waitTime < 10f)
         {
             yield return null;
-            t += Time.deltaTime;
+            waitTime += Time.deltaTime;
         }
 
         if (FirePersonCellManager.Instance == null)
@@ -461,25 +464,40 @@ public class WebSocketManager : MonoBehaviour
             yield break;
         }
 
+        // Chuyển lượt
         FirePersonCellManager.isPlayerTurn = true;
+
+        // Hiển thị panel change turn
         FirePersonCellManager.Instance.StartCoroutine(
             FirePersonCellManager.Instance.ShowChangeTurnPanel());
+
+        // Cập nhật panel visibility
         FirePersonCellManager.Instance.UpdatePanelVisibility();
     }
+
+    /// <summary>
+    /// ✅ Hàm cải tiến: Hiển thị/ẩn panel bằng CanvasGroup
+    /// </summary>
     public void SetPanelVisible(GameObject panel, bool visible)
     {
-        if (panel == null) return;
+        if (panel == null)
+        {
+            Debug.LogWarning($"⚠️ Panel null khi SetPanelVisible({visible})");
+            return;
+        }
 
         CanvasGroup cg = panel.GetComponent<CanvasGroup>();
         if (cg == null)
-            cg = panel.AddComponent<CanvasGroup>(); // thêm nếu thiếu
+            cg = panel.AddComponent<CanvasGroup>();
 
         cg.alpha = visible ? 1f : 0f;
         cg.interactable = visible;
         cg.blocksRaycasts = visible;
-    }
 
+        Debug.Log($"[SetPanelVisible] {panel.name} → {(visible ? "Visible" : "Hidden")}");
+    }
 }
+
 [Serializable]
 public class OutgoingMessage
 {

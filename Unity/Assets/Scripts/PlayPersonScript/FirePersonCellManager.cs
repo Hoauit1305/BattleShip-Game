@@ -5,6 +5,7 @@ using UnityEngine.Networking;
 using System.Collections;
 using System.Collections.Generic;
 using SimpleJSON;
+using System.Linq;
 
 public class FirePersonCellManager : MonoBehaviour
 {
@@ -29,9 +30,12 @@ public class FirePersonCellManager : MonoBehaviour
     private Dictionary<string, GameObject> placedShips = new Dictionary<string, GameObject>();
 
     public static GameObject globalDiamond;
-    public static bool isPlayerTurn = true;
+    public static bool isPlayerTurn = false;
     private List<GameObject> frameObjects = new List<GameObject>();
     public Color FrameColor = Color.red;
+
+    // ✅ Thêm flag để kiểm tra xem đã qua giai đoạn đặt tàu chưa
+    private bool isShipPlacementPhase = true;
 
     public static FirePersonCellManager Instance;
 
@@ -39,6 +43,7 @@ public class FirePersonCellManager : MonoBehaviour
     {
         Instance = this;
     }
+
     void Start()
     {
         globalDiamond = diamondObject;
@@ -48,8 +53,51 @@ public class FirePersonCellManager : MonoBehaviour
         if (winGamePanel) winGamePanel.SetActive(false);
         if (loseGamePanel) loseGamePanel.SetActive(false);
 
+        // ✅ Ẩn cả hai panel khi bắt đầu (đang trong giai đoạn đặt tàu)
+        if (fireBotPanel) WebSocketManager.Instance?.SetPanelVisible(fireBotPanel, false);
+        if (botFirePanel) WebSocketManager.Instance?.SetPanelVisible(botFirePanel, false);
+
         // Hoãn phần grid sang coroutine:
         StartCoroutine(LateInit());
+
+        // ✅ Bắt đầu coroutine kiểm tra PlaceShipPanel
+        StartCoroutine(CheckPlaceShipPanelStatus());
+    }
+
+    // ✅ Coroutine kiểm tra trạng thái PlaceShipPanel
+    private IEnumerator CheckPlaceShipPanelStatus()
+    {
+        GameObject placeShipPanel = null;
+
+        // Đợi tìm PlaceShipPanel
+        while (placeShipPanel == null)
+        {
+            placeShipPanel = GameObject.Find("PlaceShipPanel");
+            yield return null;
+        }
+
+        Debug.Log("✅ Tìm thấy PlaceShipPanel, bắt đầu theo dõi...");
+
+        // Theo dõi PlaceShipPanel cho đến khi nó bị tắt
+        while (placeShipPanel != null && placeShipPanel.activeInHierarchy)
+        {
+            yield return null;
+        }
+
+        // PlaceShipPanel đã bị tắt -> kết thúc giai đoạn đặt tàu
+        Debug.Log("✅ PlaceShipPanel đã tắt, kết thúc giai đoạn đặt tàu!");
+        isShipPlacementPhase = false;
+
+        // ➕ Gán lượt chơi đúng dựa vào role
+        int myId = PrefsHelper.GetInt("playerId");
+        int ownerId = PrefsHelper.GetInt("ownerId");
+        int guestId = PrefsHelper.GetInt("guestId");
+
+        FirePersonCellManager.isPlayerTurn = (myId == ownerId);
+        Debug.Log($"👤 {(FirePersonCellManager.isPlayerTurn ? "Owner" : "Guest")} bắt đầu trước – isPlayerTurn = {FirePersonCellManager.isPlayerTurn}");
+
+        // Bây giờ mới được hiển thị panel theo turn
+        UpdatePanelVisibility();
     }
 
     private IEnumerator LateInit()
@@ -62,7 +110,8 @@ public class FirePersonCellManager : MonoBehaviour
             yield return null;   // chưa đủ, tiếp tục chờ
 
         // Giờ thì gắn trigger
-        GameObject[] cells = GameObject.FindGameObjectsWithTag("GridCell");
+        GameObject[] cells = GameObject.FindGameObjectsWithTag("GridCell_Fire");
+
         foreach (GameObject cell in cells)
         {
             if (!cell.TryGetComponent(out GridCellStatusPerson _))
@@ -76,10 +125,9 @@ public class FirePersonCellManager : MonoBehaviour
             AddEventTrigger(trigger, EventTriggerType.PointerClick, _ => OnCellPointerClick(cell));
         }
 
-        UpdatePanelVisibility();
+        // ✅ KHÔNG gọi UpdatePanelVisibility() ở đây nữa
         Debug.Log("✅ FirePersonCellManager LateInit hoàn tất – đã gắn trigger cho " + cells.Length + " ô.");
     }
-
 
     void DisableAllShipPrefabImages()
     {
@@ -100,7 +148,7 @@ public class FirePersonCellManager : MonoBehaviour
 
     void OnCellPointerEnter(GameObject cell)
     {
-        if (!isPlayerTurn) return;
+        if (!isPlayerTurn || isShipPlacementPhase) return; // ✅ Thêm check giai đoạn đặt tàu
         if (cell.GetComponent<GridCellStatusPerson>().isClicked)
             return;
 
@@ -111,13 +159,13 @@ public class FirePersonCellManager : MonoBehaviour
 
     void OnCellPointerExit()
     {
-        if (!isPlayerTurn) return;
+        if (!isPlayerTurn || isShipPlacementPhase) return; // ✅ Thêm check giai đoạn đặt tàu
         globalDiamond.GetComponent<Image>().enabled = false;
     }
 
     void OnCellPointerClick(GameObject cell)
     {
-        if (!isPlayerTurn) return;
+        if (!isPlayerTurn || isShipPlacementPhase) return; // ✅ Thêm check giai đoạn đặt tàu
 
         GridCellStatusPerson status = cell.GetComponent<GridCellStatusPerson>();
         if (status != null && status.isClicked)
@@ -270,6 +318,7 @@ public class FirePersonCellManager : MonoBehaviour
 
             if (shotType == "miss")
             {
+                yield return new WaitForSeconds(0.2f);
                 // Hết lượt mình → ẩn FirePersonPanel, hiện PersonFirePanel
                 WebSocketManager.Instance?.SetPanelVisible(fireBotPanel, false);
                 WebSocketManager.Instance?.SetPanelVisible(botFirePanel, true);
@@ -282,26 +331,52 @@ public class FirePersonCellManager : MonoBehaviour
                 WebSocketManager.Instance?.SetPanelVisible(botFirePanel, false);
                 UpdatePanelVisibility();
             }
-
         }
     }
 
     public void UpdatePanelVisibility()
     {
-        fireBotPanel.SetActive(isPlayerTurn);
-        botFirePanel.SetActive(!isPlayerTurn);
+        // ✅ Chỉ hiển thị panel khi đã qua giai đoạn đặt tàu
+        if (isShipPlacementPhase)
+        {
+            WebSocketManager.Instance?.SetPanelVisible(fireBotPanel, false);
+            WebSocketManager.Instance?.SetPanelVisible(botFirePanel, false);
+            Debug.Log("[UpdatePanelVisibility] Đang trong giai đoạn đặt tàu - ẩn tất cả panel");
+            return;
+        }
+
+        WebSocketManager.Instance?.SetPanelVisible(fireBotPanel, isPlayerTurn);
+        WebSocketManager.Instance?.SetPanelVisible(botFirePanel, !isPlayerTurn);
         changeTurnPanel.SetActive(false);
-        Debug.Log($"Panel visibility updated: FirePersonPanel={(isPlayerTurn ? "Active" : "Inactive")}, PersonFirePanel={(!isPlayerTurn ? "Active" : "Inactive")}");
+
+        Debug.Log($"[CanvasGroup] FirePersonPanel={(isPlayerTurn ? "Visible" : "Hidden")}, PersonFirePanel={(!isPlayerTurn ? "Visible" : "Hidden")}");
     }
 
     public IEnumerator HandleOpponentFire(FireResultPerson shot)
     {
+        if (string.IsNullOrEmpty(shot.position))
+        {
+            // Tự tính lại nếu thiếu
+            char rowChar = (char)('A' + shot.cellY);   // cellY là hàng
+            shot.position = $"{rowChar}{shot.cellX}";
+            Debug.Log($"🛠 Đã tự tính lại position: {shot.position}");
+        }
+
         Debug.Log($"Opponent fired at: {shot.position}, result: {shot.result}");
 
-        GameObject cell = GameObject.Find(shot.position);
+        // Đợi GridCell sinh ra
+        float waitTime = 0f;
+        GameObject[] allCells = null;
+        while ((allCells = GameObject.FindGameObjectsWithTag("GridCell_Person")).Length == 0 && waitTime < 3f)
+        {
+            yield return null;
+            waitTime += Time.deltaTime;
+        }
+
+        GameObject cell = allCells.FirstOrDefault(c => c.name == shot.position);
         if (cell == null)
         {
-            Debug.LogError($"Cell not found: {shot.position}");
+            Debug.LogError($"❌ Cell not found: {shot.position}");
             yield break;
         }
 
@@ -319,7 +394,7 @@ public class FirePersonCellManager : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
         Destroy(rectangle);
 
-        if (shot.SunkShipPerson != null && shot.SunkShipPerson.positions != null && shot.SunkShipPerson.positions.Length > 0)
+        if (shot.SunkShipPerson?.positions != null && shot.SunkShipPerson.positions.Length > 0)
         {
             ShowSunkShipPersonHighlights(shot.SunkShipPerson.positions);
             ShowSunkShipPerson(shot.SunkShipPerson);
@@ -649,6 +724,8 @@ public class FireResultPerson
     public string result;
     public SunkShipPerson SunkShipPerson;
     public GameResultPerson GameResultPerson;
+    public int cellX;
+    public int cellY;
 }
 
 public class GridCellStatusPerson : MonoBehaviour

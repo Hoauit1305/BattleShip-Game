@@ -8,6 +8,8 @@ TagManager:
   - GridCell
   - BotGridCell
   - ShowCell
+  - GridCell_Fire
+  - GridCell_Person
   layers:
   - Default
   - TransparentFX
