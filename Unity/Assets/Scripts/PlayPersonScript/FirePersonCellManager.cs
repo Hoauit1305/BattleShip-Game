@@ -736,9 +736,11 @@ public class FireResultPerson
     public string position;
     public string result;
     public SunkShipPerson SunkShipPerson;
-    public GameResultPerson GameResultPerson;
+    public GameResultPerson gameResult;
     public int cellX;
     public int cellY;
+
+    public GameResultPerson GameResultPerson => gameResult;
 }
 
 public class GridCellStatusPerson : MonoBehaviour
