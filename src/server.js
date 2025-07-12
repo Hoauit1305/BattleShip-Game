@@ -204,12 +204,13 @@ wss.on('connection', (ws, req) => {
                                 opponentId,
                                 cellX,
                                 cellY,
-                                result,        // "hit", "miss", "destroy"
+                                result,
                                 shipId,
                                 isWin
                             } = parsed;
 
-                            const payload = JSON.stringify({
+                            // 👇 Tạo object payload trước
+                            const payloadObj = {
                                 type: 'fire_result',
                                 gameId,
                                 shooterId,
@@ -219,8 +220,18 @@ wss.on('connection', (ws, req) => {
                                 result,
                                 shipId,
                                 isWin
-                            });
+                            };
 
+                            if (isWin === true || isWin === 'true') {
+                                payloadObj.gameResult = {
+                                status: "completed",
+                                winnerId: shooterId
+                                };
+                            }
+
+                            const payload = JSON.stringify(payloadObj);
+
+                            // Gửi cho người bị bắn (opponent)
                             const targetSocket = clients.get(opponentId);
                             if (targetSocket && targetSocket.readyState === WebSocket.OPEN) {
                                 targetSocket.send(payload);
@@ -230,14 +241,14 @@ wss.on('connection', (ws, req) => {
                             // Nếu cần server gửi switch_turn tự động
                             if (result === 'miss') {
                                 const switchPayload = JSON.stringify({
-                                    type: 'switch_turn',
-                                    fromPlayerId: shooterId,
-                                    toPlayerId: opponentId
+                                type: 'switch_turn',
+                                fromPlayerId: shooterId,
+                                toPlayerId: opponentId
                                 });
 
                                 const opponentSocket = clients.get(opponentId);
                                 if (opponentSocket && opponentSocket.readyState === WebSocket.OPEN) {
-                                    opponentSocket.send(switchPayload);
+                                opponentSocket.send(switchPayload);
                                 }
 
                                 console.log(`🔄 Server chuyển lượt: ${shooterId} → ${opponentId}`);
