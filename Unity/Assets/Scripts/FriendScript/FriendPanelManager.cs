@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 using UnityEngine.UI;
 public class OpenFriendPanel : MonoBehaviour
 {
@@ -9,12 +10,33 @@ public class OpenFriendPanel : MonoBehaviour
     public ListFriend listFriendComponent;
     public ListRequest listRequestComponent;
     public GameObject chatPanel;
+    private AudioSource audioSource;
+    private void Awake()
+    {
+        audioSource = GetComponent<AudioSource>(); // ✅ Lấy AudioSource
+    }
+
     public void ClickOpenFriendPanel()
     {
         friendPanel.SetActive(true);
     }
     public void ClickCloseFriendPanel()
     {
+        // ✅ Nếu có tiếng → phát trước rồi mới tắt panel sau 0.1s
+        if (audioSource != null && audioSource.clip != null)
+        {
+            audioSource.Play();
+            StartCoroutine(DelayHideFriendPanel(0.1f)); // ✅ Delay
+        }
+        else
+        {
+            friendPanel.SetActive(false); // Nếu không có tiếng → tắt ngay
+        }
+    }
+
+    private IEnumerator DelayHideFriendPanel(float delay)
+    {
+        yield return new WaitForSeconds(delay);
         friendPanel.SetActive(false);
     }
     public void ClickOpenListFriendPanel()
@@ -45,7 +67,7 @@ public class OpenFriendPanel : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("⚠️ listFriendComponent null");
+            Debug.LogWarning("⚠ listFriendComponent null");
         }
 
         if (listRequestComponent != null)
@@ -54,11 +76,25 @@ public class OpenFriendPanel : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("⚠️ listRequestComponent null");
+            Debug.LogWarning("⚠ listRequestComponent null");
         }
     }
     public void ClickCloseChatPanel()
     {
+        if (audioSource != null && audioSource.clip != null)
+        {
+            audioSource.Play();
+            StartCoroutine(DelayCloseChatPanel(0.1f)); // ⏱ Delay 0.1 giây
+        }
+        else
+        {
+            chatPanel.SetActive(false); // Nếu không có tiếng thì tắt ngay
+        }
+    }
+
+    private IEnumerator DelayCloseChatPanel(float delay)
+    {
+        yield return new WaitForSeconds(delay);
         chatPanel.SetActive(false);
     }
 }
