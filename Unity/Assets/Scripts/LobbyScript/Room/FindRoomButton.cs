@@ -6,6 +6,12 @@ public class FindRoomButton : MonoBehaviour
 {
     public TMP_InputField RoomCodeInputField;
     public SwitchPanelButton switchPanelButton; // Thêm tham chiếu đến SwitchPanelButton
+    private AudioSource audioSource; // ✅ Thêm biến AudioSource
+
+    private void Awake()
+    {
+        audioSource = GetComponent<AudioSource>(); // ✅ Gán AudioSource
+    }
 
     private void Start()
     {
@@ -24,6 +30,12 @@ public class FindRoomButton : MonoBehaviour
 
     public void OnFindRoomClickedButton()
     {
+        // ✅ Phát âm thanh click trước khi tìm phòng
+        if (audioSource != null && audioSource.clip != null && audioSource.enabled)
+        {
+            audioSource.Play();
+        }
+
         string RoomCode = RoomCodeInputField.text;
         RoomManager.Instance.FindRoom(RoomCode);
     }
